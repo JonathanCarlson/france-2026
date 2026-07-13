@@ -1,0 +1,14 @@
+# NEVER commit the plaintext trip data — only the encrypted blob (data/itinerary.enc.json) ships.
+build/itinerary.json
+# Plaintext ticket PDFs/images — only the encrypted data/tickets/*.enc ship.
+build/tickets/
+
+# Secrets
+.env
+*.local
+TRIP_PASSPHRASE*
+
+# Node / OS
+node_modules/
+.DS_Store
+Thumbs.db

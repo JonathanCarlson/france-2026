@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>France &amp; Italy 2026</title>
+  <meta name="description" content="Private offline trip companion" />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="France 2026" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Lock screen -->
+  <section id="lock" class="lock">
+    <div class="lock-card">
+      <div class="lock-flag">🇫🇷 🇮🇹</div>
+      <h1>France &amp; Italy 2026</h1>
+      <p class="muted">Enter the family passphrase to unlock the trip.</p>
+      <form id="unlock-form" autocomplete="off">
+        <input id="passphrase" type="password" inputmode="text" placeholder="Passphrase"
+               autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
+        <label class="remember"><input type="checkbox" id="remember" checked /> Keep me unlocked on this phone</label>
+        <button type="submit" id="unlock-btn">Unlock</button>
+        <p id="lock-error" class="error" hidden></p>
+      </form>
+      <p class="muted tiny">Everything is encrypted. Works offline once loaded. Add to Home Screen for an app icon.</p>
+    </div>
+  </section>
+
+  <!-- App -->
+  <main id="app" hidden>
+    <header class="topbar">
+      <div class="topbar-title">
+        <strong id="trip-title">France &amp; Italy 2026</strong>
+        <span id="trip-dates" class="muted tiny"></span>
+      </div>
+      <button id="lock-btn" class="icon-btn" title="Lock" aria-label="Lock">🔒</button>
+    </header>
+
+    <div id="view" class="view"></div>
+
+    <nav class="tabbar" id="tabbar">
+      <button data-tab="today" class="tab active"><span>📍</span>Today</button>
+      <button data-tab="days" class="tab"><span>🗓️</span>Days</button>
+      <button data-tab="bookings" class="tab"><span>🎫</span>Bookings</button>
+      <button data-tab="contacts" class="tab"><span>📇</span>Contacts</button>
+      <button data-tab="prep" class="tab"><span>🧳</span>Prep</button>
+    </nav>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
