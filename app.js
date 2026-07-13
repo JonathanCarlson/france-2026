@@ -203,6 +203,7 @@ function renderToday() {
     const n = daysBetween(t, start);
     html += `<div class="hero"><div class="sub">Trip starts in</div><div class="countdown">${n} day${n === 1 ? '' : 's'}</div><div class="sub">${esc(DATA.trip.dates)}</div></div>`;
     html += glanceCard();
+    html += preTripBookAheadBlock();
     html += `<div class="section-title">First up</div>` + dayRow(DATA.days[0], false);
     return html;
   }
@@ -451,6 +452,17 @@ function dayBookRemindersBlock(day) {
   return rs.map((t) => `<div class="bookrem">
     <div class="br-h">⏰ Book today: ${esc(t.what)}</div>
     <div class="br-sub">For ${esc(t.date)}${t.bookLead ? ' · ' + esc(t.bookLead) : ''}${t.ref && t.ref !== '—' ? ' · ' + esc(t.ref) : ''}</div>
+    ${t.bookUrl ? `<div class="ia-row" style="margin-top:8px"><a class="ia tkt" href="${esc(t.bookUrl)}" target="_blank" rel="noopener">🔗 Book now</a></div>` : ''}
+  </div>`).join('');
+}
+// Book-ahead items (mandatory advance reservation that sells out, e.g. Borghese).
+// Shown on the pre-trip countdown screen so they're reserved before you leave.
+function preTripBookAheadBlock() {
+  const rs = (DATA.tickets || []).filter((t) => t.bookAhead && t.status !== 'booked');
+  if (!rs.length) return '';
+  return `<div class="section-title">🎟️ Book before you go</div>` + rs.map((t) => `<div class="bookrem">
+    <div class="br-h">📌 ${esc(t.what)}${t.date ? ' — ' + esc(t.date) : ''}</div>
+    ${t.bookNote ? `<div class="br-sub">${esc(t.bookNote)}</div>` : ''}
     ${t.bookUrl ? `<div class="ia-row" style="margin-top:8px"><a class="ia tkt" href="${esc(t.bookUrl)}" target="_blank" rel="noopener">🔗 Book now</a></div>` : ''}
   </div>`).join('');
 }
