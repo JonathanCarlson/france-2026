@@ -146,14 +146,25 @@ function render() {
   else if (TAB === 'prep') v.innerHTML = renderPrep();
 }
 
+function itemActions(it) {
+  const btns = [];
+  const tks = it.tickets || (it.ticket ? [{ label: 'Ticket', file: it.ticket }] : []);
+  for (const a of tks) btns.push(`<button class="ia tkt" data-ticket="${esc(a.file)}" data-mime="application/pdf" data-label="${esc(it.title)}${a.label && a.label !== 'Ticket' ? ' \u2014 ' + esc(a.label) : ''}">\uD83C\uDFAB ${esc(a.label || 'Ticket')}</button>`);
+  if (it.map) btns.push(`<a class="ia" href="${mapLink(it.map)}" target="_blank" rel="noopener">\uD83D\uDCCD Map</a>`);
+  if (it.call) btns.push(`<a class="ia call" href="${telLink(it.call)}">\uD83D\uDCDE Call</a>`);
+  if (it.wa) btns.push(`<a class="ia" href="${waLink(it.wa)}">\uD83D\uDCAC WhatsApp</a>`);
+  if (it.ref) btns.push(`<span class="ia ref" data-copy="${esc(it.ref)}">${esc(it.ref)} \u29C9</span>`);
+  return btns.length ? `<div class="ia-row">${btns.join('')}</div>` : '';
+}
+
 function itemRow(it) {
-  const ref = it.ref ? ` <span class="ref" data-copy="${esc(it.ref)}">${esc(it.ref)} ⧉</span>` : '';
   return `<div class="item">
-    <div class="ic">${esc(it.icon || '•')}</div>
+    <div class="ic">${esc(it.icon || '\u2022')}</div>
     <div class="body">
       ${it.time ? `<div class="t">${esc(it.time)}</div>` : ''}
       <div class="ti">${esc(it.title)}</div>
-      ${it.detail ? `<div class="de">${esc(it.detail)}${ref}</div>` : ref}
+      ${it.detail ? `<div class="de">${esc(it.detail)}</div>` : ''}
+      ${itemActions(it)}
     </div>
   </div>`;
 }
@@ -163,15 +174,22 @@ function ideasBlock(day) {
   return `<div class="ideas"><div class="ideas-h">💡 While you're in the area</div>${day.ideas.map((i) => `<div class="idea"><div class="idea-t">${esc(i.title)}</div><div class="idea-d">${esc(i.detail)}</div></div>`).join('')}</div>`;
 }
 
-function dayCard(day, isToday) {
-  return `<div class="card day-card${isToday ? ' today' : ''}">
-    <div class="dayhead">
-      <div><span class="d">${day.flag || ''} ${esc(fmtDate(day.date))}</span> — <span>${esc(day.title)}</span></div>
-      ${isToday ? '<span class="badge-today">TODAY</span>' : `<span class="c">${esc(day.city)}</span>`}
+function dayTicketCount(day) {
+  return (day.items || []).reduce((n, it) => n + (it.tickets ? it.tickets.length : (it.ticket ? 1 : 0)), 0);
+}
+
+function dayRow(day, isToday) {
+  const tix = dayTicketCount(day);
+  const sub = [esc(day.city)];
+  if (tix) sub.push(`\uD83C\uDFAB ${tix} ticket${tix > 1 ? 's' : ''}`);
+  if (day.dress) sub.push('\uD83D\uDC57 modest');
+  return `<div class="dayrow${isToday ? ' today' : ''}" data-openday="${day.date}">
+    <div class="dr-main">
+      <div class="dr-top"><span class="dr-date">${day.flag || ''} ${esc(fmtDate(day.date))}</span>${isToday ? '<span class="badge-today">TODAY</span>' : ''}</div>
+      <div class="dr-title">${esc(day.title)}</div>
+      <div class="dr-sub muted">${sub.join(' \u00b7 ')}</div>
     </div>
-    <div style="margin-top:8px">${(day.items || []).map(itemRow).join('')}</div>
-    ${ideasBlock(day)}
-    ${day.lodging ? `<div class="kv" style="margin-top:8px"><span class="k">🛏️ Stay</span><span class="v">${esc(day.lodging)}</span></div>` : ''}
+    <div class="dr-caret">\u203A</div>
   </div>`;
 }
 
@@ -185,7 +203,7 @@ function renderToday() {
     const n = daysBetween(t, start);
     html += `<div class="hero"><div class="sub">Trip starts in</div><div class="countdown">${n} day${n === 1 ? '' : 's'}</div><div class="sub">${esc(DATA.trip.dates)}</div></div>`;
     html += glanceCard();
-    html += `<div class="section-title">First up</div>` + dayCard(DATA.days[0], false);
+    html += `<div class="section-title">First up</div>` + dayRow(DATA.days[0], false);
     return html;
   }
   if (t > end) {
@@ -200,7 +218,7 @@ function renderToday() {
       ${current.lodging ? `<div class="kv" style="margin-top:8px"><span class="k">🛏️ Stay</span><span class="v">${esc(current.lodging)}</span></div>` : ''}</div>`;
     if (current.dress) html += dressWarn();
     const idx = DATA.days.indexOf(current);
-    if (DATA.days[idx + 1]) html += `<div class="section-title">Tomorrow</div>` + dayCard(DATA.days[idx + 1], false);
+    if (DATA.days[idx + 1]) html += `<div class="section-title">Tomorrow</div>` + dayRow(DATA.days[idx + 1], false);
   } else {
     html += `<div class="hero"><div class="big">On the trip 🎉</div><div class="sub">No detailed plan for today — enjoy!</div></div>`;
     html += glanceCard();
@@ -216,7 +234,7 @@ function renderDays() {
   const t = todayISO();
   const cities = [...new Set(DATA.days.map((d) => d.city))];
   let html = `<div class="chips">${cities.map((c) => `<span class="chip" data-scroll="${esc(c)}">${esc(c)}</span>`).join('')}</div>`;
-  html += DATA.days.map((d) => `<div id="day-${d.date}">${dayCard(d, d.date === t)}</div>`).join('');
+  html += DATA.days.map((d) => `<div id="day-${d.date}">${dayRow(d, d.date === t)}</div>`).join('');
   return html;
 }
 
@@ -363,6 +381,69 @@ async function showTicket(file, mime, label) {
   }
 }
 
+// ---------- Day detail page ----------
+function hotelForLodging(lodging) {
+  if (!lodging) return null;
+  const base = lodging.split(' (')[0].trim();
+  return DATA.hotels.find((h) => lodging.includes(h.name) || (base && h.name.includes(base))) || null;
+}
+function stayBlock(day) {
+  if (!day.lodging) return '';
+  const hotel = hotelForLodging(day.lodging);
+  const btns = [];
+  if (hotel) {
+    if (hotel.address) btns.push(`<a class="ia" href="${mapLink(hotel.address + ', ' + hotel.city)}" target="_blank" rel="noopener">📍 Map</a>`);
+    if (hotel.phone) btns.push(`<a class="ia call" href="${telLink(hotel.phone)}">📞 Call</a>`);
+    if (hotel.ref && hotel.ref !== '\u2014') btns.push(`<span class="ia ref" data-copy="${esc(hotel.ref)}">${esc(hotel.ref)} ⧉</span>`);
+  }
+  return `<div class="section-title">🛏️ Stay</div><div class="card">
+    <div class="ti">${esc(day.lodging)}</div>
+    ${hotel && hotel.address ? `<div class="de muted">${esc(hotel.address)}</div>` : ''}
+    ${btns.length ? `<div class="ia-row">${btns.join('')}</div>` : ''}
+  </div>`;
+}
+function dayContactsBlock(day) {
+  const cs = (day.contacts || []).map((n) => DATA.contacts.find((c) => c.name === n)).filter(Boolean);
+  if (!cs.length) return '';
+  return `<div class="section-title">📇 Today's contacts</div>` + cs.map((c) => `<div class="card">
+    <div class="dayhead"><div class="d">${esc(c.name)}</div><span class="c">${esc(c.role || '')}</span></div>
+    <div class="ia-row">
+      ${c.phone ? `<a class="ia call" href="${telLink(c.phone)}">📞 Call</a>` : ''}
+      ${c.whatsapp ? `<a class="ia" href="${waLink(c.whatsapp)}">💬 WhatsApp</a>` : ''}
+      ${c.email ? `<a class="ia" href="mailto:${esc(c.email)}">✉️ Email</a>` : ''}
+    </div>
+  </div>`).join('');
+}
+function dayOverlay() {
+  let o = document.getElementById('day-overlay');
+  if (!o) {
+    o = document.createElement('div');
+    o.id = 'day-overlay'; o.className = 'tv'; o.hidden = true;
+    o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body day-detail"></div>`;
+    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.day-detail').innerHTML = ''; });
+    o.querySelector('.day-detail').addEventListener('click', onViewClick);
+    document.body.appendChild(o);
+  }
+  return o;
+}
+function openDay(date) {
+  const day = DATA.days.find((d) => d.date === date);
+  if (!day) return;
+  const o = dayOverlay();
+  o.querySelector('.tv-title').textContent = fmtDate(day.date);
+  const b = o.querySelector('.day-detail');
+  b.innerHTML = `
+    <div class="hero"><div class="sub">${day.flag || ''} ${esc(fmtDate(day.date))} · ${esc(day.city)}</div><div class="big">${esc(day.title)}</div></div>
+    ${day.dress ? dressWarn() : ''}
+    <div class="card">${(day.items || []).map(itemRow).join('') || '<div class="muted">Free day \u2014 enjoy!</div>'}</div>
+    ${ideasBlock(day)}
+    ${day.bring && day.bring.length ? `<div class="section-title">🎒 Bring</div><div class="card">${day.bring.map((x) => `<div class="brow">• ${esc(x)}</div>`).join('')}</div>` : ''}
+    ${stayBlock(day)}
+    ${dayContactsBlock(day)}`;
+  o.hidden = false;
+  b.scrollTop = 0;
+}
+
 // ---------- View interactions ----------
 let toastT = null;
 function toast(msg) {
@@ -394,6 +475,9 @@ function onViewClick(e) {
     navigator.clipboard?.writeText(text).then(() => toast('Copied ' + text)).catch(() => toast(text));
     return;
   }
+  if (e.target.closest('a')) return; // map/call/email/WhatsApp links handle themselves
+  const openday = e.target.closest('[data-openday]');
+  if (openday) { openDay(openday.getAttribute('data-openday')); return; }
   const scroll = e.target.closest('[data-scroll]');
   if (scroll) {
     const city = scroll.getAttribute('data-scroll');
