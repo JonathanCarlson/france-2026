@@ -213,9 +213,11 @@ function renderToday() {
   if (current) {
     html += `<div class="hero"><div class="sub">${current.flag || ''} Today · ${esc(fmtDate(current.date))}</div><div class="big">${esc(current.title)}</div><div class="sub">${esc(current.city)}</div></div>`;
     html += glanceCard();
+    html += dayBookRemindersBlock(current);
     html += `<div class="card">${(current.items || []).map(itemRow).join('') || '<div class="muted">Free day.</div>'}
       ${ideasBlock(current)}
       ${current.lodging ? `<div class="kv" style="margin-top:8px"><span class="k">🛏️ Stay</span><span class="v">${esc(current.lodging)}</span></div>` : ''}</div>`;
+    html += dayToursBlock(current);
     if (current.dress) html += dressWarn();
     const idx = DATA.days.indexOf(current);
     if (DATA.days[idx + 1]) html += `<div class="section-title">Tomorrow</div>` + dayRow(DATA.days[idx + 1], false);
@@ -438,6 +440,85 @@ function dayTicketsBlock(day) {
   }).join('');
   return `<div class="section-title">🎫 Tickets &amp; passes</div><div class="card">${rows}</div>`;
 }
+// Advance-booking reminders — show on the day you must BOOK (ticket.bookBy),
+// not the day of the event. e.g. Notre-Dame (Aug 7) surfaces a reminder Aug 4.
+function bookRemindersForDay(day) {
+  return (DATA.tickets || []).filter((t) => t.bookBy === day.date && t.status !== 'booked');
+}
+function dayBookRemindersBlock(day) {
+  const rs = bookRemindersForDay(day);
+  if (!rs.length) return '';
+  return rs.map((t) => `<div class="bookrem">
+    <div class="br-h">⏰ Book today: ${esc(t.what)}</div>
+    <div class="br-sub">For ${esc(t.date)}${t.bookLead ? ' · ' + esc(t.bookLead) : ''}${t.ref && t.ref !== '—' ? ' · ' + esc(t.ref) : ''}</div>
+    ${t.bookUrl ? `<div class="ia-row" style="margin-top:8px"><a class="ia tkt" href="${esc(t.bookUrl)}" target="_blank" rel="noopener">🔗 Book now</a></div>` : ''}
+  </div>`).join('');
+}
+// Self-guided tours (Rick Steves etc.): a tile on the day → step-by-step view
+// with a full-route Google Maps link + per-stop pings. Written narration is
+// stubbed (textStatus) until the user adds it from the book.
+function toursForDay(day) {
+  return (DATA.tours || []).filter((t) => t.date === day.date);
+}
+function tourRouteUrl(tour) {
+  const pts = (tour.stops || []).map((s) => encodeURIComponent(s.map || s.name));
+  if (pts.length < 2) return '';
+  const origin = pts[0], destination = pts[pts.length - 1];
+  const wp = pts.slice(1, -1).join('%7C');
+  const mode = tour.type === 'boat' ? 'transit' : 'walking';
+  return `https://www.google.com/maps/dir/?api=1&travelmode=${mode}&origin=${origin}&destination=${destination}` + (wp ? `&waypoints=${wp}` : '');
+}
+function dayToursBlock(day) {
+  const ts = toursForDay(day);
+  if (!ts.length) return '';
+  return `<div class="section-title">🎧 Self-guided tours</div>` + ts.map((t) => `<div class="tourtile" data-opentour="${esc(t.id)}">
+    <div class="tt-main">
+      <div class="tt-title">${esc(t.title)}</div>
+      <div class="tt-sub muted">${esc(t.by || '')}${t.duration ? ' · ' + esc(t.duration) : ''}${(t.stops && t.stops.length) ? ' · ' + t.stops.length + ' stops' : ''}</div>
+    </div>
+    <div class="tt-caret">›</div>
+  </div>`).join('');
+}
+function tourOverlay() {
+  let o = document.getElementById('tour-overlay');
+  if (!o) {
+    o = document.createElement('div');
+    o.id = 'tour-overlay'; o.className = 'tv'; o.hidden = true;
+    o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body tour-detail"></div>`;
+    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.tour-detail').innerHTML = ''; });
+    o.querySelector('.tour-detail').addEventListener('click', onViewClick);
+    document.body.appendChild(o);
+  }
+  return o;
+}
+function openTour(id) {
+  const t = (DATA.tours || []).find((x) => x.id === id);
+  if (!t) return;
+  const o = tourOverlay();
+  o.querySelector('.tv-title').textContent = t.title;
+  const b = o.querySelector('.tour-detail');
+  const route = tourRouteUrl(t);
+  const stops = t.stops || [];
+  b.innerHTML = `
+    <div class="hero"><div class="sub">${t.by ? esc(t.by) + ' · ' : ''}${t.type === 'boat' ? '🚤 Boat' : '🚶 Walk'}${t.duration ? ' · ' + esc(t.duration) : ''}</div><div class="big">${esc(t.title)}</div></div>
+    ${t.intro ? `<div class="card"><div class="de">${esc(t.intro)}</div></div>` : ''}
+    ${(t.audio || t.board || route) ? `<div class="card">
+      ${t.audio ? `<div class="kv"><span class="k">🎧 Audio</span><span class="v">${esc(t.audio)}</span></div>` : ''}
+      ${t.board ? `<div class="kv"><span class="k">🚏 Board</span><span class="v">${esc(t.board)}</span></div>` : ''}
+      ${route ? `<div class="ia-row" style="margin-top:10px"><a class="ia tkt" href="${route}" target="_blank" rel="noopener">🗺️ Map the whole route</a></div>` : ''}
+    </div>` : ''}
+    ${stops.length ? `<div class="section-title">Stops</div><div class="card">${stops.map((s, i) => `
+      <div class="tourstop">
+        <div class="ts-head"><span class="ts-num">${i + 1}</span><span class="ts-name">${esc(s.name)}</span></div>
+        ${s.note ? `<div class="tiny" style="color:var(--amber);margin:3px 0 0 34px">${esc(s.note)}</div>` : ''}
+        ${s.text ? `<div class="de" style="margin:4px 0 0 34px">${esc(s.text)}</div>` : ''}
+        ${s.map ? `<div class="ia-row" style="margin-left:34px"><a class="ia" href="${mapLink(s.map)}" target="_blank" rel="noopener">📍 Map</a></div>` : ''}
+      </div>`).join('')}</div>` : ''}
+    ${t.textStatus === 'stub' ? `<div class="warn" style="margin-top:12px">✍️ Step-by-step written notes aren't in the app yet${stops.length ? '' : ' and the stop list still needs adding'}. Snap photos of these pages in your Rick Steves book and send them — I'll drop the notes under each stop so you can leave the book home.</div>` : ''}
+  `;
+  o.hidden = false;
+  b.scrollTop = 0;
+}
 function dayOverlay() {
   let o = document.getElementById('day-overlay');
   if (!o) {
@@ -459,8 +540,10 @@ function openDay(date) {
   b.innerHTML = `
     <div class="hero"><div class="sub">${day.flag || ''} ${esc(fmtDate(day.date))} · ${esc(day.city)}</div><div class="big">${esc(day.title)}</div></div>
     ${day.dress ? dressWarn() : ''}
+    ${dayBookRemindersBlock(day)}
     <div class="card">${(day.items || []).map(itemRow).join('') || '<div class="muted">Free day \u2014 enjoy!</div>'}</div>
     ${dayTicketsBlock(day)}
+    ${dayToursBlock(day)}
     ${ideasBlock(day)}
     ${day.bring && day.bring.length ? `<div class="section-title">🎒 Bring</div><div class="card">${day.bring.map((x) => `<div class="brow">• ${esc(x)}</div>`).join('')}</div>` : ''}
     ${stayBlock(day)}
@@ -503,6 +586,8 @@ function onViewClick(e) {
   if (e.target.closest('a')) return; // map/call/email/WhatsApp links handle themselves
   const openday = e.target.closest('[data-openday]');
   if (openday) { openDay(openday.getAttribute('data-openday')); return; }
+  const opentour = e.target.closest('[data-opentour]');
+  if (opentour) { openTour(opentour.getAttribute('data-opentour')); return; }
   const scroll = e.target.closest('[data-scroll]');
   if (scroll) {
     const city = scroll.getAttribute('data-scroll');

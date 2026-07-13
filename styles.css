@@ -211,6 +211,24 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .tkrow:first-child { border-top: none; padding-top: 0; }
 .tkrow:last-child { padding-bottom: 0; }
 
+/* ---------- Advance-booking reminders (show on the book-by day) ---------- */
+.bookrem { background: #2a2410; border: 1px solid #5a4a1e; border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
+.br-h { font-weight: 700; color: #ffdf9e; }
+.br-sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+/* ---------- Self-guided tour tiles + detail ---------- */
+.tourtile { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #1e2a4d, #241f46); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px; margin-bottom: 10px; cursor: pointer; }
+.tourtile:active { filter: brightness(1.15); }
+.tt-main { flex: 1; min-width: 0; }
+.tt-title { font-weight: 700; }
+.tt-sub { font-size: 12.5px; margin-top: 1px; }
+.tt-caret { color: var(--muted); font-size: 20px; }
+.tour-detail .tourstop { padding: 11px 0; border-top: 1px solid var(--border); }
+.tour-detail .tourstop:first-child { border-top: none; padding-top: 0; }
+.ts-head { display: flex; align-items: center; gap: 10px; }
+.ts-num { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ts-name { font-weight: 600; }
+
 /* ---------- Ticket viewer overlay ---------- */
 .tv {
   position: fixed; inset: 0; z-index: 100; background: #05070f;
