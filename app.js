@@ -403,7 +403,10 @@ function stayBlock(day) {
   </div>`;
 }
 function dayContactsBlock(day) {
-  const cs = (day.contacts || []).map((n) => DATA.contacts.find((c) => c.name === n)).filter(Boolean);
+  const pick = (n) => DATA.contacts.find((c) => c.name === n)
+    || DATA.contacts.find((c) => c.name && (c.name.includes(n) || n.includes(c.name)));
+  const seen = new Set();
+  const cs = (day.contacts || []).map(pick).filter((c) => c && !seen.has(c.name) && seen.add(c.name));
   if (!cs.length) return '';
   return `<div class="section-title">📇 Today's contacts</div>` + cs.map((c) => `<div class="card">
     <div class="dayhead"><div class="d">${esc(c.name)}</div><span class="c">${esc(c.role || '')}</span></div>
@@ -413,6 +416,27 @@ function dayContactsBlock(day) {
       ${c.email ? `<a class="ia" href="mailto:${esc(c.email)}">✉️ Email</a>` : ''}
     </div>
   </div>`).join('');
+}
+// Tickets & passes relevant to THIS day, pulled from the top-level tickets list
+// (matched by date). Gives a prominent, tappable place to reach each day's
+// tickets — view button for ones with an encrypted asset, Book link for todos.
+function dayTicketsBlock(day) {
+  const d = new Date(day.date + 'T12:00:00');
+  const md = d.toLocaleDateString('en-US', { month: 'short' }) + ' ' + d.getDate(); // e.g. "Aug 3"
+  const re = new RegExp('\\b' + md.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+  const items = (DATA.tickets || []).filter((t) => t.date && re.test(t.date));
+  if (!items.length) return '';
+  const rows = items.map((t) => {
+    const assets = (t.assets || []).map((a) => `<button class="ia tkt" data-ticket="${esc(a.file)}" data-mime="${esc(a.mime || 'application/pdf')}" data-label="${esc(t.what)}${a.label && a.label !== 'Ticket' && a.label !== 'Pass' ? ' \u2014 ' + esc(a.label) : ''}">🎫 ${esc(a.label || 'Ticket')}</button>`).join('');
+    const book = t.bookUrl ? `<a class="ia" href="${esc(t.bookUrl)}" target="_blank" rel="noopener">🔗 Book</a>` : '';
+    const pill = `<span class="pill ${t.status === 'booked' ? 'booked' : 'todo'}">${t.status === 'booked' ? 'BOOKED' : 'TO BOOK'}</span>`;
+    return `<div class="tkrow">
+      <div class="dayhead"><div class="d">${esc(t.what)}</div>${pill}</div>
+      ${t.ref && t.ref !== '\u2014' ? `<div class="tiny muted" style="margin:2px 0 6px">${esc(t.ref)}</div>` : ''}
+      ${(assets || book) ? `<div class="ia-row">${assets}${book}</div>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="section-title">🎫 Tickets &amp; passes</div><div class="card">${rows}</div>`;
 }
 function dayOverlay() {
   let o = document.getElementById('day-overlay');
@@ -436,6 +460,7 @@ function openDay(date) {
     <div class="hero"><div class="sub">${day.flag || ''} ${esc(fmtDate(day.date))} · ${esc(day.city)}</div><div class="big">${esc(day.title)}</div></div>
     ${day.dress ? dressWarn() : ''}
     <div class="card">${(day.items || []).map(itemRow).join('') || '<div class="muted">Free day \u2014 enjoy!</div>'}</div>
+    ${dayTicketsBlock(day)}
     ${ideasBlock(day)}
     ${day.bring && day.bring.length ? `<div class="section-title">🎒 Bring</div><div class="card">${day.bring.map((x) => `<div class="brow">• ${esc(x)}</div>`).join('')}</div>` : ''}
     ${stayBlock(day)}

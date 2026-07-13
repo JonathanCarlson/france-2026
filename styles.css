@@ -206,6 +206,11 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .tk-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .act.tkt { border-color: #3b6fd6; background: #16233f; }
 
+/* ---------- Per-day tickets section (day detail) ---------- */
+.tkrow { padding: 10px 0; border-top: 1px solid var(--border); }
+.tkrow:first-child { border-top: none; padding-top: 0; }
+.tkrow:last-child { padding-bottom: 0; }
+
 /* ---------- Ticket viewer overlay ---------- */
 .tv {
   position: fixed; inset: 0; z-index: 100; background: #05070f;

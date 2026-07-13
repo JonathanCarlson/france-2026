@@ -1,6 +1,6 @@
 // Service worker — offline support for the trip PWA.
 // Bump CACHE when you change the app shell so clients pick up new code.
-const CACHE = 'france2026-v5';
+const CACHE = 'france2026-v6';
 const SHELL = [
   './',
   './index.html',
