@@ -63,17 +63,45 @@ full-screen — offline once cached. Reference them from a ticket's `assets` arr
 
 Share the URL + passphrase with parents / emergency contacts — same one-tap access.
 
-## Keeping it updated (daemon integration — planned)
+## Keeping it updated
+
+### Quick publish (one command)
+
+Use the `publish.ps1` helper — it re-encrypts the data + tickets and pushes:
+
+```powershell
+.\publish.ps1                              # prompts for the passphrase, publishes data
+.\publish.ps1 -IncludeCode -Message "..."  # also ship modified app code (app.js, etc.)
+```
+
+It handles the credential override this machine needs (Git Credential Manager is
+pinned to the work account, so the push uses the personal `JonathanCarlson`
+account explicitly). The site redeploys in ~1 min at the live URL.
+
+### Automatic (cos-daemon)
 
 The trip source of truth is the Obsidian vault (`8 - Family/France 2026/`). The
-`cos-daemon` will keep the site current:
+`cos-daemon` keeps the site current via the **`trip-site` skill** +
+**`trip-site-sync` workflow** (`admin-agents/src/daemon/src/workflows/trip-site-sync.ts`):
 
-1. A workflow reads the France-2026 vault notes and (re)generates
-   `build/itinerary.json` in this repo.
-2. Runs `encrypt.mjs` with the passphrase (stored in the daemon's gitignored
-   local config) → `data/itinerary.enc.json`.
-3. Commits + pushes → GitHub Pages redeploys automatically.
-4. Triggered from self-chat ("update the trip site") and/or on a daily schedule.
+1. Reconciles the vault notes into `build/itinerary.json` (incremental — preserves
+   enrichment), validates the JSON.
+2. Runs `encrypt.mjs` + `encrypt-assets.mjs` with the passphrase from the
+   `TRIP_PASSPHRASE` env var.
+3. Commits + pushes the encrypted blobs → GitHub Pages redeploys.
+4. Notifies you on Teams with a summary of what changed.
+
+**Triggers:** say *"update the trip site"* to `cos` (interactive or self-chat), or
+the daemon runs it nightly (5:15 AM) during the trip window.
+
+**To activate the daemon path (one-time):**
+1. `cp admin-agents/.github/config/trip-site-local.md.example` → `trip-site-local.md`, edit paths.
+2. Set the passphrase as a persistent user env var, then restart the daemon:
+   ```powershell
+   [Environment]::SetEnvironmentVariable('TRIP_PASSPHRASE','<family passphrase>','User')
+   ```
+Until both are done, the workflow stays **dormant** (safe no-op).
 
 Because updates only change the encrypted blob, the app just picks up new content
 on next open (network-first for the data file, cache fallback offline).
+
