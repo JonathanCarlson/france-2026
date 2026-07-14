@@ -522,10 +522,10 @@ function openTour(id) {
   b.innerHTML = `
     <div class="hero"><div class="sub">${t.by ? esc(t.by) + ' · ' : ''}${t.type === 'boat' ? '🚤 Boat' : t.type === 'indoor' ? '🏛️ Palace route' : '🚶 Walk'}${t.duration ? ' · ' + esc(t.duration) : ''}</div><div class="big">${esc(t.title)}</div></div>
     ${t.intro ? `<div class="card"><div class="de">${esc(t.intro)}</div></div>` : ''}
-    ${(t.audio || t.board || route) ? `<div class="card">
+    ${(t.audio || t.board || route || t.mapAsset) ? `<div class="card">
       ${t.audio ? `<div class="kv"><span class="k">🎧 Audio</span><span class="v">${esc(t.audio)}</span></div>` : ''}
       ${t.board ? `<div class="kv"><span class="k">🚏 Board</span><span class="v">${esc(t.board)}</span></div>` : ''}
-      ${route ? `<div class="ia-row" style="margin-top:10px"><a class="ia tkt" href="${route}" target="_blank" rel="noopener">🗺️ Map the whole route</a></div>` : ''}
+      ${(t.mapAsset || route) ? `<div class="ia-row" style="margin-top:10px">${t.mapAsset ? `<button class="ia tkt" data-ticket="${esc(t.mapAsset)}" data-mime="image/jpeg" data-label="${esc(t.title)} — map">🗺️ Tour map</button>` : ''}${route ? `<a class="ia tkt" href="${route}" target="_blank" rel="noopener">🧭 Route in Google Maps</a>` : ''}</div>` : ''}
     </div>` : ''}
     ${stops.length ? `<div class="section-title">Stops</div><div class="card">${stops.map((s, i) => `
       <div class="tourstop">
