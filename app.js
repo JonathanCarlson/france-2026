@@ -473,7 +473,7 @@ function toursForDay(day) {
   return (DATA.tours || []).filter((t) => t.date === day.date);
 }
 function tourRouteUrl(tour) {
-  const pts = (tour.stops || []).map((s) => encodeURIComponent(s.map || s.name));
+  const pts = (tour.stops || []).filter((s) => s.map).map((s) => encodeURIComponent(s.map));
   if (pts.length < 2) return '';
   const origin = pts[0], destination = pts[pts.length - 1];
   const wp = pts.slice(1, -1).join('%7C');
@@ -512,7 +512,7 @@ function openTour(id) {
   const route = tourRouteUrl(t);
   const stops = t.stops || [];
   b.innerHTML = `
-    <div class="hero"><div class="sub">${t.by ? esc(t.by) + ' · ' : ''}${t.type === 'boat' ? '🚤 Boat' : '🚶 Walk'}${t.duration ? ' · ' + esc(t.duration) : ''}</div><div class="big">${esc(t.title)}</div></div>
+    <div class="hero"><div class="sub">${t.by ? esc(t.by) + ' · ' : ''}${t.type === 'boat' ? '🚤 Boat' : t.type === 'indoor' ? '🏛️ Palace route' : '🚶 Walk'}${t.duration ? ' · ' + esc(t.duration) : ''}</div><div class="big">${esc(t.title)}</div></div>
     ${t.intro ? `<div class="card"><div class="de">${esc(t.intro)}</div></div>` : ''}
     ${(t.audio || t.board || route) ? `<div class="card">
       ${t.audio ? `<div class="kv"><span class="k">🎧 Audio</span><span class="v">${esc(t.audio)}</span></div>` : ''}
@@ -526,6 +526,7 @@ function openTour(id) {
         ${s.text ? `<div class="de" style="margin:4px 0 0 34px">${esc(s.text)}</div>` : ''}
         ${s.map ? `<div class="ia-row" style="margin-left:34px"><a class="ia" href="${mapLink(s.map)}" target="_blank" rel="noopener">📍 Map</a></div>` : ''}
       </div>`).join('')}</div>` : ''}
+    ${t.outro ? `<div class="card"><div class="de">${esc(t.outro)}</div></div>` : ''}
     ${t.textStatus === 'stub' ? `<div class="warn" style="margin-top:12px">✍️ Step-by-step written notes aren't in the app yet${stops.length ? '' : ' and the stop list still needs adding'}. Snap photos of these pages in your Rick Steves book and send them — I'll drop the notes under each stop so you can leave the book home.</div>` : ''}
   `;
   o.hidden = false;
