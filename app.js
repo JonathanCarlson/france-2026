@@ -383,13 +383,42 @@ async function showTicket(file, mime, label) {
   try {
     const url = await decryptAsset(file, mime || 'application/pdf');
     if ((mime || '').startsWith('image/')) {
-      body.innerHTML = `<img class="tv-img" src="${url}" alt="ticket" />`;
+      body.innerHTML = `<div class="tv-zoom"><img class="tv-img" src="${url}" alt="map" /></div><div class="tv-hint">Tap to zoom · drag to pan</div>`;
+      initZoom(body);
     } else {
       body.innerHTML = `<iframe class="tv-frame" src="${url}"></iframe><a class="tv-open" href="${url}" target="_blank" rel="noopener">Open full screen ↗</a>`;
     }
   } catch (e) {
     body.innerHTML = `<div class="tv-msg">Couldn't load this ticket. If you're offline, open it once while online so it caches.</div>`;
   }
+}
+
+// Tap-to-zoom (fit → 2× → 3.2×, centered on the tap) + drag/scroll to pan.
+function initZoom(scope) {
+  const wrap = scope.querySelector('.tv-zoom');
+  const img = scope.querySelector('.tv-img');
+  const hint = scope.querySelector('.tv-hint');
+  if (!wrap || !img) return;
+  const levels = [1, 2, 3.2];
+  let idx = 0;
+  img.addEventListener('click', (e) => {
+    const r = img.getBoundingClientRect();
+    const fx = r.width ? (e.clientX - r.left) / r.width : 0.5;
+    const fy = r.height ? (e.clientY - r.top) / r.height : 0.5;
+    idx = (idx + 1) % levels.length;
+    const f = levels[idx];
+    img.style.width = (f * 100) + '%';
+    img.classList.toggle('zoomed', f > 1);
+    requestAnimationFrame(() => {
+      if (f > 1) {
+        wrap.scrollLeft = fx * img.offsetWidth - wrap.clientWidth / 2;
+        wrap.scrollTop = fy * img.offsetHeight - wrap.clientHeight / 2;
+      } else {
+        wrap.scrollLeft = 0; wrap.scrollTop = 0;
+      }
+    });
+  });
+  if (hint) setTimeout(() => { hint.style.opacity = '0'; }, 2600);
 }
 
 // ---------- Day detail page ----------
