@@ -75,6 +75,7 @@ function openApp() {
   $('#app').hidden = false;
   $('#trip-title').textContent = DATA.trip.title;
   $('#trip-dates').textContent = DATA.trip.dates;
+  $('#trip-updated').textContent = DATA.trip.updated ? 'Updated ' + fmtUpdated(DATA.trip.updated) : '';
   $('#lock-btn').addEventListener('click', () => { localStorage.removeItem(PASS_KEY); location.reload(); });
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('#view').addEventListener('click', onViewClick);
@@ -129,6 +130,12 @@ function daysBetween(aISO, bISO) {
 function fmtDate(iso) {
   const d = new Date(iso + 'T12:00:00');
   return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function fmtUpdated(val) {
+  if (!val) return '';
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return String(val);
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 // ---------- Link helpers ----------
@@ -339,7 +346,7 @@ function renderPrep() {
     html += `<div class="section-title">📱 Apps to have</div><div class="card"><div class="chips">${DATA.apps.map((a) => `<span class="chip">${esc(a)}</span>`).join('')}</div></div>`;
   }
   html += `<div class="section-title">👥 Travelers</div><div class="card">${DATA.travelers.map((tr) => `<div class="kv"><span class="k">${esc(tr.name)}</span><span class="v">${esc(tr.note)}</span></div>`).join('')}</div>`;
-  html += `<p class="muted tiny" style="text-align:center;margin-top:18px">Updated ${esc(DATA.trip.updated)} · encrypted · offline-ready</p>`;
+  html += `<p class="muted tiny" style="text-align:center;margin-top:18px">Updated ${esc(fmtUpdated(DATA.trip.updated))} · encrypted · offline-ready</p>`;
   return html;
 }
 

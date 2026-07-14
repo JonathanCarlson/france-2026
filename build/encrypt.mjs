@@ -27,6 +27,10 @@ const encoder = new TextEncoder();
 
 const plaintext = readFileSync(join(__dirname, 'itinerary.json'), 'utf8');
 const parsed = JSON.parse(plaintext); // validate
+// Stamp the actual build time so the app can show an accurate "last updated".
+parsed.trip = parsed.trip || {};
+parsed.trip.updated = new Date().toISOString();
+const stamped = JSON.stringify(parsed);
 
 const salt = globalThis.crypto.getRandomValues(new Uint8Array(16));
 const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
@@ -40,7 +44,7 @@ const key = await subtle.deriveKey(
   false,
   ['encrypt'],
 );
-const ctBuf = await subtle.encrypt({ name: 'AES-GCM', iv }, key, encoder.encode(plaintext));
+const ctBuf = await subtle.encrypt({ name: 'AES-GCM', iv }, key, encoder.encode(stamped));
 
 const b64 = (u8) => Buffer.from(u8).toString('base64');
 const payload = {
@@ -49,7 +53,7 @@ const payload = {
   salt: b64(salt),
   iv: b64(iv),
   ct: b64(new Uint8Array(ctBuf)),
-  updated: parsed?.trip?.updated ?? null,
+  updated: parsed.trip.updated,
 };
 mkdirSync(join(ROOT, 'data'), { recursive: true });
 writeFileSync(join(ROOT, 'data', 'itinerary.enc.json'), JSON.stringify(payload));
