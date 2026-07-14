@@ -245,9 +245,8 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .tv-body { flex: 1; position: relative; display: flex; flex-direction: column; }
 .day-detail, .tour-detail, .city-detail { display: block; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 14px calc(28px + var(--safe-bottom)); }
 .tv-frame { flex: 1; width: 100%; border: none; background: #fff; }
-.tv-zoom { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; background: #fff; }
-.tv-img { display: block; width: 100%; height: auto; margin: 0 auto; background: #fff; cursor: zoom-in; }
-.tv-img.zoomed { cursor: zoom-out; }
+.tv-zoom { flex: 1; position: relative; overflow: hidden; background: #fff; touch-action: none; }
+.tv-img { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
 .tv-hint { position: absolute; bottom: calc(12px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.62); color: #fff; font-size: 11px; padding: 5px 12px; border-radius: 20px; pointer-events: none; transition: opacity .6s ease; }
 .tv-open { text-align: center; padding: 13px; background: var(--blue); color: #fff; font-weight: 600; }
 .tv-msg { padding: 30px 20px; text-align: center; color: var(--muted); }

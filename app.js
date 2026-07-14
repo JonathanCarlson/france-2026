@@ -383,7 +383,7 @@ async function showTicket(file, mime, label) {
   try {
     const url = await decryptAsset(file, mime || 'application/pdf');
     if ((mime || '').startsWith('image/')) {
-      body.innerHTML = `<div class="tv-zoom"><img class="tv-img" src="${url}" alt="map" /></div><div class="tv-hint">Tap to zoom · drag to pan</div>`;
+      body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="map" /></div><div class="tv-hint">Pinch or double-tap to zoom · drag to pan</div>`;
       initZoom(body);
     } else {
       body.innerHTML = `<iframe class="tv-frame" src="${url}"></iframe><a class="tv-open" href="${url}" target="_blank" rel="noopener">Open full screen ↗</a>`;
@@ -393,32 +393,81 @@ async function showTicket(file, mime, label) {
   }
 }
 
-// Tap-to-zoom (fit → 2× → 3.2×, centered on the tap) + drag/scroll to pan.
+// Pinch-to-zoom + free pan, fit-to-view on open (touch + mouse/wheel for desktop).
 function initZoom(scope) {
   const wrap = scope.querySelector('.tv-zoom');
   const img = scope.querySelector('.tv-img');
   const hint = scope.querySelector('.tv-hint');
   if (!wrap || !img) return;
-  const levels = [1, 2, 3.2];
-  let idx = 0;
-  img.addEventListener('click', (e) => {
-    const r = img.getBoundingClientRect();
-    const fx = r.width ? (e.clientX - r.left) / r.width : 0.5;
-    const fy = r.height ? (e.clientY - r.top) / r.height : 0.5;
-    idx = (idx + 1) % levels.length;
-    const f = levels[idx];
-    img.style.width = (f * 100) + '%';
-    img.classList.toggle('zoomed', f > 1);
-    requestAnimationFrame(() => {
-      if (f > 1) {
-        wrap.scrollLeft = fx * img.offsetWidth - wrap.clientWidth / 2;
-        wrap.scrollTop = fy * img.offsetHeight - wrap.clientHeight / 2;
-      } else {
-        wrap.scrollLeft = 0; wrap.scrollTop = 0;
-      }
-    });
-  });
-  if (hint) setTimeout(() => { hint.style.opacity = '0'; }, 2600);
+
+  let nw = 0, nh = 0, base = 1, scale = 1, tx = 0, ty = 0;
+  const MAXF = 7;
+
+  function clamp() {
+    const cw = wrap.clientWidth, ch = wrap.clientHeight;
+    const iw = nw * scale, ih = nh * scale;
+    tx = iw <= cw ? (cw - iw) / 2 : Math.min(0, Math.max(cw - iw, tx));
+    ty = ih <= ch ? (ch - ih) / 2 : Math.min(0, Math.max(ch - ih, ty));
+  }
+  function apply() { clamp(); img.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${scale})`; }
+  function fit() {
+    const cw = wrap.clientWidth, ch = wrap.clientHeight;
+    nw = img.naturalWidth; nh = img.naturalHeight;
+    if (!nw || !cw) return;
+    base = Math.min(cw / nw, ch / nh);
+    scale = base; tx = (cw - nw * scale) / 2; ty = (ch - nh * scale) / 2;
+    apply();
+  }
+  function zoomAt(px, py, next) {
+    next = Math.max(base, Math.min(base * MAXF, next));
+    const cx = (px - tx) / scale, cy = (py - ty) / scale;
+    scale = next; tx = px - cx * scale; ty = py - cy * scale; apply();
+  }
+  function rel(cx, cy) { const r = wrap.getBoundingClientRect(); return { x: cx - r.left, y: cy - r.top }; }
+
+  let mode = 0, last = null, startDist = 0, startScale = 1, lastTap = 0;
+  const tdist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) { mode = 1; last = rel(e.touches[0].clientX, e.touches[0].clientY); }
+    else if (e.touches.length === 2) { mode = 2; startDist = tdist(e.touches[0], e.touches[1]); startScale = scale; }
+    e.preventDefault();
+  }, { passive: false });
+  wrap.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      const d = tdist(e.touches[0], e.touches[1]);
+      const m = rel((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+      if (startDist) zoomAt(m.x, m.y, startScale * (d / startDist));
+    } else if (e.touches.length === 1 && mode === 1) {
+      const p = rel(e.touches[0].clientX, e.touches[0].clientY);
+      tx += p.x - last.x; ty += p.y - last.y; last = p; apply();
+    }
+    e.preventDefault();
+  }, { passive: false });
+  wrap.addEventListener('touchend', (e) => {
+    if (e.touches.length >= 1) { mode = e.touches.length === 1 ? 1 : 2; if (e.touches[0]) last = rel(e.touches[0].clientX, e.touches[0].clientY); return; }
+    mode = 0;
+    const now = Date.now();
+    if (now - lastTap < 300 && e.changedTouches.length) {
+      const p = rel(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      zoomAt(p.x, p.y, scale > base * 1.3 ? base : base * 3);
+      lastTap = 0;
+    } else { lastTap = now; }
+    e.preventDefault();
+  }, { passive: false });
+
+  let dragging = false, dLast = null;
+  wrap.addEventListener('mousedown', (e) => { dragging = true; dLast = rel(e.clientX, e.clientY); e.preventDefault(); });
+  wrap.addEventListener('mousemove', (e) => { if (!dragging) return; const p = rel(e.clientX, e.clientY); tx += p.x - dLast.x; ty += p.y - dLast.y; dLast = p; apply(); });
+  wrap.addEventListener('mouseup', () => { dragging = false; });
+  wrap.addEventListener('mouseleave', () => { dragging = false; });
+  wrap.addEventListener('wheel', (e) => { const p = rel(e.clientX, e.clientY); zoomAt(p.x, p.y, scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15)); e.preventDefault(); }, { passive: false });
+  wrap.addEventListener('dblclick', (e) => { const p = rel(e.clientX, e.clientY); zoomAt(p.x, p.y, scale > base * 1.3 ? base : base * 3); e.preventDefault(); });
+
+  wrap.__zoom = { fit, zoomAt, pan: (dx, dy) => { tx += dx; ty += dy; apply(); }, state: () => ({ base: +base.toFixed(4), scale: +scale.toFixed(4), tx: +tx.toFixed(1), ty: +ty.toFixed(1), nw, nh, cw: wrap.clientWidth, ch: wrap.clientHeight }) };
+
+  if (img.complete && img.naturalWidth) fit(); else img.addEventListener('load', fit);
+  if (hint) setTimeout(() => { hint.style.opacity = '0'; }, 2800);
 }
 
 // ---------- Day detail page ----------
