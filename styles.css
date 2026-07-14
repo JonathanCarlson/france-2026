@@ -81,7 +81,7 @@ button {
 /* ---------- Tab bar ---------- */
 .tabbar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-template-columns: repeat(6, 1fr);
   background: rgba(15,21,42,.94); backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
   padding-bottom: var(--safe-bottom);
@@ -89,7 +89,7 @@ button {
 .tab {
   background: none; color: var(--muted);
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 9px 0 8px; font-size: 11px; font-weight: 600;
+  padding: 9px 0 8px; font-size: 10.5px; font-weight: 600;
 }
 .tab span { font-size: 20px; line-height: 1; }
 .tab.active { color: var(--accent); }
@@ -210,6 +210,10 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .tkrow { padding: 10px 0; border-top: 1px solid var(--border); }
 .tkrow:first-child { border-top: none; padding-top: 0; }
 .tkrow:last-child { padding-bottom: 0; }
+
+/* ---------- City guide link (day detail) ---------- */
+.citylink { display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-weight: 600; cursor: pointer; }
+.citylink:active { background: var(--card2); }
 
 /* ---------- Advance-booking reminders (show on the book-by day) ---------- */
 .bookrem { background: #2a2410; border: 1px solid #5a4a1e; border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }

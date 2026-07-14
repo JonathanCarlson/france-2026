@@ -141,6 +141,7 @@ function render() {
   const v = $('#view');
   if (TAB === 'today') v.innerHTML = renderToday();
   else if (TAB === 'days') v.innerHTML = renderDays();
+  else if (TAB === 'cities') v.innerHTML = renderCities();
   else if (TAB === 'bookings') v.innerHTML = renderBookings();
   else if (TAB === 'contacts') v.innerHTML = renderContacts();
   else if (TAB === 'prep') v.innerHTML = renderPrep();
@@ -532,6 +533,67 @@ function openTour(id) {
   o.hidden = false;
   b.scrollTop = 0;
 }
+// City guide hubs: per-city hotel + self-guided tours + practical tips.
+function renderCities() {
+  const cs = DATA.cities || [];
+  if (!cs.length) return '<div class="muted">No city guides yet.</div>';
+  let html = `<div class="section-title">🏙️ City guides</div>`;
+  html += cs.map((c) => {
+    const nTours = (DATA.tours || []).filter((t) => t.city === c.name).length;
+    const bits = [];
+    if (nTours) bits.push(`${nTours} tour${nTours > 1 ? 's' : ''}`);
+    return `<div class="dayrow" data-opencity="${esc(c.name)}">
+      <div class="dr-main">
+        <div class="dr-top"><span class="dr-date">${c.flag || ''} ${esc(c.name)}</span></div>
+        <div class="dr-sub muted">${esc(c.note || '')}${bits.length ? ' · ' + bits.join(' · ') : ''}</div>
+      </div>
+      <div class="dr-caret">›</div>
+    </div>`;
+  }).join('');
+  return html;
+}
+function dayCityLink(day) {
+  const c = (DATA.cities || []).find((x) => day.city && day.city.includes(x.name));
+  if (!c) return '';
+  return `<div class="citylink" data-opencity="${esc(c.name)}"><span>🏙️ ${esc(c.name)} guide — hotel, tours &amp; tips</span><span class="dr-caret">›</span></div>`;
+}
+function cityOverlay() {
+  let o = document.getElementById('city-overlay');
+  if (!o) {
+    o = document.createElement('div');
+    o.id = 'city-overlay'; o.className = 'tv'; o.hidden = true;
+    o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body city-detail"></div>`;
+    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.city-detail').innerHTML = ''; });
+    o.querySelector('.city-detail').addEventListener('click', onViewClick);
+    document.body.appendChild(o);
+  }
+  return o;
+}
+function openCity(name) {
+  const c = (DATA.cities || []).find((x) => x.name === name);
+  if (!c) return;
+  const o = cityOverlay();
+  o.querySelector('.tv-title').textContent = c.name;
+  const b = o.querySelector('.city-detail');
+  const hotels = (DATA.hotels || []).filter((h) => h.city === c.name);
+  const tours = (DATA.tours || []).filter((t) => t.city === c.name);
+  const stayHtml = hotels.map((h) => {
+    const btns = [];
+    if (h.address) btns.push(`<a class="ia" href="${mapLink(h.address + ', ' + h.city)}" target="_blank" rel="noopener">📍 Map</a>`);
+    if (h.phone) btns.push(`<a class="ia call" href="${telLink(h.phone)}">📞 Call</a>`);
+    if (h.ref && h.ref !== '—') btns.push(`<span class="ia ref" data-copy="${esc(h.ref)}">${esc(h.ref)} ⧉</span>`);
+    return `<div class="card"><div class="ti">${esc(h.name)}</div>${h.dates ? `<div class="tiny muted">${esc(h.dates)}</div>` : ''}${h.address ? `<div class="de muted" style="margin-top:2px">${esc(h.address)}</div>` : ''}${btns.length ? `<div class="ia-row">${btns.join('')}</div>` : ''}</div>`;
+  }).join('');
+  const tourHtml = tours.map((t) => `<div class="tourtile" data-opentour="${esc(t.id)}"><div class="tt-main"><div class="tt-title">${esc(t.title)}</div><div class="tt-sub muted">${esc(t.by || '')}${t.duration ? ' · ' + esc(t.duration) : ''}</div></div><div class="tt-caret">›</div></div>`).join('');
+  b.innerHTML = `
+    <div class="hero"><div class="sub">${c.flag || ''} ${esc(c.note || '')}</div><div class="big">${esc(c.name)}</div></div>
+    ${hotels.length ? `<div class="section-title">🛏️ Stay</div>${stayHtml}` : ''}
+    ${tours.length ? `<div class="section-title">🎧 Self-guided tours</div>${tourHtml}` : ''}
+    ${(c.tips && c.tips.length) ? `<div class="section-title">💡 Good to know</div><div class="card">${c.tips.map((t) => `<div class="brow">• ${esc(t)}</div>`).join('')}</div>` : ''}
+  `;
+  o.hidden = false;
+  b.scrollTop = 0;
+}
 function dayOverlay() {
   let o = document.getElementById('day-overlay');
   if (!o) {
@@ -560,7 +622,8 @@ function openDay(date) {
     ${ideasBlock(day)}
     ${day.bring && day.bring.length ? `<div class="section-title">🎒 Bring</div><div class="card">${day.bring.map((x) => `<div class="brow">• ${esc(x)}</div>`).join('')}</div>` : ''}
     ${stayBlock(day)}
-    ${dayContactsBlock(day)}`;
+    ${dayContactsBlock(day)}
+    ${dayCityLink(day)}`;
   o.hidden = false;
   b.scrollTop = 0;
 }
@@ -601,6 +664,8 @@ function onViewClick(e) {
   if (openday) { openDay(openday.getAttribute('data-openday')); return; }
   const opentour = e.target.closest('[data-opentour]');
   if (opentour) { openTour(opentour.getAttribute('data-opentour')); return; }
+  const opencity = e.target.closest('[data-opencity]');
+  if (opencity) { openCity(opencity.getAttribute('data-opencity')); return; }
   const scroll = e.target.closest('[data-scroll]');
   if (scroll) {
     const city = scroll.getAttribute('data-scroll');
