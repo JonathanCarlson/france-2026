@@ -598,7 +598,7 @@ function openTour(id) {
   const route = tourRouteUrl(t);
   const stops = t.stops || [];
   b.innerHTML = `
-    <div class="hero"><div class="sub">${t.by ? esc(t.by) + ' · ' : ''}${t.type === 'boat' ? '🚤 Boat' : t.type === 'indoor' ? '🏛️ Palace route' : '🚶 Walk'}${t.duration ? ' · ' + esc(t.duration) : ''}</div><div class="big">${esc(t.title)}</div></div>
+    <div class="hero"><div class="sub">${t.by ? esc(t.by) + ' · ' : ''}${t.type === 'boat' ? '🚤 Boat' : t.type === 'indoor' ? '🏛️ Indoor' : '🚶 Walk'}${t.duration ? ' · ' + esc(t.duration) : ''}</div><div class="big">${esc(t.title)}</div></div>
     ${t.intro ? `<div class="card"><div class="de">${esc(t.intro)}</div></div>` : ''}
     ${(t.audio || t.board || route || t.mapAsset) ? `<div class="card">
       ${t.audio ? `<div class="kv"><span class="k">🎧 Audio</span><span class="v">${esc(t.audio)}</span></div>` : ''}
