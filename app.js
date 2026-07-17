@@ -81,6 +81,7 @@ function openApp() {
   $('#view').addEventListener('click', onViewClick);
   maybeShowIosHint();
   render();
+  loadWeather();
 }
 
 function maybeShowIosHint() {
@@ -143,6 +144,155 @@ const telLink = (p) => `tel:${String(p).replace(/[^\d+]/g, '')}`;
 const waLink = (p) => `https://wa.me/${String(p).replace(/[^\d]/g, '')}`;
 const mapLink = (q) => `https://maps.google.com/?q=${encodeURIComponent(q)}`;
 
+// ---------- Weather (city-specific daily forecast, refreshes on every online open) ----------
+// Free Open-Meteo API (no key). Fetched once per unique location whenever the app
+// opens online; cached in localStorage so the last-known forecast still shows offline.
+const WX_KEY = 'trip_weather_v1';
+let WEATHER = null;   // { fetchedAt, byDate: { 'YYYY-MM-DD': { loc, code, tmax, tmin, pop } } }
+let OPEN_DAY = null;  // date of the currently-open day overlay (so weather can refresh it)
+
+// Ordered so the FIRST keyword match wins = the city where the daytime is spent
+// (e.g. "Venice → Rome" → Venice; "Lille → Toulouse" → Lille).
+const WX_LOCS = [
+  { k: 'lille', name: 'Lille', lat: 50.6292, lon: 3.0573 },
+  { k: 'belgium', name: 'Bruges', lat: 51.2093, lon: 3.2247 },
+  { k: 'bruges', name: 'Bruges', lat: 51.2093, lon: 3.2247 },
+  { k: 'ghent', name: 'Ghent', lat: 51.0543, lon: 3.7174 },
+  { k: 'carcassonne', name: 'Carcassonne', lat: 43.2130, lon: 2.3491 },
+  { k: 'cathar', name: 'Foix', lat: 42.9660, lon: 1.6058 },
+  { k: 'toulouse', name: 'Toulouse', lat: 43.6045, lon: 1.4442 },
+  { k: 'venice', name: 'Venice', lat: 45.4408, lon: 12.3155 },
+  { k: 'venezia', name: 'Venice', lat: 45.4408, lon: 12.3155 },
+  { k: 'pompeii', name: 'Pompeii', lat: 40.7497, lon: 14.4869 },
+  { k: 'vatican', name: 'Rome', lat: 41.9028, lon: 12.4964 },
+  { k: 'rome', name: 'Rome', lat: 41.9028, lon: 12.4964 },
+  { k: 'paris', name: 'Paris', lat: 48.8566, lon: 2.3522 },
+];
+
+function weatherLocationFor(day) {
+  const c = (day.city || '').toLowerCase();
+  return WX_LOCS.find((l) => c.includes(l.k)) || null;
+}
+
+// WMO weather-code → [emoji, short label].
+function wmo(code) {
+  const m = {
+    0: ['☀️', 'Clear'], 1: ['🌤️', 'Mostly sunny'], 2: ['⛅', 'Partly cloudy'], 3: ['☁️', 'Overcast'],
+    45: ['🌫️', 'Fog'], 48: ['🌫️', 'Freezing fog'],
+    51: ['🌦️', 'Light drizzle'], 53: ['🌦️', 'Drizzle'], 55: ['🌦️', 'Heavy drizzle'],
+    56: ['🌧️', 'Freezing drizzle'], 57: ['🌧️', 'Freezing drizzle'],
+    61: ['🌦️', 'Light rain'], 63: ['🌧️', 'Rain'], 65: ['🌧️', 'Heavy rain'],
+    66: ['🌧️', 'Freezing rain'], 67: ['🌧️', 'Freezing rain'],
+    71: ['🌨️', 'Light snow'], 73: ['🌨️', 'Snow'], 75: ['🌨️', 'Heavy snow'], 77: ['🌨️', 'Snow grains'],
+    80: ['🌦️', 'Showers'], 81: ['🌦️', 'Showers'], 82: ['⛈️', 'Heavy showers'],
+    85: ['🌨️', 'Snow showers'], 86: ['🌨️', 'Snow showers'],
+    95: ['⛈️', 'Thunderstorms'], 96: ['⛈️', 'Thunderstorms'], 99: ['⛈️', 'Hailstorms'],
+  };
+  return m[code] || ['🌡️', ''];
+}
+const cToF = (c) => Math.round(c * 9 / 5 + 32);
+
+async function loadWeather() {
+  // 1) Show cached forecast immediately (works offline).
+  try {
+    const cached = JSON.parse(localStorage.getItem(WX_KEY) || 'null');
+    if (cached && cached.byDate) WEATHER = cached;
+  } catch { /* ignore bad cache */ }
+
+  if (!navigator.onLine) { refreshWeatherViews(); return; }
+
+  // 2) Fetch fresh forecast per unique location, keyed by the dates actually visited.
+  try {
+    const locs = [];
+    const seen = new Set();
+    for (const d of DATA.days) {
+      const l = weatherLocationFor(d);
+      if (l && !seen.has(l.name)) { seen.add(l.name); locs.push(l); }
+    }
+    const byDate = {};
+    await Promise.all(locs.map(async (l) => {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lon}`
+        + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+        + `&timezone=auto&forecast_days=16`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) return;
+      const j = await res.json();
+      const dd = j.daily || {};
+      (dd.time || []).forEach((date, i) => {
+        // Only keep a day's forecast for the location that day is actually spent in.
+        if (!DATA.days.some((day) => day.date === date && weatherLocationFor(day)?.name === l.name)) return;
+        byDate[date] = {
+          loc: l.name,
+          code: dd.weather_code?.[i],
+          tmax: dd.temperature_2m_max?.[i],
+          tmin: dd.temperature_2m_min?.[i],
+          pop: dd.precipitation_probability_max?.[i],
+        };
+      });
+    }));
+    if (Object.keys(byDate).length) {
+      WEATHER = { fetchedAt: Date.now(), byDate };
+      localStorage.setItem(WX_KEY, JSON.stringify(WEATHER));
+    }
+  } catch { /* keep whatever cache we have */ }
+  refreshWeatherViews();
+}
+
+function wxForDay(day) {
+  if (!WEATHER || !WEATHER.byDate) return null;
+  const w = WEATHER.byDate[day.date];
+  if (!w || w.tmax == null) return null;
+  const loc = weatherLocationFor(day);
+  if (loc && w.loc && w.loc !== loc.name) return null; // stale/mismatched cache
+  return w;
+}
+
+function weatherBadge(day) {
+  const w = wxForDay(day);
+  if (!w) return '';
+  const [ic] = wmo(w.code);
+  return `${ic} ${Math.round(w.tmax)}°/${Math.round(w.tmin)}°C`;
+}
+
+function weatherCard(day) {
+  const w = wxForDay(day);
+  if (!w) return '';
+  const [ic, label] = wmo(w.code);
+  const pop = (w.pop != null) ? ` · 💧 ${w.pop}%` : '';
+  return `<div class="wx">
+    <div class="wx-ic">${ic}</div>
+    <div class="wx-body">
+      <div class="wx-temp">${Math.round(w.tmax)}° / ${Math.round(w.tmin)}°C&nbsp; <span class="muted">${cToF(w.tmax)}° / ${cToF(w.tmin)}°F</span></div>
+      <div class="wx-sub">${esc(label)}${label ? ' in ' : ''}${esc(w.loc)}${pop}</div>
+    </div>
+  </div>`;
+}
+
+function refreshWeatherViews() {
+  try {
+    render();
+    if (OPEN_DAY) {
+      const o = document.getElementById('day-overlay');
+      if (o && !o.hidden) openDay(OPEN_DAY);
+    }
+  } catch { /* non-fatal */ }
+}
+
+// ---------- Per-day alerts (border / EES / disruptions) ----------
+function alertsBlock(day) {
+  if (!day.alerts || !day.alerts.length) return '';
+  return day.alerts.map((a) => {
+    const lvl = a.level === 'red' ? 'red' : a.level === 'info' ? 'info' : 'amber';
+    return `<div class="alert ${lvl}">
+      <div class="alert-h">${esc(a.icon || '⚠️')} ${esc(a.title)}</div>
+      <div>${esc(a.text)}</div>
+    </div>`;
+  }).join('');
+}
+function dayHasBorderAlert(day) {
+  return (day.alerts || []).some((a) => a.level === 'red' || a.level === 'amber');
+}
+
 // ---------- Render ----------
 function render() {
   const v = $('#view');
@@ -191,6 +341,9 @@ function dayRow(day, isToday) {
   const sub = [esc(day.city)];
   if (tix) sub.push(`\uD83C\uDFAB ${tix} ticket${tix > 1 ? 's' : ''}`);
   if (day.dress) sub.push('\uD83D\uDC57 modest');
+  const wx = weatherBadge(day);
+  if (wx) sub.push(wx);
+  if (dayHasBorderAlert(day)) sub.push('\uD83D\uDEC2 border check');
   return `<div class="dayrow${isToday ? ' today' : ''}" data-openday="${day.date}">
     <div class="dr-main">
       <div class="dr-top"><span class="dr-date">${day.flag || ''} ${esc(fmtDate(day.date))}</span>${isToday ? '<span class="badge-today">TODAY</span>' : ''}</div>
@@ -221,6 +374,8 @@ function renderToday() {
   }
   if (current) {
     html += `<div class="hero"><div class="sub">${current.flag || ''} Today · ${esc(fmtDate(current.date))}</div><div class="big">${esc(current.title)}</div><div class="sub">${esc(current.city)}</div></div>`;
+    html += alertsBlock(current);
+    html += weatherCard(current);
     html += glanceCard();
     html += dayBookRemindersBlock(current);
     html += `<div class="card">${(current.items || []).map(itemRow).join('') || '<div class="muted">Free day.</div>'}
@@ -685,7 +840,7 @@ function dayOverlay() {
     o = document.createElement('div');
     o.id = 'day-overlay'; o.className = 'tv'; o.hidden = true;
     o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body day-detail"></div>`;
-    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.day-detail').innerHTML = ''; });
+    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.day-detail').innerHTML = ''; OPEN_DAY = null; });
     o.querySelector('.day-detail').addEventListener('click', onViewClick);
     document.body.appendChild(o);
   }
@@ -694,11 +849,14 @@ function dayOverlay() {
 function openDay(date) {
   const day = DATA.days.find((d) => d.date === date);
   if (!day) return;
+  OPEN_DAY = date;
   const o = dayOverlay();
   o.querySelector('.tv-title').textContent = fmtDate(day.date);
   const b = o.querySelector('.day-detail');
   b.innerHTML = `
     <div class="hero"><div class="sub">${day.flag || ''} ${esc(fmtDate(day.date))} · ${esc(day.city)}</div><div class="big">${esc(day.title)}</div></div>
+    ${alertsBlock(day)}
+    ${weatherCard(day)}
     ${day.dress ? dressWarn() : ''}
     ${dayBookRemindersBlock(day)}
     <div class="card">${(day.items || []).map(itemRow).join('') || '<div class="muted">Free day \u2014 enjoy!</div>'}</div>
