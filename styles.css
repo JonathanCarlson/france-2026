@@ -189,6 +189,7 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .wx-temp { font-weight: 700; font-size: 15.5px; }
 .wx-temp .muted { font-weight: 600; font-size: 13.5px; }
 .wx-sub { color: var(--muted); font-size: 13px; margin-top: 1px; }
+.wx-c { font-size: 11px; opacity: .75; }
 
 /* ---------- Per-day alerts (EES / border / disruptions) ---------- */
 .alert { border-radius: 13px; padding: 11px 13px; margin-bottom: 12px; font-size: 14px; line-height: 1.42; }

@@ -251,7 +251,7 @@ function weatherBadge(day) {
   const w = wxForDay(day);
   if (!w) return '';
   const [ic] = wmo(w.code);
-  return `${ic} ${Math.round(w.tmax)}°/${Math.round(w.tmin)}°C`;
+  return `${ic} ${cToF(w.tmax)}°/${cToF(w.tmin)}°F <span class="wx-c">${Math.round(w.tmax)}°/${Math.round(w.tmin)}°C</span>`;
 }
 
 function weatherCard(day) {
@@ -262,7 +262,7 @@ function weatherCard(day) {
   return `<div class="wx">
     <div class="wx-ic">${ic}</div>
     <div class="wx-body">
-      <div class="wx-temp">${Math.round(w.tmax)}° / ${Math.round(w.tmin)}°C&nbsp; <span class="muted">${cToF(w.tmax)}° / ${cToF(w.tmin)}°F</span></div>
+      <div class="wx-temp">${cToF(w.tmax)}° / ${cToF(w.tmin)}°F&nbsp; <span class="muted">${Math.round(w.tmax)}° / ${Math.round(w.tmin)}°C</span></div>
       <div class="wx-sub">${esc(label)}${label ? ' in ' : ''}${esc(w.loc)}${pop}</div>
     </div>
   </div>`;
