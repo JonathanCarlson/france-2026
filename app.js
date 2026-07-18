@@ -557,13 +557,66 @@ async function decryptAsset(file, mime) {
   return URL.createObjectURL(new Blob([pt], { type: mime }));
 }
 
+// ---------- Overlay stack (nested-overlay stacking + device Back) ----------
+// Every detail view (ticket / tour / city / day) shares `.tv { z-index:100 }`,
+// so which one paints on top was decided by DOM insertion order (i.e. the order
+// overlays were first lazily created this session), NOT by which one was opened
+// last. So a ticket or tour-map opened from *inside* a day/city/tour overlay
+// that happened to be created earlier rendered BEHIND its parent — the tap
+// looked like it "did nothing," and the overlay only became visible after the
+// parent was dismissed (the "hit back and it shows up" symptom). Fix:
+//   (a) on every fresh open, bump z-index + move to end of <body> so the
+//       just-opened overlay is always on top, and
+//   (b) push a history entry per open so the device/browser Back button closes
+//       the top overlay instead of leaving the app.
+let TOP_Z = 100;
+const OVERLAY_STACK = [];
+
+// Show an overlay on top of everything. `onClose` runs when it's dismissed
+// (used to clear the overlay's body / reset state). Idempotent: re-showing an
+// already-open overlay (e.g. the day overlay re-rendering on weather load) does
+// NOT re-stack, re-order, or push a duplicate history entry.
+function showOverlay(o, onClose) {
+  o._onClose = onClose || o._onClose || null;
+  if (!OVERLAY_STACK.includes(o)) {
+    o.style.zIndex = String(++TOP_Z);
+    document.body.appendChild(o);
+    OVERLAY_STACK.push(o);
+    try { history.pushState({ overlay: o.id }, ''); } catch { /* history unavailable */ }
+  }
+  o.hidden = false;
+}
+
+// Hide the top overlay (called by popstate — i.e. the device Back button/gesture).
+function hideTopOverlay() {
+  const o = OVERLAY_STACK.pop();
+  if (!o) return;
+  o.hidden = true;
+  if (typeof o._onClose === 'function') o._onClose(o);
+}
+
+// An in-app ✕ / ‹ Back button was tapped. Unwind one history entry so the
+// history stack stays in sync with the overlay stack; popstate does the hide.
+function dismissOverlay(o) {
+  if (OVERLAY_STACK[OVERLAY_STACK.length - 1] === o) {
+    history.back();
+  } else {
+    const i = OVERLAY_STACK.indexOf(o);
+    if (i >= 0) OVERLAY_STACK.splice(i, 1);
+    o.hidden = true;
+    if (typeof o._onClose === 'function') o._onClose(o);
+  }
+}
+
+window.addEventListener('popstate', () => { if (OVERLAY_STACK.length) hideTopOverlay(); });
+
 function ticketOverlay() {
   let o = document.getElementById('ticket-overlay');
   if (!o) {
     o = document.createElement('div');
     o.id = 'ticket-overlay'; o.className = 'tv'; o.hidden = true;
     o.innerHTML = `<div class="tv-bar"><span class="tv-title"></span><button class="tv-close" aria-label="Close">✕</button></div><div class="tv-body"></div>`;
-    o.querySelector('.tv-close').addEventListener('click', () => { o.hidden = true; o.querySelector('.tv-body').innerHTML = ''; });
+    o.querySelector('.tv-close').addEventListener('click', () => dismissOverlay(o));
     document.body.appendChild(o);
   }
   return o;
@@ -574,7 +627,7 @@ async function showTicket(file, mime, label) {
   o.querySelector('.tv-title').textContent = label || 'Ticket';
   const body = o.querySelector('.tv-body');
   body.innerHTML = '<div class="tv-msg">Decrypting…</div>';
-  o.hidden = false;
+  showOverlay(o, () => { o.querySelector('.tv-body').innerHTML = ''; });
   try {
     const url = await decryptAsset(file, mime || 'application/pdf');
     if ((mime || '').startsWith('image/')) {
@@ -790,7 +843,7 @@ function tourOverlay() {
     o = document.createElement('div');
     o.id = 'tour-overlay'; o.className = 'tv'; o.hidden = true;
     o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body tour-detail"></div>`;
-    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.tour-detail').innerHTML = ''; });
+    o.querySelector('.tv-back').addEventListener('click', () => dismissOverlay(o));
     o.querySelector('.tour-detail').addEventListener('click', onViewClick);
     document.body.appendChild(o);
   }
@@ -822,7 +875,7 @@ function openTour(id) {
     ${t.outro ? `<div class="card"><div class="de">${esc(t.outro)}</div></div>` : ''}
     ${t.textStatus === 'stub' ? `<div class="warn" style="margin-top:12px">✍️ Step-by-step written notes aren't in the app yet${stops.length ? '' : ' and the stop list still needs adding'}. Snap photos of these pages in your Rick Steves book and send them — I'll drop the notes under each stop so you can leave the book home.</div>` : ''}
   `;
-  o.hidden = false;
+  showOverlay(o, () => { o.querySelector('.tour-detail').innerHTML = ''; });
   b.scrollTop = 0;
 }
 // City guide hubs: per-city hotel + self-guided tours + practical tips.
@@ -855,7 +908,7 @@ function cityOverlay() {
     o = document.createElement('div');
     o.id = 'city-overlay'; o.className = 'tv'; o.hidden = true;
     o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body city-detail"></div>`;
-    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.city-detail').innerHTML = ''; });
+    o.querySelector('.tv-back').addEventListener('click', () => dismissOverlay(o));
     o.querySelector('.city-detail').addEventListener('click', onViewClick);
     document.body.appendChild(o);
   }
@@ -883,7 +936,7 @@ function openCity(name) {
     ${tours.length ? `<div class="section-title">🎧 Self-guided tours</div>${tourHtml}` : ''}
     ${(c.tips && c.tips.length) ? `<div class="section-title">💡 Good to know</div><div class="card">${c.tips.map((t) => `<div class="brow">• ${esc(t)}</div>`).join('')}</div>` : ''}
   `;
-  o.hidden = false;
+  showOverlay(o, () => { o.querySelector('.city-detail').innerHTML = ''; });
   b.scrollTop = 0;
 }
 function dayOverlay() {
@@ -892,7 +945,7 @@ function dayOverlay() {
     o = document.createElement('div');
     o.id = 'day-overlay'; o.className = 'tv'; o.hidden = true;
     o.innerHTML = `<div class="tv-bar"><button class="tv-back">‹ Back</button><span class="tv-title"></span><span style="width:64px"></span></div><div class="tv-body day-detail"></div>`;
-    o.querySelector('.tv-back').addEventListener('click', () => { o.hidden = true; o.querySelector('.day-detail').innerHTML = ''; OPEN_DAY = null; });
+    o.querySelector('.tv-back').addEventListener('click', () => dismissOverlay(o));
     o.querySelector('.day-detail').addEventListener('click', onViewClick);
     document.body.appendChild(o);
   }
@@ -919,7 +972,7 @@ function openDay(date) {
     ${stayBlock(day)}
     ${dayContactsBlock(day)}
     ${dayCityLink(day)}`;
-  o.hidden = false;
+  showOverlay(o, () => { o.querySelector('.day-detail').innerHTML = ''; OPEN_DAY = null; });
   b.scrollTop = 0;
 }
 
