@@ -127,6 +127,8 @@ button {
   box-shadow: 0 10px 30px rgba(0,0,0,.5);
 }
 .ios-hint button { background: none; color: var(--muted); font-size: 15px; padding: 4px 6px; }
+.ios-hint span { flex: 1; }
+.ios-hint .hint-action { background: var(--blue); color: #fff; font-weight: 600; font-size: 13.5px; padding: 7px 14px; border-radius: 10px; flex: none; }
 
 /* timeline items */
 .item { display: flex; gap: 12px; padding: 11px 0; border-top: 1px solid var(--border); }
@@ -269,6 +271,13 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .tv-hint { position: absolute; bottom: calc(12px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.62); color: #fff; font-size: 11px; padding: 5px 12px; border-radius: 20px; pointer-events: none; transition: opacity .6s ease; }
 .tv-open { text-align: center; padding: 13px; background: var(--blue); color: #fff; font-weight: 600; }
 .tv-msg { padding: 30px 20px; text-align: center; color: var(--muted); }
+/* Android PDF fallback (Android can't render a PDF inside an iframe) */
+.tv-pdf { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 40px 24px calc(40px + var(--safe-bottom)); text-align: center; }
+.tv-pdf-icon { font-size: 54px; }
+.tv-pdf-title { font-weight: 600; font-size: 17px; }
+.tv-pdf-hint { color: var(--muted); font-size: 13.5px; max-width: 280px; }
+.tv-pdf-open { display: inline-block; background: var(--blue); color: #fff; font-weight: 600; padding: 13px 26px; border-radius: 12px; font-size: 16px; }
+.tv-pdf-dl { color: var(--accent); font-size: 14px; }
 
 /* ---------- Inline item actions ---------- */
 .ia-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }

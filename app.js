@@ -5,6 +5,19 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
+// ---------- Platform / install ----------
+const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const IS_ANDROID = /android/i.test(navigator.userAgent);
+// Chrome/Edge/Samsung on Android fire this when the PWA is installable. Capture it
+// so we can offer a one-tap "Install" button (iOS has no such API — manual hint).
+let DEFERRED_INSTALL = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  DEFERRED_INSTALL = e;
+  const app = document.getElementById('app');
+  if (app && !app.hidden) { document.querySelector('.ios-hint')?.remove(); maybeShowInstallHint(); }
+});
+
 // ---------- Crypto ----------
 const b64ToU8 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 
@@ -79,19 +92,46 @@ function openApp() {
   $('#lock-btn').addEventListener('click', () => { localStorage.removeItem(PASS_KEY); location.reload(); });
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('#view').addEventListener('click', onViewClick);
-  maybeShowIosHint();
+  maybeShowInstallHint();
   render();
   loadWeather();
 }
 
-function maybeShowIosHint() {
-  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+// Prompt the user to install the PWA to their home screen. iOS has no install API,
+// so it gets a manual Share→Add-to-Home-Screen tip; Android/Chrome gets a one-tap
+// Install button when available, falling back to a manual ⋮-menu tip.
+function maybeShowInstallHint() {
   const standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-  if (!isIos || standalone || localStorage.getItem('ios_hint_dismissed')) return;
+  if (standalone) return; // already installed
+  const dismissed = localStorage.getItem('install_hint_dismissed') || localStorage.getItem('ios_hint_dismissed');
+  if (dismissed) return;
+  if (IS_IOS) {
+    showInstallBar('Tip: tap <b>Share</b> then <b>Add to Home Screen</b> to install &amp; use offline.');
+  } else if (IS_ANDROID) {
+    if (DEFERRED_INSTALL) {
+      showInstallBar('Install this trip as an app for a home-screen icon &amp; offline use.', {
+        label: 'Install',
+        onAction: async () => {
+          const e = DEFERRED_INSTALL; DEFERRED_INSTALL = null;
+          try { e.prompt(); await e.userChoice; } catch (_) { /* dismissed */ }
+        },
+      });
+    } else {
+      showInstallBar('Tip: tap the <b>⋮</b> menu then <b>Add to Home screen</b> to install &amp; use offline.');
+    }
+  }
+}
+
+function showInstallBar(html, opts) {
+  if (document.querySelector('.ios-hint')) return;
   const b = document.createElement('div');
   b.className = 'ios-hint';
-  b.innerHTML = `<span>Tip: tap <b>Share</b> then <b>Add to Home Screen</b> to install &amp; use offline.</span><button aria-label="Dismiss">✕</button>`;
-  b.querySelector('button').addEventListener('click', () => { b.remove(); localStorage.setItem('ios_hint_dismissed', '1'); });
+  let inner = `<span>${html}</span>`;
+  if (opts && opts.label) inner += `<button class="hint-action">${esc(opts.label)}</button>`;
+  inner += `<button class="hint-dismiss" aria-label="Dismiss">✕</button>`;
+  b.innerHTML = inner;
+  if (opts && opts.onAction) b.querySelector('.hint-action').addEventListener('click', () => { b.remove(); opts.onAction(); });
+  b.querySelector('.hint-dismiss').addEventListener('click', () => { b.remove(); localStorage.setItem('install_hint_dismissed', '1'); });
   document.body.appendChild(b);
 }
 
@@ -540,6 +580,18 @@ async function showTicket(file, mime, label) {
     if ((mime || '').startsWith('image/')) {
       body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="map" /></div><div class="tv-hint">Pinch or double-tap to zoom · drag to pan</div>`;
       initZoom(body);
+    } else if (IS_ANDROID) {
+      // Android Chrome/WebView renders PDFs fine as a top-level page but shows a
+      // BLANK box inside an <iframe>. Open the decrypted blob in a new tab (lands
+      // in Chrome's built-in PDF viewer) and offer a download as a fallback.
+      const dl = String(label || 'ticket').replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'ticket';
+      body.innerHTML = `<div class="tv-pdf">
+        <div class="tv-pdf-icon">🎫</div>
+        <div class="tv-pdf-title">${esc(label || 'Ticket')}</div>
+        <div class="tv-pdf-hint">Tap to open your ticket full-screen in the PDF viewer.</div>
+        <a class="tv-pdf-open" href="${url}" target="_blank" rel="noopener">Open ticket ↗</a>
+        <a class="tv-pdf-dl" href="${url}" download="${dl}.pdf">Download PDF</a>
+      </div>`;
     } else {
       body.innerHTML = `<iframe class="tv-frame" src="${url}"></iframe><a class="tv-open" href="${url}" target="_blank" rel="noopener">Open full screen ↗</a>`;
     }
