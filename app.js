@@ -538,7 +538,17 @@ function renderPrep() {
     html += `<div class="section-title">💡 Tips</div><div class="card"><ul class="tips">${DATA.tips.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></div>`;
   }
   if (DATA.apps) {
-    html += `<div class="section-title">📱 Apps to have</div><div class="card"><div class="chips">${DATA.apps.map((a) => `<span class="chip">${esc(a)}</span>`).join('')}</div></div>`;
+    const appChips = DATA.apps.map((a) => {
+      const name = typeof a === 'string' ? a : a.name;
+      const url = typeof a === 'string' ? null : a.url;
+      return url
+        ? `<a class="chip chip-app" href="${esc(url)}" target="_blank" rel="noopener">${esc(name)} <span class="chip-go">↗</span></a>`
+        : `<span class="chip">${esc(name)}</span>`;
+    }).join('');
+    const anyLinked = DATA.apps.some((a) => a && typeof a === 'object' && a.url);
+    html += `<div class="section-title">📱 Apps to have</div><div class="card"><div class="chips">${appChips}</div>`
+      + (anyLinked ? `<div class="tiny muted" style="margin-top:6px">Tap to open the app. If it lands on a web page instead, tap once more from Safari — iOS limits launching apps straight from an installed web app.</div>` : '')
+      + `</div>`;
   }
   html += `<div class="section-title">👥 Travelers</div><div class="card">${DATA.travelers.map((tr) => `<div class="kv"><span class="k">${esc(tr.name)}</span><span class="v">${esc(tr.note)}</span></div>`).join('')}</div>`;
   html += `<p class="muted tiny" style="text-align:center;margin-top:18px">Updated ${esc(fmtUpdated(DATA.trip.updated))} · encrypted · offline-ready</p>`;
