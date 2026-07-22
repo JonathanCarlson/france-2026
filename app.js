@@ -89,12 +89,44 @@ function openApp() {
   $('#trip-title').textContent = DATA.trip.title;
   $('#trip-dates').textContent = DATA.trip.dates;
   $('#trip-updated').textContent = DATA.trip.updated ? 'Updated ' + fmtUpdated(DATA.trip.updated) : '';
+  $('#share-btn').addEventListener('click', onShare);
   $('#lock-btn').addEventListener('click', () => { localStorage.removeItem(PASS_KEY); location.reload(); });
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('#view').addEventListener('click', onViewClick);
   maybeShowInstallHint();
   render();
   loadWeather();
+}
+
+async function onShare() {
+  const url = window.location.href;
+  const title = DATA.trip.title;
+  const text = `Join me on the trip: ${title}`;
+  
+  // Try native share API first (iOS, Android)
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return;
+    } catch (e) {
+      if (e.name !== 'AbortError') console.error('Share failed:', e);
+    }
+  }
+  
+  // Fallback: copy to clipboard
+  try {
+    await navigator.clipboard.writeText(url);
+    showInstallBar('✓ Link copied to clipboard', { 
+      onAction: () => {},
+    });
+    const btn = $('#share-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  } catch (e) {
+    console.error('Copy to clipboard failed:', e);
+    alert('Could not copy link. Please copy manually: ' + url);
+  }
 }
 
 // Prompt the user to install the PWA to their home screen. iOS has no install API,
@@ -1012,6 +1044,23 @@ function toast(msg) {
   if (!el) { el = document.createElement('div'); el.id = 'toast'; el.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom));background:#0f1830;border:1px solid #2a355c;color:#eef2ff;padding:10px 16px;border-radius:12px;z-index:50;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.5)'; document.body.appendChild(el); }
   el.textContent = msg; el.style.opacity = '1';
   clearTimeout(toastT); toastT = setTimeout(() => { el.style.opacity = '0'; }, 1400);
+}
+
+// Share the app link via the native share sheet (iOS/Android), falling back to
+// copying the URL to the clipboard on desktop. Uses the clean origin+path so no
+// passphrase or in-app hash is ever included.
+function shareLink() {
+  const url = location.origin + location.pathname;
+  const title = (DATA && DATA.trip && DATA.trip.title) || document.title;
+  if (navigator.share) {
+    navigator.share({ title, text: title, url }).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => toast('Link copied')).catch(() => toast(url));
+    return;
+  }
+  toast(url);
 }
 
 function onViewClick(e) {

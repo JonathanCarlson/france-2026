@@ -74,6 +74,7 @@ button {
 }
 .topbar-title { display: flex; flex-direction: column; line-height: 1.2; }
 .topbar-title strong { font-size: 16px; }
+.topbar-actions { display: flex; gap: 8px; }
 .icon-btn { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 16px; color: var(--text); }
 
 .view { flex: 1; padding: 14px 14px calc(90px + var(--safe-bottom)); }

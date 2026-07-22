@@ -38,25 +38,28 @@
 
   <!-- App -->
   <main id="app" hidden>
-    <header class="topbar">
-      <div class="topbar-title">
-        <strong id="trip-title">France &amp; Italy 2026</strong>
-        <span id="trip-dates" class="muted tiny"></span>
-        <span id="trip-updated" class="muted tiny"></span>
-      </div>
-      <button id="lock-btn" class="icon-btn" title="Lock" aria-label="Lock">🔒</button>
-    </header>
+   <header class="topbar">
+     <div class="topbar-title">
+       <strong id="trip-title">France &amp; Italy 2026</strong>
+       <span id="trip-dates" class="muted tiny"></span>
+       <span id="trip-updated" class="muted tiny"></span>
+     </div>
+     <div class="topbar-actions">
+       <button id="share-btn" class="icon-btn" title="Share or copy link" aria-label="Share link">🔗</button>
+       <button id="lock-btn" class="icon-btn" title="Lock" aria-label="Lock">🔒</button>
+     </div>
+   </header>
 
-    <div id="view" class="view"></div>
+   <div id="view" class="view"></div>
 
-    <nav class="tabbar" id="tabbar">
-      <button data-tab="today" class="tab active"><span>📍</span>Today</button>
-      <button data-tab="days" class="tab"><span>🗓️</span>Days</button>
-      <button data-tab="cities" class="tab"><span>🏙️</span>Cities</button>
-      <button data-tab="bookings" class="tab"><span>🎫</span>Bookings</button>
-      <button data-tab="contacts" class="tab"><span>📇</span>Contacts</button>
-      <button data-tab="prep" class="tab"><span>🧳</span>Prep</button>
-    </nav>
+   <nav class="tabbar" id="tabbar">
+     <button data-tab="today" class="tab active"><span>📍</span>Today</button>
+     <button data-tab="days" class="tab"><span>🗓️</span>Days</button>
+     <button data-tab="cities" class="tab"><span>🏙️</span>Cities</button>
+     <button data-tab="bookings" class="tab"><span>🎫</span>Bookings</button>
+     <button data-tab="contacts" class="tab"><span>📇</span>Contacts</button>
+     <button data-tab="prep" class="tab"><span>🧳</span>Prep</button>
+   </nav>
   </main>
 
   <script src="app.js"></script>
