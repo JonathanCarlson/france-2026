@@ -290,6 +290,8 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .ia.call { border-color: #2b6; }
 .ia.ref { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--accent); }
 .ia.ref:active { background: var(--blue); color: #fff; }
+.ia.ia-app { text-decoration: none; border-color: var(--accent); color: var(--accent); }
+.ia.ia-app:active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
 /* ---------- Compact day rows (tap → day page) ---------- */
 .dayrow { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px; margin-bottom: 10px; cursor: pointer; }

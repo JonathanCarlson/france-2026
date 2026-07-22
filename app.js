@@ -344,10 +344,29 @@ function render() {
   else if (TAB === 'prep') v.innerHTML = renderPrep();
 }
 
+// Resolve an item's `app` into a deep-link URL + label so tapping a transit
+// entry (train, flight, bus, boat) jumps straight to the right app. `app` is
+// either a string that matches a DATA.apps[].name (single source of truth for
+// the URL) or an inline { name, url } object.
+function itemAppUrl(app) {
+  if (!app) return null;
+  if (typeof app === 'object') return app.url || null;
+  const found = (DATA.apps || []).find((a) => a && typeof a === 'object' && a.name === app);
+  return found ? found.url : null;
+}
+function itemAppName(app) {
+  if (!app) return null;
+  return typeof app === 'object' ? (app.name || '') : app;
+}
+
 function itemActions(it) {
   const btns = [];
   const tks = it.tickets || (it.ticket ? [{ label: 'Ticket', file: it.ticket }] : []);
   for (const a of tks) btns.push(`<button class="ia tkt" data-ticket="${esc(a.file)}" data-mime="application/pdf" data-label="${esc(it.title)}${a.label && a.label !== 'Ticket' ? ' \u2014 ' + esc(a.label) : ''}">\uD83C\uDFAB ${esc(a.label || 'Ticket')}</button>`);
+  if (it.app) {
+    const appUrl = itemAppUrl(it.app);
+    if (appUrl) btns.push(`<a class="ia ia-app" href="${esc(appUrl)}" target="_blank" rel="noopener">\uD83D\uDCF1 ${esc(itemAppName(it.app))} <span class="chip-go">\u2197</span></a>`);
+  }
   if (it.map) btns.push(`<a class="ia" href="${mapLink(it.map)}" target="_blank" rel="noopener">\uD83D\uDCCD Map</a>`);
   if (it.call) btns.push(`<a class="ia call" href="${telLink(it.call)}">\uD83D\uDCDE Call</a>`);
   if (it.wa) btns.push(`<a class="ia" href="${waLink(it.wa)}">\uD83D\uDCAC WhatsApp</a>`);
