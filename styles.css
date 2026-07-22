@@ -207,6 +207,12 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .alert.info { background: #0f2a20; border: 1px solid #1e5a3e; color: #c3f3de; }
 .alert.info .alert-h { color: #5fe0a8; }
 
+/* ---------- Path switcher (split itineraries: e.g. France/Italy vs. Ireland) ---------- */
+.pathbar { display: flex; gap: 8px; margin: 2px 0 14px; }
+.pathchip { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--muted); border-radius: 999px; padding: 9px 10px; font-size: 13px; font-weight: 600; line-height: 1.15; }
+.pathchip.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+.pathchip:active { transform: scale(.98); }
+
 /* ---------- Ideas ("while you're in the area") ---------- */
 .ideas { margin-top: 12px; border-left: 3px solid #b08a2e; background: #211c10; border-radius: 0 12px 12px 0; padding: 8px 12px; }
 .ideas-h { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: #e6c15a; margin-bottom: 6px; }

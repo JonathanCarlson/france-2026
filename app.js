@@ -42,6 +42,59 @@ let DATA = null;      // decrypted itinerary
 let PASSPHRASE = null; // kept in memory to decrypt ticket assets on demand
 let TAB = 'today';
 
+// ---------- Paths (split itineraries: the main trip vs. a branch like Ireland) ----------
+const PATH_KEY = 'trip_path';
+let ACTIVE_PATH = 'main';
+function pathBranches() { return (DATA && DATA.branches) || []; }
+function activeBranch() { return ACTIVE_PATH === 'main' ? null : pathBranches().find((b) => b.id === ACTIVE_PATH) || null; }
+function allDays() { return [ ...((DATA && DATA.days) || []), ...pathBranches().flatMap((b) => b.days || []) ]; }
+// Days for the active path = shared spine (dates before the split) + branch days.
+function pDays() {
+  const b = activeBranch();
+  if (!b) return DATA.days;
+  return [ ...DATA.days.filter((d) => d.date < b.sharedUntil), ...(b.days || []) ];
+}
+// Other collections: the main path shows everything; a branch shows only the
+// items flagged `shared:true` on the main trip, plus the branch's own items.
+function ofPath(mainArr, key) {
+  const b = activeBranch();
+  if (!b) return mainArr || [];
+  return [ ...((mainArr || []).filter((x) => x && x.shared)), ...((b[key]) || []) ];
+}
+const pHotels = () => ofPath(DATA.hotels, 'hotels');
+const pFlights = () => ofPath(DATA.flights, 'flights');
+const pTrains = () => ofPath(DATA.trains, 'trains');
+const pCars = () => ofPath(DATA.cars, 'cars');
+const pTickets = () => ofPath(DATA.tickets, 'tickets');
+const pTours = () => ofPath(DATA.tours, 'tours');
+const pCities = () => ofPath(DATA.cities, 'cities');
+const pContacts = () => ofPath(DATA.contacts, 'contacts');
+const pEmergency = () => ofPath(DATA.emergency, 'emergency');
+function setPath(id) {
+  if (id === ACTIVE_PATH) return;
+  ACTIVE_PATH = id;
+  try { localStorage.setItem(PATH_KEY, id); } catch { /* ignore */ }
+  TAB = 'today';
+  document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === 'today'));
+  applyPathHeader();
+  render();
+  window.scrollTo({ top: 0 });
+}
+function applyPathHeader() {
+  const b = activeBranch();
+  const el = $('#trip-title');
+  if (el) el.textContent = b ? `${b.flag ? b.flag + ' ' : ''}${b.who || b.label}` : DATA.trip.title;
+}
+// Segmented switcher shown at the top of every tab when the trip has branches.
+function pathBar() {
+  const bs = pathBranches();
+  if (!bs.length) return '';
+  const chip = (id, flag, label) => `<button class="pathchip${ACTIVE_PATH === id ? ' active' : ''}" data-path="${esc(id)}">${flag ? esc(flag) + ' ' : ''}${esc(label)}</button>`;
+  let chips = chip('main', DATA.trip.mainFlag || '🇫🇷🇮🇹', DATA.trip.mainWho || 'Jonathan & Emma');
+  for (const b of bs) chips += chip(b.id, b.flag || '', b.who || b.label);
+  return `<div class="pathbar">${chips}</div>`;
+}
+
 const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -93,6 +146,10 @@ function openApp() {
   $('#lock-btn').addEventListener('click', () => { localStorage.removeItem(PASS_KEY); location.reload(); });
   document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('#view').addEventListener('click', onViewClick);
+  // restore the saved path (only if that branch still exists in the data)
+  const savedPath = (() => { try { return localStorage.getItem(PATH_KEY); } catch { return null; } })();
+  ACTIVE_PATH = (savedPath && pathBranches().some((b) => b.id === savedPath)) ? savedPath : 'main';
+  applyPathHeader();
   maybeShowInstallHint();
   render();
   loadWeather();
@@ -173,8 +230,8 @@ function glanceCard() {
   let phase;
   if (t < s) phase = `<div class="g-num">${daysBetween(t, s)}</div><div class="g-lbl">days to go</div>`;
   else if (t > e) phase = `<div class="g-num">✓</div><div class="g-lbl">complete</div>`;
-  else phase = `<div class="g-num">${daysBetween(s, t) + 1}</div><div class="g-lbl">of ${DATA.days.length} days</div>`;
-  const tkTodo = DATA.tickets.filter((x) => x.status !== 'booked').length;
+  else phase = `<div class="g-num">${daysBetween(s, t) + 1}</div><div class="g-lbl">of ${pDays().length} days</div>`;
+  const tkTodo = pTickets().filter((x) => x.status !== 'booked').length;
   const packTotal = (DATA.prep?.packing || []).reduce((n, c) => n + c.items.length, 0);
   const packDone = (DATA.prep?.packing || []).reduce((n, c) => n + c.items.filter((it) => isChecked('pack', it)).length, 0);
   return `<div class="glance">
@@ -219,7 +276,7 @@ const mapLink = (q) => `https://maps.google.com/?q=${encodeURIComponent(q)}`;
 // ---------- Weather (city-specific daily forecast, refreshes on every online open) ----------
 // Free Open-Meteo API (no key). Fetched once per unique location whenever the app
 // opens online; cached in localStorage so the last-known forecast still shows offline.
-const WX_KEY = 'trip_weather_v1';
+const WX_KEY = 'trip_weather_v2';
 let WEATHER = null;   // { fetchedAt, byDate: { 'YYYY-MM-DD': { loc, code, tmax, tmin, pop } } }
 let OPEN_DAY = null;  // date of the currently-open day overlay (so weather can refresh it)
 
@@ -239,6 +296,15 @@ const WX_LOCS = [
   { k: 'vatican', name: 'Rome', lat: 41.9028, lon: 12.4964 },
   { k: 'rome', name: 'Rome', lat: 41.9028, lon: 12.4964 },
   { k: 'paris', name: 'Paris', lat: 48.8566, lon: 2.3522 },
+  { k: 'cashel', name: 'Cashel', lat: 52.5209, lon: -7.8916 },
+  { k: 'blarney', name: 'Blarney', lat: 51.9296, lon: -8.5710 },
+  { k: 'cork', name: 'Cork', lat: 51.8985, lon: -8.4756 },
+  { k: 'killarney', name: 'Killarney', lat: 52.0599, lon: -9.5044 },
+  { k: 'nenagh', name: 'Nenagh', lat: 52.8608, lon: -8.1950 },
+  { k: 'adare', name: 'Adare', lat: 52.5640, lon: -8.7896 },
+  { k: 'moher', name: 'Cliffs of Moher', lat: 52.9715, lon: -9.4309 },
+  { k: 'galway', name: 'Galway', lat: 53.2707, lon: -9.0568 },
+  { k: 'dublin', name: 'Dublin', lat: 53.3498, lon: -6.2603 },
 ];
 
 function weatherLocationFor(day) {
@@ -277,7 +343,7 @@ async function loadWeather() {
   try {
     const locs = [];
     const seen = new Set();
-    for (const d of DATA.days) {
+    for (const d of allDays()) {
       const l = weatherLocationFor(d);
       if (l && !seen.has(l.name)) { seen.add(l.name); locs.push(l); }
     }
@@ -291,9 +357,9 @@ async function loadWeather() {
       const j = await res.json();
       const dd = j.daily || {};
       (dd.time || []).forEach((date, i) => {
-        // Only keep a day's forecast for the location that day is actually spent in.
-        if (!DATA.days.some((day) => day.date === date && weatherLocationFor(day)?.name === l.name)) return;
-        byDate[date] = {
+        // Only keep a day's forecast for a location actually visited that day (any path).
+        if (!allDays().some((day) => day.date === date && weatherLocationFor(day)?.name === l.name)) return;
+        byDate[`${date}|${l.name}`] = {
           loc: l.name,
           code: dd.weather_code?.[i],
           tmax: dd.temperature_2m_max?.[i],
@@ -312,10 +378,10 @@ async function loadWeather() {
 
 function wxForDay(day) {
   if (!WEATHER || !WEATHER.byDate) return null;
-  const w = WEATHER.byDate[day.date];
-  if (!w || w.tmax == null) return null;
   const loc = weatherLocationFor(day);
-  if (loc && w.loc && w.loc !== loc.name) return null; // stale/mismatched cache
+  if (!loc) return null;
+  const w = WEATHER.byDate[`${day.date}|${loc.name}`];
+  if (!w || w.tmax == null) return null;
   return w;
 }
 
@@ -368,12 +434,13 @@ function dayHasBorderAlert(day) {
 // ---------- Render ----------
 function render() {
   const v = $('#view');
-  if (TAB === 'today') v.innerHTML = renderToday();
-  else if (TAB === 'days') v.innerHTML = renderDays();
-  else if (TAB === 'cities') v.innerHTML = renderCities();
-  else if (TAB === 'bookings') v.innerHTML = renderBookings();
-  else if (TAB === 'contacts') v.innerHTML = renderContacts();
-  else if (TAB === 'prep') v.innerHTML = renderPrep();
+  const pb = pathBar();
+  if (TAB === 'today') v.innerHTML = pb + renderToday();
+  else if (TAB === 'days') v.innerHTML = pb + renderDays();
+  else if (TAB === 'cities') v.innerHTML = pb + renderCities();
+  else if (TAB === 'bookings') v.innerHTML = pb + renderBookings();
+  else if (TAB === 'contacts') v.innerHTML = pb + renderContacts();
+  else if (TAB === 'prep') v.innerHTML = pb + renderPrep();
 }
 
 // Resolve an item's `app` into a deep-link URL + label so tapping a transit
@@ -448,15 +515,16 @@ function dayRow(day, isToday) {
 function renderToday() {
   const t = todayISO();
   const start = DATA.trip.startDate, end = DATA.trip.endDate;
+  const days = pDays();
   let html = '';
-  const current = DATA.days.find((d) => d.date === t);
+  const current = days.find((d) => d.date === t);
 
   if (t < start) {
     const n = daysBetween(t, start);
     html += `<div class="hero"><div class="sub">Trip starts in</div><div class="countdown">${n} day${n === 1 ? '' : 's'}</div><div class="sub">${esc(DATA.trip.dates)}</div></div>`;
     html += glanceCard();
     html += preTripBookAheadBlock();
-    html += `<div class="section-title">First up</div>` + dayRow(DATA.days[0], false);
+    html += `<div class="section-title">First up</div>` + dayRow(days[0], false);
     return html;
   }
   if (t > end) {
@@ -474,8 +542,8 @@ function renderToday() {
       ${current.lodging ? `<div class="kv" style="margin-top:8px"><span class="k">🛏️ Stay</span><span class="v">${esc(current.lodging)}</span></div>` : ''}</div>`;
     html += dayToursBlock(current);
     if (current.dress) html += dressWarn();
-    const idx = DATA.days.indexOf(current);
-    if (DATA.days[idx + 1]) html += `<div class="section-title">Tomorrow</div>` + dayRow(DATA.days[idx + 1], false);
+    const idx = days.indexOf(current);
+    if (days[idx + 1]) html += `<div class="section-title">Tomorrow</div>` + dayRow(days[idx + 1], false);
   } else {
     html += `<div class="hero"><div class="big">On the trip 🎉</div><div class="sub">No detailed plan for today — enjoy!</div></div>`;
     html += glanceCard();
@@ -489,9 +557,10 @@ function dressWarn() {
 
 function renderDays() {
   const t = todayISO();
-  const cities = [...new Set(DATA.days.map((d) => d.city))];
+  const days = pDays();
+  const cities = [...new Set(days.map((d) => d.city))];
   let html = `<div class="chips">${cities.map((c) => `<span class="chip" data-scroll="${esc(c)}">${esc(c)}</span>`).join('')}</div>`;
-  html += DATA.days.map((d) => `<div id="day-${d.date}">${dayRow(d, d.date === t)}</div>`).join('');
+  html += days.map((d) => `<div id="day-${d.date}">${dayRow(d, d.date === t)}</div>`).join('');
   return html;
 }
 
@@ -499,7 +568,7 @@ function renderBookings() {
   let html = '';
   // Flights + trains
   html += `<div class="section-title">✈️ Flights &amp; 🚄 Trains</div>`;
-  html += `<div class="card">` + [...DATA.flights.map((f) => ({ ...f, ic: '✈️' })), ...DATA.trains.map((tr) => ({ ...tr, ic: '🚄' }))]
+  html += `<div class="card">` + [...pFlights().map((f) => ({ ...f, ic: '✈️' })), ...pTrains().map((tr) => ({ ...tr, ic: '🚄' }))]
     .map((s) => `<details><summary><span>${s.ic} ${esc(s.label)}</span><span class="caret">›</span></summary>
       <div class="kv"><span class="k">When</span><span class="v">${esc(s.date)} · ${esc(s.time)}</span></div>
       ${s.ref && s.ref !== '—' ? `<div class="kv"><span class="k">Conf</span><span class="v"><span class="ref" data-copy="${esc(s.ref)}">${esc(s.ref)} ⧉</span></span></div>` : ''}
@@ -507,7 +576,7 @@ function renderBookings() {
     </details>`).join('') + `</div>`;
 
   // Hotels
-  html += `<div class="section-title">🛏️ Stays</div><div class="card">` + DATA.hotels.map((h) => `<details><summary><span>${esc(h.name)} <span class="c">· ${esc(h.city)}</span></span><span class="caret">›</span></summary>
+  html += `<div class="section-title">🛏️ Stays</div><div class="card">` + pHotels().map((h) => `<details><summary><span>${esc(h.name)} <span class="c">· ${esc(h.city)}</span></span><span class="caret">›</span></summary>
     <div class="kv"><span class="k">Dates</span><span class="v">${esc(h.dates)}</span></div>
     ${h.ref && h.ref !== '—' ? `<div class="kv"><span class="k">Conf</span><span class="v"><span class="ref" data-copy="${esc(h.ref)}">${esc(h.ref)} ⧉</span></span></div>` : ''}
     ${h.address ? `<div class="kv"><span class="k">Address</span><span class="v"><a href="${mapLink(h.address + ', ' + h.city)}">${esc(h.address)} ↗</a></span></div>` : ''}
@@ -516,7 +585,8 @@ function renderBookings() {
   </details>`).join('') + `</div>`;
 
   // Cars
-  html += `<div class="section-title">🚗 Cars</div><div class="card">` + DATA.cars.map((c) => `<details><summary><span>${esc(c.company)} <span class="c">· ${esc(c.city)}</span></span><span class="caret">›</span></summary>
+  const cars = pCars();
+  if (cars.length) html += `<div class="section-title">🚗 Cars</div><div class="card">` + cars.map((c) => `<details><summary><span>${esc(c.company)} <span class="c">· ${esc(c.city)}</span></span><span class="caret">›</span></summary>
     <div class="kv"><span class="k">Pickup</span><span class="v">${esc(c.pickup)}</span></div>
     <div class="kv"><span class="k">Drop-off</span><span class="v">${esc(c.dropoff)}</span></div>
     <div class="kv"><span class="k">Conf</span><span class="v"><span class="ref" data-copy="${esc(c.ref)}">${esc(c.ref)} ⧉</span></span></div>
@@ -526,7 +596,7 @@ function renderBookings() {
   </details>`).join('') + `</div>`;
 
   // Tickets
-  html += `<div class="section-title">🎟️ Tickets &amp; Tours</div><div class="card">` + DATA.tickets.map((tk) => {
+  html += `<div class="section-title">🎟️ Tickets &amp; Tours</div><div class="card">` + pTickets().map((tk) => {
     const assets = (tk.assets || []).map((a) => `<button class="act tkt" data-ticket="${esc(a.file)}" data-mime="${esc(a.mime || 'application/pdf')}" data-label="${esc(tk.what)}${a.label ? ' — ' + esc(a.label) : ''}">🎫 ${esc(a.label || 'Show ticket')}</button>`).join('');
     const book = tk.bookUrl ? `<a class="act" href="${esc(tk.bookUrl)}" target="_blank" rel="noopener">🔗 Book</a>` : '';
     return `<div class="tk">
@@ -540,7 +610,7 @@ function renderBookings() {
 
 function renderContacts() {
   let html = `<div class="section-title">📇 Contacts</div>`;
-  html += DATA.contacts.map((c) => `<div class="card">
+  html += pContacts().map((c) => `<div class="card">
     <div class="dayhead"><div class="d">${esc(c.name)}</div><span class="c">${esc(c.role || '')}</span></div>
     ${c.note ? `<div class="de muted" style="margin:4px 0 8px">${esc(c.note)}</div>` : '<div style="height:6px"></div>'}
     <div>
@@ -549,7 +619,7 @@ function renderContacts() {
       ${c.email ? `<a class="act" href="mailto:${esc(c.email)}">✉️ Email</a>` : ''}
     </div>
   </div>`).join('');
-  html += `<div class="section-title">🆘 Emergency</div><div class="card">` + (DATA.emergency || []).map((e) => `<div class="kv"><span class="k">${esc(e.what)}</span><span class="v"><a class="act call" href="${telLink(e.number)}">📞 ${esc(e.number)}</a></span></div>`).join('') + `</div>`;
+  html += `<div class="section-title">🆘 Emergency</div><div class="card">` + (pEmergency() || []).map((e) => `<div class="kv"><span class="k">${esc(e.what)}</span><span class="v"><a class="act call" href="${telLink(e.number)}">📞 ${esc(e.number)}</a></span></div>`).join('') + `</div>`;
   return html;
 }
 
@@ -795,7 +865,7 @@ function initZoom(scope) {
 function hotelForLodging(lodging) {
   if (!lodging) return null;
   const base = lodging.split(' (')[0].trim();
-  return DATA.hotels.find((h) => lodging.includes(h.name) || (base && h.name.includes(base))) || null;
+  return pHotels().find((h) => lodging.includes(h.name) || (base && h.name.includes(base))) || null;
 }
 function stayBlock(day) {
   if (!day.lodging) return '';
@@ -813,8 +883,8 @@ function stayBlock(day) {
   </div>`;
 }
 function dayContactsBlock(day) {
-  const pick = (n) => DATA.contacts.find((c) => c.name === n)
-    || DATA.contacts.find((c) => c.name && (c.name.includes(n) || n.includes(c.name)));
+  const pick = (n) => pContacts().find((c) => c.name === n)
+    || pContacts().find((c) => c.name && (c.name.includes(n) || n.includes(c.name)));
   const seen = new Set();
   const cs = (day.contacts || []).map(pick).filter((c) => c && !seen.has(c.name) && seen.add(c.name));
   if (!cs.length) return '';
@@ -834,7 +904,7 @@ function dayTicketsBlock(day) {
   const d = new Date(day.date + 'T12:00:00');
   const md = d.toLocaleDateString('en-US', { month: 'short' }) + ' ' + d.getDate(); // e.g. "Aug 3"
   const re = new RegExp('\\b' + md.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
-  const items = (DATA.tickets || []).filter((t) => t.date && re.test(t.date));
+  const items = (pTickets() || []).filter((t) => t.date && re.test(t.date));
   if (!items.length) return '';
   const rows = items.map((t) => {
     const assets = (t.assets || []).map((a) => `<button class="ia tkt" data-ticket="${esc(a.file)}" data-mime="${esc(a.mime || 'application/pdf')}" data-label="${esc(t.what)}${a.label && a.label !== 'Ticket' && a.label !== 'Pass' ? ' \u2014 ' + esc(a.label) : ''}">🎫 ${esc(a.label || 'Ticket')}</button>`).join('');
@@ -851,7 +921,7 @@ function dayTicketsBlock(day) {
 // Advance-booking reminders — show on the day you must BOOK (ticket.bookBy),
 // not the day of the event. e.g. Notre-Dame (Aug 7) surfaces a reminder Aug 4.
 function bookRemindersForDay(day) {
-  return (DATA.tickets || []).filter((t) => t.bookBy === day.date && t.status !== 'booked');
+  return (pTickets() || []).filter((t) => t.bookBy === day.date && t.status !== 'booked');
 }
 function dayBookRemindersBlock(day) {
   const rs = bookRemindersForDay(day);
@@ -865,7 +935,7 @@ function dayBookRemindersBlock(day) {
 // Book-ahead items (mandatory advance reservation that sells out, e.g. Borghese).
 // Shown on the pre-trip countdown screen so they're reserved before you leave.
 function preTripBookAheadBlock() {
-  const rs = (DATA.tickets || []).filter((t) => t.bookAhead && t.status !== 'booked');
+  const rs = (pTickets() || []).filter((t) => t.bookAhead && t.status !== 'booked');
   if (!rs.length) return '';
   return `<div class="section-title">🎟️ Book before you go</div>` + rs.map((t) => `<div class="bookrem">
     <div class="br-h">📌 ${esc(t.what)}${t.date ? ' — ' + esc(t.date) : ''}</div>
@@ -877,7 +947,7 @@ function preTripBookAheadBlock() {
 // with a full-route Google Maps link + per-stop pings. Written narration is
 // stubbed (textStatus) until the user adds it from the book.
 function toursForDay(day) {
-  return (DATA.tours || []).filter((t) => t.date === day.date);
+  return (pTours() || []).filter((t) => t.date === day.date);
 }
 function tourRouteUrl(tour) {
   const pts = (tour.stops || []).filter((s) => s.map).map((s) => encodeURIComponent(s.map));
@@ -911,7 +981,7 @@ function tourOverlay() {
   return o;
 }
 function openTour(id) {
-  const t = (DATA.tours || []).find((x) => x.id === id);
+  const t = (pTours() || []).find((x) => x.id === id);
   if (!t) return;
   const o = tourOverlay();
   o.querySelector('.tv-title').textContent = t.title;
@@ -941,11 +1011,11 @@ function openTour(id) {
 }
 // City guide hubs: per-city hotel + self-guided tours + practical tips.
 function renderCities() {
-  const cs = DATA.cities || [];
+  const cs = pCities() || [];
   if (!cs.length) return '<div class="muted">No city guides yet.</div>';
   let html = `<div class="section-title">🏙️ City guides</div>`;
   html += cs.map((c) => {
-    const nTours = (DATA.tours || []).filter((t) => t.city === c.name).length;
+    const nTours = (pTours() || []).filter((t) => t.city === c.name).length;
     const bits = [];
     if (nTours) bits.push(`${nTours} tour${nTours > 1 ? 's' : ''}`);
     return `<div class="dayrow" data-opencity="${esc(c.name)}">
@@ -959,7 +1029,7 @@ function renderCities() {
   return html;
 }
 function dayCityLink(day) {
-  const c = (DATA.cities || []).find((x) => day.city && day.city.includes(x.name));
+  const c = (pCities() || []).find((x) => day.city && day.city.includes(x.name));
   if (!c) return '';
   return `<div class="citylink" data-opencity="${esc(c.name)}"><span>🏙️ ${esc(c.name)} guide — hotel, tours &amp; tips</span><span class="dr-caret">›</span></div>`;
 }
@@ -976,13 +1046,13 @@ function cityOverlay() {
   return o;
 }
 function openCity(name) {
-  const c = (DATA.cities || []).find((x) => x.name === name);
+  const c = (pCities() || []).find((x) => x.name === name);
   if (!c) return;
   const o = cityOverlay();
   o.querySelector('.tv-title').textContent = c.name;
   const b = o.querySelector('.city-detail');
-  const hotels = (DATA.hotels || []).filter((h) => h.city === c.name);
-  const tours = (DATA.tours || []).filter((t) => t.city === c.name);
+  const hotels = (pHotels() || []).filter((h) => h.city === c.name);
+  const tours = (pTours() || []).filter((t) => t.city === c.name);
   const stayHtml = hotels.map((h) => {
     const btns = [];
     if (h.address) btns.push(`<a class="ia" href="${mapLink(h.address + ', ' + h.city)}" target="_blank" rel="noopener">📍 Map</a>`);
@@ -1013,7 +1083,7 @@ function dayOverlay() {
   return o;
 }
 function openDay(date) {
-  const day = DATA.days.find((d) => d.date === date);
+  const day = pDays().find((d) => d.date === date);
   if (!day) return;
   OPEN_DAY = date;
   const o = dayOverlay();
@@ -1064,6 +1134,8 @@ function shareLink() {
 }
 
 function onViewClick(e) {
+  const path = e.target.closest('[data-path]');
+  if (path) { setPath(path.getAttribute('data-path')); return; }
   const goto = e.target.closest('[data-goto]');
   if (goto) { switchTab(goto.getAttribute('data-goto')); return; }
   const check = e.target.closest('[data-check]');
@@ -1095,7 +1167,7 @@ function onViewClick(e) {
   const scroll = e.target.closest('[data-scroll]');
   if (scroll) {
     const city = scroll.getAttribute('data-scroll');
-    const day = DATA.days.find((d) => d.city === city);
+    const day = pDays().find((d) => d.city === city);
     if (day) document.getElementById('day-' + day.date)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
