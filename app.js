@@ -440,6 +440,7 @@ function render() {
   else if (TAB === 'cities') v.innerHTML = pb + renderCities();
   else if (TAB === 'bookings') v.innerHTML = pb + renderBookings();
   else if (TAB === 'contacts') v.innerHTML = pb + renderContacts();
+  else if (TAB === 'photos') { v.innerHTML = pb + renderPhotos(); hydratePhotoThumbs(); }
   else if (TAB === 'prep') v.innerHTML = pb + renderPrep();
 }
 
@@ -677,8 +678,8 @@ function renderPrep() {
 }
 
 // ---------- Ticket viewer (decrypt asset → blob → show) ----------
-async function decryptAsset(file, mime) {
-  const res = await fetch('data/tickets/' + encodeURIComponent(file) + '.enc');
+async function decryptAsset(file, mime, dir = 'tickets') {
+  const res = await fetch('data/' + dir + '/' + encodeURIComponent(file) + '.enc');
   if (!res.ok) throw new Error('missing');
   const buf = new Uint8Array(await res.arrayBuffer());
   const salt = buf.slice(0, 16), iv = buf.slice(16, 28), ct = buf.slice(28);
@@ -686,6 +687,96 @@ async function decryptAsset(file, mime) {
   const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
   return URL.createObjectURL(new Blob([pt], { type: mime }));
+}
+
+// ---------- Photos tab ----------
+// Decrypted photo blob URLs are cached for the session so switching tabs or
+// reopening the viewer doesn't re-decrypt. Assets live at data/photos/<file>.enc
+// (same [salt][iv][ct] format as tickets); manifest `file` is the basename.
+const PHOTO_URLS = {};
+async function photoUrl(id) {
+  if (PHOTO_URLS[id]) return PHOTO_URLS[id];
+  const ph = (DATA.photos || []).find((p) => p.id === id);
+  const file = ph ? ph.file : id;
+  const url = await decryptAsset(file, 'image/jpeg', 'photos');
+  PHOTO_URLS[id] = url;
+  return url;
+}
+
+function renderPhotos() {
+  const photos = (DATA.photos || []).slice();
+  if (!photos.length) {
+    return `<div class="photos-empty"><div class="photos-empty-icon">📷</div>`
+      + `<div>No photos yet.</div>`
+      + `<div class="tiny muted">Shared photos get added here, grouped by day, after each stop.</div></div>`;
+  }
+  photos.sort((a, b) => String(a.taken || a.date).localeCompare(String(b.taken || b.date)));
+  const groups = [];
+  const byDate = {};
+  for (const p of photos) {
+    if (!byDate[p.date]) { byDate[p.date] = { date: p.date, label: p.caption || p.dayTitle || p.date, items: [] }; groups.push(byDate[p.date]); }
+    byDate[p.date].items.push(p);
+  }
+  groups.sort((a, b) => a.date.localeCompare(b.date));
+  let html = `<div class="section-title" style="margin-top:6px">📷 Trip photos</div>`
+    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view full-screen</div>`;
+  for (const g of groups) {
+    html += `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
+    for (const p of g.items) {
+      html += `<button class="photo-tile" data-photo="${esc(p.id)}" aria-label="${esc(p.desc || 'Photo')}">`
+        + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
+        + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
+        + `</button>`;
+    }
+    html += `</div>`;
+  }
+  return html;
+}
+
+// Lazily decrypt each visible thumbnail after the grid is in the DOM. Sequential
+// to avoid spawning 18 parallel PBKDF2 derivations on a phone.
+async function hydratePhotoThumbs() {
+  const imgs = Array.from(document.querySelectorAll('#view [data-photo-img]'));
+  for (const img of imgs) {
+    const id = img.getAttribute('data-photo-img');
+    try {
+      const url = await photoUrl(id);
+      img.src = url;
+      img.closest('.photo-tile')?.classList.add('loaded');
+    } catch {
+      img.closest('.photo-tile')?.classList.add('failed');
+    }
+  }
+}
+
+function photoOverlay() {
+  let o = document.getElementById('photo-overlay');
+  if (!o) {
+    o = document.createElement('div');
+    o.id = 'photo-overlay'; o.className = 'tv'; o.hidden = true;
+    o.innerHTML = `<div class="tv-bar"><span class="tv-title"></span><button class="tv-close" aria-label="Close">✕</button></div><div class="tv-body"></div>`;
+    o.querySelector('.tv-close').addEventListener('click', () => dismissOverlay(o));
+    document.body.appendChild(o);
+  }
+  return o;
+}
+
+async function showPhoto(id) {
+  const ph = (DATA.photos || []).find((p) => p.id === id);
+  if (!ph) return;
+  const o = photoOverlay();
+  o.querySelector('.tv-title').textContent = ph.caption || 'Photo';
+  const body = o.querySelector('.tv-body');
+  body.innerHTML = '<div class="tv-msg">Decrypting…</div>';
+  showOverlay(o, () => { o.querySelector('.tv-body').innerHTML = ''; });
+  try {
+    const url = await photoUrl(id);
+    body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="" /></div>`
+      + (ph.desc ? `<div class="photo-caption">${esc(ph.desc)}</div>` : '');
+    initZoom(body);
+  } catch (e) {
+    body.innerHTML = `<div class="tv-msg">Couldn't load this photo. If you're offline, open it once while online so it caches.</div>`;
+  }
 }
 
 // ---------- Overlay stack (nested-overlay stacking + device Back) ----------
@@ -1151,6 +1242,8 @@ function onViewClick(e) {
     showTicket(tkt.getAttribute('data-ticket'), tkt.getAttribute('data-mime'), tkt.getAttribute('data-label'));
     return;
   }
+  const photo = e.target.closest('[data-photo]');
+  if (photo) { showPhoto(photo.getAttribute('data-photo')); return; }
   const copy = e.target.closest('[data-copy]');
   if (copy) {
     const text = copy.getAttribute('data-copy');

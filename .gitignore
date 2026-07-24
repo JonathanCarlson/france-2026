@@ -2,6 +2,8 @@
 build/itinerary.json
 # Plaintext ticket PDFs/images — only the encrypted data/tickets/*.enc ship.
 build/tickets/
+# Plaintext trip photos — only the encrypted data/photos/*.enc ship.
+build/photos/
 
 # Secrets
 .env
