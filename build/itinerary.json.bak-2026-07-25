@@ -1,0 +1,2941 @@
+{
+  "trip": {
+    "title": "France & Italy 2026",
+    "subtitle": "Carlson family trip",
+    "dates": "Wed Jul 22 – Sun Aug 9, 2026",
+    "startDate": "2026-07-22",
+    "endDate": "2026-08-09",
+    "updated": "2026-07-25"
+  },
+  "travelers": [
+    {
+      "name": "Jonathan",
+      "note": "Full trip (Jul 22 – Aug 9)"
+    },
+    {
+      "name": "Emma",
+      "note": "Full trip (Jul 22 – Aug 9)"
+    },
+    {
+      "name": "Kate",
+      "note": "France portion → Dublin Thu Jul 30 (KLM)"
+    },
+    {
+      "name": "Jordyn",
+      "note": "France portion → Dublin Thu Jul 30 (KLM)"
+    },
+    {
+      "name": "Sarah & Trevor (Partaps)",
+      "note": "France portion, split after Toulouse"
+    },
+    {
+      "name": "Florence & Michael",
+      "note": "Hosts — Marchiennes/Lille (2 houses) + Toulouse (home)"
+    }
+  ],
+  "days": [
+    {
+      "date": "2026-07-22",
+      "dow": "Wed",
+      "city": "In transit",
+      "flag": "✈️",
+      "title": "Fly to France",
+      "items": [
+        {
+          "time": "6:35 PM",
+          "icon": "✈️",
+          "title": "Delta 80 · SEA → CDG",
+          "app": "Delta",
+          "detail": "Depart Seattle 6:35 PM. Overnight. Conf HX8C2W.",
+          "ref": "HX8C2W"
+        }
+      ],
+      "lodging": "Overnight flight"
+    },
+    {
+      "date": "2026-07-23",
+      "dow": "Thu",
+      "city": "Lille",
+      "flag": "🇫🇷",
+      "title": "Arrive CDG → TGV to Lille",
+      "alerts": [
+        {
+          "icon": "🛂",
+          "level": "red",
+          "title": "EES biometric border on arrival — tight TGV connection",
+          "text": "Your first entry into Europe triggers the new EU Entry/Exit System: all four of you register fingerprints + a photo at CDG passport control (Terminal 2E). Peak-summer CDG queues have been running 1–3 hours. The TGV to Lille leaves CDG at 2:58 PM — only about an hour after the 1:50 PM landing — so this connection is HIGH RISK. Go straight to passport control, keep the SNCF Connect app open, and be ready to take the next Lille TGV (they run roughly hourly and the ticket is exchangeable)."
+        }
+      ],
+      "items": [
+        {
+          "time": "1:50 PM",
+          "icon": "🛬",
+          "title": "Arrive CDG (Terminal 2E)",
+          "app": "Delta",
+          "detail": "Delta 80 lands. Conf HX8C2W."
+        },
+        {
+          "time": "2:58 PM",
+          "icon": "🚄",
+          "title": "TGV INOUI 5280 · CDG → Lille Europe",
+          "app": "SNCF Connect",
+          "detail": "Dep 14:58 → arr ~16:00 (~1h). 1st class. 4 pax. Ref SM9FYU.",
+          "ref": "SM9FYU"
+        },
+        {
+          "time": "~4:00 PM",
+          "icon": "🚗",
+          "title": "Avis pickup · Lille Europe (LL8)",
+          "detail": "Reserved 3:30 PM but desk open to 9 PM. Renault Symbioz, automatic. Conf 15879169US5.",
+          "ref": "15879169US5"
+        },
+        {
+          "time": "Evening",
+          "icon": "🏠",
+          "title": "Settle in at Florence & Michael's",
+          "detail": "Explore the neighborhood. Two houses in Marchiennes — 3 families split across both."
+        },
+        {
+          "icon": "🏡",
+          "title": "Home base — F&M's B&B",
+          "detail": "49 rue du Hameau d'Elpret, 59870 Marchiennes (likely our stay).",
+          "map": "49 rue du Hameau d'Elpret, 59870 Marchiennes"
+        },
+        {
+          "icon": "🏠",
+          "title": "Second house — Airbnb (rented by F&M)",
+          "detail": "5 rue de l'Abreuvoir, 59870 Marchiennes.",
+          "map": "5 rue de l'Abreuvoir, 59870 Marchiennes"
+        }
+      ],
+      "lodging": "Florence & Michael's B&B (Marchiennes)"
+    },
+    {
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "flag": "🇫🇷",
+      "title": "Explore Lille",
+      "items": [
+        {
+          "icon": "🏛️",
+          "title": "Grand Place & Vieux Lille",
+          "detail": "Old town wander."
+        },
+        {
+          "icon": "🎨",
+          "title": "Palais des Beaux-Arts",
+          "detail": "One of France's largest fine-arts museums."
+        },
+        {
+          "icon": "🏡",
+          "title": "Home base — F&M's B&B",
+          "detail": "49 rue du Hameau d'Elpret, 59870 Marchiennes (likely our stay).",
+          "map": "49 rue du Hameau d'Elpret, 59870 Marchiennes"
+        },
+        {
+          "icon": "🏠",
+          "title": "Second house — Airbnb (rented by F&M)",
+          "detail": "5 rue de l'Abreuvoir, 59870 Marchiennes.",
+          "map": "5 rue de l'Abreuvoir, 59870 Marchiennes"
+        }
+      ],
+      "ideas": [
+        {
+          "title": "Wazemmes market",
+          "detail": "Big covered + street market. Liveliest Sunday morning."
+        },
+        {
+          "title": "LaM — modern & outsider art",
+          "detail": "In Villeneuve-d'Ascq, ~20 min. Excellent collection."
+        },
+        {
+          "title": "Euralille / rainy-day shopping",
+          "detail": "Big mall by the stations if the weather turns."
+        }
+      ],
+      "lodging": "Florence & Michael's B&B (Marchiennes)"
+    },
+    {
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "flag": "🇧🇪",
+      "title": "Bruges day trip",
+      "items": [
+        {
+          "icon": "🚗",
+          "title": "Parked near 't Zand / Concertgebouw ✅",
+          "detail": "The center is car-free — you're parked at the SW edge ('t Zand, by the Concertgebouw). Recommended walking loop runs NE across the old town, sequenced by geography + closing times, then back to the car.",
+          "map": "'t Zand, Bruges"
+        },
+        {
+          "icon": "🖼️",
+          "title": "1. Church of Our Lady — Michelangelo Madonna",
+          "detail": "Do this first — it's the closest stop to 't Zand (~9 min walk) and closes 5:00 PM. Onze-Lieve-Vrouwekerk holds Michelangelo's Madonna and Child, one of few of his works outside Italy. 👗 Modest dress inside.",
+          "map": "Onze-Lieve-Vrouwekerk Brugge"
+        },
+        {
+          "icon": "🔔",
+          "title": "2. Markt + Belfry (Belfort)",
+          "detail": "Postcard main square with step-gabled guild houses. Belfry: 366 steps, €16/adult (€14 youth/senior, under-6 free), open till 8:00 PM (last entry 7:00 PM) — climb LATE (~6–7 PM) if at all so it doesn't eat the churches/boat. Inner courtyard is FREE to enter but gives no view.",
+          "map": "Belfort Bruges"
+        },
+        {
+          "icon": "⛪",
+          "title": "3. Burg Square + Basilica of the Holy Blood",
+          "detail": "Gothic City Hall on the Burg + the venerated relic. Closes 5:15 PM; relic veneration 2–4 PM. 👗 Modest dress — a light scarf covers it.",
+          "map": "Burg, Bruges"
+        },
+        {
+          "icon": "📸",
+          "title": "4. Rozenhoedkaai",
+          "detail": "The most photographed canal view in Bruges — 2 min from the Burg. Great late-afternoon light.",
+          "map": "Rozenhoedkaai, Bruges"
+        },
+        {
+          "icon": "🚤",
+          "title": "5. Canal boat tour (~30 min, ~€12)",
+          "detail": "The quintessential Bruges experience. Jetties near Rozenhoedkaai / Huidenvettersplein — pay at the dock. Last boats ~6:00 PM, so don't leave it too late.",
+          "map": "Rozenhoedkaai, Bruges"
+        },
+        {
+          "icon": "🦢",
+          "title": "6. Begijnhof + Minnewater",
+          "detail": "Peaceful walled beguinage and the swan-filled 'Lake of Love' — a quiet outdoor stroll to wind down the day, on the way back toward 't Zand.",
+          "map": "Begijnhof, Bruges"
+        },
+        {
+          "icon": "🚗",
+          "title": "7. Walk back NW to the car ('t Zand)",
+          "detail": "Minnewater → 't Zand is ~8 min, closing the loop back to where you parked.",
+          "map": "'t Zand, Bruges"
+        },
+        {
+          "icon": "🏡",
+          "title": "Home base — F&M's B&B",
+          "detail": "49 rue du Hameau d'Elpret, 59870 Marchiennes (likely our stay).",
+          "map": "49 rue du Hameau d'Elpret, 59870 Marchiennes"
+        },
+        {
+          "icon": "🏠",
+          "title": "Second house — Airbnb (rented by F&M)",
+          "detail": "5 rue de l'Abreuvoir, 59870 Marchiennes.",
+          "map": "5 rue de l'Abreuvoir, 59870 Marchiennes"
+        }
+      ],
+      "ideas": [
+        {
+          "title": "With kids / fun",
+          "detail": "Historium (immersive medieval Bruges) on Markt, the Frietmuseum, and chocolate everywhere — The Chocolate Line, Dumon. Grab waffles + frites with mayo."
+        },
+        {
+          "title": "Eat",
+          "detail": "Moules-frites, Flemish stew (stoofvlees), Belgian waffles. Family-friendly cafés around Markt and Simon Stevinplein."
+        },
+        {
+          "title": "Tips",
+          "detail": "Comfortable shoes for cobblestones; leave time for the ~1.5h drive back so you're not too late for dinner near Lille."
+        }
+      ],
+      "lodging": "Florence & Michael's B&B (Marchiennes)",
+      "dress": "Modest dress for the churches (Holy Blood, Church of Our Lady) — shoulders/knees covered; a light scarf covers it."
+    },
+    {
+      "date": "2026-07-26",
+      "dow": "Sun",
+      "city": "Lille → Toulouse",
+      "flag": "🇫🇷",
+      "title": "Markets, then fly to Toulouse",
+      "items": [
+        {
+          "time": "Morning",
+          "icon": "🧺",
+          "title": "Sunday markets (Wazemmes) + Cathedral",
+          "detail": "One of France's largest markets."
+        },
+        {
+          "time": "By 3:30 PM",
+          "icon": "🚗",
+          "title": "Return Avis · Lille Airport (LIL)",
+          "detail": "Before the 4:10 PM flight."
+        },
+        {
+          "time": "4:10–5:45 PM",
+          "icon": "✈️",
+          "title": "Volotea V7 2783 · LIL → TLS",
+          "detail": "1h35m. Conf 775447387.",
+          "ref": "775447387"
+        },
+        {
+          "time": "5:30 PM",
+          "icon": "🚗",
+          "title": "National car pickup · TLS Airport",
+          "detail": "Compact SUV, manual. Conf 2096707937.",
+          "ref": "2096707937"
+        }
+      ],
+      "lodging": "Airbnb - Pechbonnieu"
+    },
+    {
+      "date": "2026-07-27",
+      "dow": "Mon",
+      "city": "Toulouse",
+      "flag": "🇫🇷",
+      "title": "Pool day",
+      "items": [
+        {
+          "icon": "🏊",
+          "title": "Relax at Florence & Michael's",
+          "detail": "Pool day."
+        }
+      ],
+      "ideas": [
+        {
+          "title": "Cité de l'Espace",
+          "detail": "Space museum — big hit with kids. Full-size rockets + planetarium. In peak August, book online a day ahead to skip the ticket queue (doesn't sell out weeks out)."
+        },
+        {
+          "title": "Toulouse centre",
+          "detail": "Place du Capitole, Saint-Sernin basilica, riverside. Easy half-day."
+        }
+      ],
+      "lodging": "Airbnb - Pechbonnieu"
+    },
+    {
+      "date": "2026-07-28",
+      "dow": "Tue",
+      "city": "Toulouse",
+      "flag": "🇫🇷",
+      "title": "Relaxed day",
+      "items": [
+        {
+          "icon": "🌳",
+          "title": "Relaxed day with hosts",
+          "detail": "Optional central Toulouse (Saint-Sernin, Jacobins)."
+        }
+      ],
+      "ideas": [
+        {
+          "title": "Albi day trip",
+          "detail": "~1h. Toulouse-Lautrec museum + huge red-brick cathedral. UNESCO old town."
+        },
+        {
+          "title": "Canal du Midi",
+          "detail": "Shady towpath walk or rental bikes along the canal."
+        }
+      ],
+      "lodging": "Airbnb - Pechbonnieu"
+    },
+    {
+      "date": "2026-07-29",
+      "dow": "Wed",
+      "city": "Carcassonne",
+      "flag": "🇫🇷",
+      "title": "Carcassonne day trip",
+      "items": [
+        {
+          "icon": "🏰",
+          "title": "Carcassonne (~1h drive)",
+          "detail": "The walled city (La Cité) is free to wander; only the Château Comtal + ramparts is ticketed (€19 adult, free under 26 — kids free). Buy online the night before in August to skip the queue. Basilique Saint-Nazaire is free."
+        }
+      ],
+      "lodging": "Airbnb - Pechbonnieu"
+    },
+    {
+      "date": "2026-07-30",
+      "dow": "Thu",
+      "city": "Cathar castles",
+      "flag": "🇫🇷",
+      "title": "Cathar castles day trip",
+      "alerts": [
+        {
+          "icon": "🛂",
+          "level": "amber",
+          "title": "Kate & Jordyn: EES exit check in Amsterdam",
+          "text": "Flying KLM Toulouse → Amsterdam → Dublin, you leave the Schengen area at Amsterdam Schiphol, where an EES exit/passport check applies (Dublin is outside Schengen). Schiphol's morning bank has seen 2–3 hour queues. Make sure the Amsterdam layover is comfortable — aim for 2+ hours — and head straight to passport control on landing. If the connection is tight, ask KLM about protection."
+        }
+      ],
+      "items": [
+        {
+          "icon": "🏰",
+          "title": "Cathar castles (rec: Foix + Montségur)",
+          "detail": "By car. Foix château + Montségur clifftop ruin (30–45 min hike)."
+        },
+        {
+          "icon": "✈️",
+          "title": "Kate & Jordyn fly to Dublin",
+          "detail": "KLM TLS → AMS → DUB, dep 6:05 AM."
+        }
+      ],
+      "lodging": "Airbnb - Pechbonnieu"
+    },
+    {
+      "date": "2026-07-31",
+      "dow": "Fri",
+      "city": "Venice",
+      "flag": "🇮🇹",
+      "title": "Fly to Venice",
+      "alerts": [
+        {
+          "icon": "✅",
+          "level": "info",
+          "title": "No EES on the Ryanair flight",
+          "text": "Toulouse → Venice is intra-Schengen (France to Italy), so there is NO biometric border here. Despite Ryanair's EES queue warnings, none of the airports it flagged (Beauvais, Milan Bergamo, the Spanish and Canary Island airports, Kraków) are on your route. A normal ~2-hour arrival is fine — just do the mandatory Ryanair online check-in the day before."
+        }
+      ],
+      "items": [
+        {
+          "time": "By 1:30 PM",
+          "icon": "🚗",
+          "title": "Return National car · TLS Airport",
+          "detail": "Conf 2096707937."
+        },
+        {
+          "time": "2:40–4:20 PM",
+          "icon": "✈️",
+          "title": "Ryanair FR3630 · TLS → TSF",
+          "app": "Ryanair",
+          "detail": "1h40m. Seats 02E/02F. Conf NTJJRV.",
+          "ref": "NTJJRV"
+        },
+        {
+          "time": "After landing",
+          "icon": "🚌",
+          "title": "ATVO bus → Piazzale Roma",
+          "app": "ATVO",
+          "detail": "Then Vaporetto Line 1 → San Stae (4 stops)."
+        },
+        {
+          "time": "Evening",
+          "icon": "🍝",
+          "title": "First Venice dinner",
+          "detail": "Check in at Al Ponte Mocenigo (conf 832405567, PIN 5610)."
+        }
+      ],
+      "lodging": "Hotel al Ponte Mocenigo (Venice)"
+    },
+    {
+      "date": "2026-08-01",
+      "dow": "Sat",
+      "city": "Venice",
+      "flag": "🇮🇹",
+      "title": "Full Venice day",
+      "dress": true,
+      "bring": [
+        "Modest outfit for St. Mark's (shoulders + knees covered)",
+        "Refillable water bottle",
+        "Comfortable walking shoes"
+      ],
+      "items": [
+        {
+          "time": "9:30 AM",
+          "icon": "🎟️",
+          "title": "Doge's Palace — Secret Itineraries (English)",
+          "detail": "~3h guided + self-guided. Codes PS6KFPWOQW / 9TZW45WXQO.",
+          "ticket": "doges-palace",
+          "map": "Palazzo Ducale, Venice"
+        },
+        {
+          "time": "~1:00–1:30 PM",
+          "icon": "🎟️",
+          "title": "St. Mark's Basilica — Complete Experience",
+          "detail": "Order 171-16HTATTH · conf SP4YUEE4WTAZ. 🔴 Modest dress (covered shoulders + knees).",
+          "tickets": [
+            {
+              "label": "Jonathan",
+              "file": "st-marks-jonathan"
+            },
+            {
+              "label": "Emma",
+              "file": "st-marks-emma"
+            }
+          ],
+          "map": "St Mark's Basilica, Venice"
+        },
+        {
+          "time": "Afternoon",
+          "icon": "🛶",
+          "title": "Gondola ride",
+          "detail": "Grand Canal wander (Rick Steves audio tour)."
+        }
+      ],
+      "ideas": [
+        {
+          "title": "Gallerie dell'Accademia (optional)",
+          "detail": "Venice's museum of Venetian Renaissance masters (Bellini, Titian, Tintoretto, Veronese) — compact, ~1h, right by the Accademia bridge. A good 'just one museum' pick. (The big chronological Renaissance walk-through is Florence's Uffizi — not on this trip.)"
+        }
+      ],
+      "lodging": "Hotel al Ponte Mocenigo (Venice)"
+    },
+    {
+      "date": "2026-08-02",
+      "dow": "Sun",
+      "city": "Venice → Rome",
+      "flag": "🇮🇹",
+      "title": "Grand Canal, then train to Rome",
+      "items": [
+        {
+          "time": "Morning",
+          "icon": "🚢",
+          "title": "Grand Canal cruise (Vaporetto Line 1)",
+          "app": "Vaporetto / ACTV",
+          "detail": "Rick Steves audio tour. Lunch in Venice."
+        },
+        {
+          "time": "3:26 PM",
+          "icon": "🚄",
+          "title": "Frecciarossa 9427 · Venezia S. Lucia → Roma Termini",
+          "app": "Trenitalia",
+          "detail": "Dep 15:26 → arr 19:25 (~4h). Coach 4, seats 8D/9D. PNR EYMKP5.",
+          "ref": "EYMKP5",
+          "ticket": "frecciarossa",
+          "map": "Venezia Santa Lucia station"
+        },
+        {
+          "time": "~8:00 PM",
+          "icon": "🍝",
+          "title": "Dinner in Rome",
+          "detail": "Taxi to hotel (~€15). Near Campo de' Fiori."
+        }
+      ],
+      "lodging": "Torre Argentina Relais (Rome)"
+    },
+    {
+      "date": "2026-08-03",
+      "dow": "Mon",
+      "city": "Rome",
+      "flag": "🇮🇹",
+      "title": "Ancient Rome + Heart of Rome",
+      "dress": true,
+      "bring": [
+        "Passports or IDs (a phone photo is fine) — checked at the Colosseum",
+        "€330 cash for Giusy (guide)",
+        "Modest outfit for the Pantheon",
+        "Water + sun hat"
+      ],
+      "contacts": [
+        "Giusy Campanella"
+      ],
+      "items": [
+        {
+          "time": "9:00 AM",
+          "icon": "🧭",
+          "title": "Meet guide Giusy · Metro Colosseo",
+          "detail": "Relocated from 8:30. Green newsstand on Via dei Fori Imperiali — sign with your name.",
+          "map": "Colosseo Metro Station, Rome",
+          "wa": "+393479197580"
+        },
+        {
+          "time": "9:00–11:00",
+          "icon": "🏛️",
+          "title": "Roman Forum + Palatine (guided)",
+          "detail": "Ancient Rome tour with Giusy (€330 cash).",
+          "map": "Roman Forum, Rome"
+        },
+        {
+          "time": "11:00 AM",
+          "icon": "🎟️",
+          "title": "Colosseum entry",
+          "detail": "24h tickets, 2 pax (1 adult + 1 under-18). Via Zest Italy — received 7/8.",
+          "ticket": "colosseum",
+          "map": "Colosseum, Rome"
+        },
+        {
+          "time": "Afternoon",
+          "icon": "🚶",
+          "title": "Rick Steves 'Heart of Rome' walk",
+          "detail": "Campo de' Fiori → Navona → Pantheon (🎟️ €5, book ahead) → Trevi → Spanish Steps. 🔴 Modest for Pantheon.",
+          "map": "Pantheon, Rome"
+        },
+        {
+          "time": "Evening",
+          "icon": "🍕",
+          "title": "Trastevere",
+          "detail": "Dinner + wander. Da Enzo al 29 (expect a line).",
+          "map": "Trastevere, Rome"
+        }
+      ],
+      "lodging": "Torre Argentina Relais (Rome)"
+    },
+    {
+      "date": "2026-08-04",
+      "dow": "Tue",
+      "city": "Pompeii day trip",
+      "flag": "🇮🇹",
+      "title": "Pompeii (full day)",
+      "bring": [
+        "Water, sunscreen, hat — little shade",
+        "Comfortable shoes",
+        "Train tickets (Trenitalia app, PNR RA8DSN)"
+      ],
+      "contacts": [
+        "Carmine Volpe"
+      ],
+      "items": [
+        {
+          "time": "8:05 AM",
+          "icon": "🚄",
+          "title": "Frecciarossa 9503 · Roma Termini → Napoli Afragola",
+          "app": "Trenitalia",
+          "detail": "→ 9:05. Then FrecciaLink LK031 9:26 → Pompei Scavi 10:01. PNR RA8DSN.",
+          "ref": "RA8DSN",
+          "map": "Roma Termini"
+        },
+        {
+          "time": "10:15 AM–12:15",
+          "icon": "🏛️",
+          "title": "Pompeii — 2h guided (Carmine)",
+          "detail": "Meet Carmine at the Pompei Scavi entrance. Then lunch + wander.",
+          "map": "Pompei Scavi entrance",
+          "wa": "+393929128540"
+        },
+        {
+          "time": "2:45 PM",
+          "icon": "🚄",
+          "title": "Return · Pompei → Roma",
+          "detail": "Bus NP22 2:45 → Metro 3:07 Pompei→Salerno → Frecciarossa 9658 4:17 → Roma Termini 5:40. PNR RA8DSN."
+        }
+      ],
+      "lodging": "Torre Argentina Relais (Rome)"
+    },
+    {
+      "date": "2026-08-05",
+      "dow": "Wed",
+      "city": "Rome — Vatican",
+      "flag": "🇮🇹",
+      "title": "Vatican day",
+      "dress": true,
+      "bring": [
+        "Modest dress — Vatican Museums + St. Peter's (strict)",
+        "€420 cash for Giusy",
+        "Passports/IDs",
+        "Water"
+      ],
+      "contacts": [
+        "Giusy Campanella"
+      ],
+      "items": [
+        {
+          "time": "8:45 AM",
+          "icon": "🧭",
+          "title": "Meet Giusy · Vatican Museums entrance",
+          "detail": "Confirm meet time with Giusy. Extended Vatican tour (€420 cash).",
+          "map": "Vatican Museums entrance, Rome",
+          "wa": "+393479197580"
+        },
+        {
+          "time": "9:00 AM",
+          "icon": "🎟️",
+          "title": "Vatican Museums",
+          "detail": "Conf GYGFWV9QZ3M7 · PIN PXjL#pLS. 🔴 Modest dress.",
+          "map": "Vatican Museums, Rome"
+        },
+        {
+          "time": "2:00 PM",
+          "icon": "⛪",
+          "title": "St. Peter's Basilica",
+          "detail": "Ref TIE-843566 · €18 · 3 tix (Jonathan + Emma + guide Giusy). 🔴 Modest dress. Confirm passage timing with Giusy.",
+          "ticket": "st-peters",
+          "map": "St. Peter's Basilica, Vatican"
+        },
+        {
+          "time": "PM",
+          "icon": "🏰",
+          "title": "Castel Sant'Angelo (optional)",
+          "detail": "Only if the afternoon has room after St. Peter's (2 PM) — day-of tickets are usually fine. Easy to skip to leave time to wander.",
+          "map": "Castel Sant'Angelo, Rome"
+        }
+      ],
+      "lodging": "Torre Argentina Relais (Rome)"
+    },
+    {
+      "date": "2026-08-06",
+      "dow": "Thu",
+      "city": "Rome → Paris",
+      "flag": "🇮🇹",
+      "title": "Fly to Paris",
+      "alerts": [
+        {
+          "icon": "✅",
+          "level": "info",
+          "title": "No EES on the Rome → Paris flight",
+          "text": "Rome (FCO) → Paris (CDG) is intra-Schengen (Italy to France), so there is no biometric border and no EES check on this flight. A standard ~2-hour arrival at Fiumicino is plenty."
+        }
+      ],
+      "items": [
+        {
+          "time": "6:30–8:40 PM",
+          "icon": "✈️",
+          "title": "Air France AF1605 · FCO → CDG",
+          "app": {
+            "name": "Air France",
+            "url": "https://www.airfrance.com/"
+          },
+          "detail": "Depart FCO T1 18:30 → arrive CDG T2F 20:40. Seats 04E/04F. Conf XDRXOF.",
+          "ref": "XDRXOF"
+        },
+        {
+          "time": "Evening",
+          "icon": "🚇",
+          "title": "RER B → Line 1 → Hôtel-de-Ville",
+          "detail": "Check in at Caron de Beaumarchais (conf KB6TK3, PIN 51196)."
+        }
+      ],
+      "lodging": "Hôtel Caron de Beaumarchais (Paris)"
+    },
+    {
+      "date": "2026-08-07",
+      "dow": "Fri",
+      "city": "Paris",
+      "flag": "🇫🇷",
+      "title": "Paris day 1",
+      "dress": true,
+      "bring": [
+        "Modest dress for Notre-Dame (strict since the reopening)",
+        "Comfortable shoes",
+        "Museum Pass activates today"
+      ],
+      "items": [
+        {
+          "time": "9:30 AM",
+          "icon": "🎟️",
+          "title": "Sainte-Chapelle",
+          "detail": "Museum Pass account. Stunning stained glass.",
+          "ticket": "sainte-chapelle",
+          "map": "Sainte-Chapelle, Paris"
+        },
+        {
+          "time": "10:30 AM",
+          "icon": "🗼",
+          "title": "Notre-Dame Towers",
+          "detail": "CMN booking.",
+          "ticket": "notre-dame-towers",
+          "map": "Notre-Dame de Paris"
+        },
+        {
+          "time": "~11:30 AM",
+          "icon": "⛪",
+          "title": "Notre-Dame Cathedral",
+          "detail": "Free entry — reserve a same-day slot (opens only a few hours before) on the official site. 🔴 Strict modest dress.",
+          "map": "Notre-Dame de Paris"
+        },
+        {
+          "time": "6:30 PM",
+          "icon": "🖼️",
+          "title": "Louvre",
+          "detail": "Timed entry 6:30 PM. Museum Pass QR at the Pyramid.",
+          "ticket": "museum-pass",
+          "map": "Louvre Museum, Paris"
+        }
+      ],
+      "lodging": "Hôtel Caron de Beaumarchais (Paris)"
+    },
+    {
+      "date": "2026-08-08",
+      "dow": "Sat",
+      "city": "Paris",
+      "flag": "🇫🇷",
+      "title": "Paris day 2 — Versailles + Eiffel",
+      "items": [
+        {
+          "time": "9:00 AM",
+          "icon": "🏰",
+          "title": "Versailles",
+          "detail": "RER C (~1h). Entrée A – Pavillon Dufour. 2 passport tickets (free-admission, gardens not included). Order 197328269.",
+          "ticket": "versailles",
+          "map": "Palace of Versailles"
+        },
+        {
+          "time": "~5:00 PM",
+          "icon": "🏛️",
+          "title": "Arc de Triomphe",
+          "detail": "Free w/ Museum Pass — reserve day before (Fri Aug 7) at parismuseumpass.fr",
+          "map": "Arc de Triomphe, Paris"
+        },
+        {
+          "time": "9:30 PM",
+          "icon": "🗼",
+          "title": "Eiffel Tower — 2nd floor",
+          "detail": "Order 262010345189. 2nd-floor lift (not summit).",
+          "ticket": "eiffel",
+          "map": "Eiffel Tower, Paris"
+        }
+      ],
+      "lodging": "Hôtel Caron de Beaumarchais (Paris)"
+    },
+    {
+      "date": "2026-08-09",
+      "dow": "Sun",
+      "city": "Paris → home",
+      "flag": "🏠",
+      "title": "Fly home",
+      "alerts": [
+        {
+          "icon": "🛂",
+          "level": "amber",
+          "title": "EES exit check at CDG — arrive 3 hours early",
+          "text": "Leaving Europe, you pass an EES exit check at CDG. You're already registered from Jul 23, so it's a quicker face scan than the first time — but CDG is the busiest EES hub, so arrive about 3 hours before the 4:00 PM Delta flight and go straight to passport control."
+        }
+      ],
+      "items": [
+        {
+          "time": "Morning",
+          "icon": "🚶",
+          "title": "Last sightseeing (Montmartre? Orsay?)",
+          "detail": "🟡 Sacré-Cœur = modest if you go in."
+        },
+        {
+          "time": "4:00 PM",
+          "icon": "✈️",
+          "title": "Delta 81 · CDG → SEA",
+          "app": "Delta",
+          "detail": "RER B → CDG. Conf HX8C2W.",
+          "ref": "HX8C2W"
+        }
+      ],
+      "ideas": [
+        {
+          "title": "Montmartre + Sacré-Cœur",
+          "detail": "Hilltop views, artists' square (Place du Tertre). 🟡 modest to enter the basilica."
+        },
+        {
+          "title": "Musée d'Orsay",
+          "detail": "Impressionists in a former train station. Opens 9:30 — doable before the airport."
+        },
+        {
+          "title": "Le Marais stroll",
+          "detail": "You're staying here — Place des Vosges, cafés, an easy last walk."
+        }
+      ],
+      "lodging": "Overnight flight home"
+    }
+  ],
+  "flights": [
+    {
+      "shared": true,
+      "label": "Delta 80 · SEA → CDG",
+      "date": "Wed Jul 22",
+      "time": "6:35 PM dep → 1:50 PM arr (+1)",
+      "ref": "HX8C2W",
+      "note": "4 pax. Terminal 2E arrival. Premium Select (Jonathan/Emma outbound)."
+    },
+    {
+      "shared": true,
+      "label": "Volotea V7 2783 · LIL → TLS",
+      "date": "Sun Jul 26",
+      "time": "4:10 – 5:45 PM",
+      "ref": "775447387",
+      "note": "1h35m."
+    },
+    {
+      "label": "Ryanair FR3630 · TLS → TSF (Venice)",
+      "date": "Fri Jul 31",
+      "time": "2:40 – 4:20 PM",
+      "ref": "NTJJRV",
+      "note": "Seats 02E/02F. Priority + 2 cabin bags."
+    },
+    {
+      "label": "Air France AF1605 · FCO → CDG",
+      "date": "Thu Aug 6",
+      "time": "6:30 – 8:40 PM",
+      "ref": "XDRXOF",
+      "note": "Seats 04E/04F. Depart FCO T1, arrive CDG T2F."
+    },
+    {
+      "label": "Delta 81 · CDG → SEA",
+      "date": "Sun Aug 9",
+      "time": "4:00 PM dep → 5:34 PM arr",
+      "ref": "HX8C2W",
+      "note": "Comfort (Jonathan/Emma return)."
+    },
+    {
+      "shared": true,
+      "label": "KLM · TLS → AMS → DUB (Kate & Jordyn)",
+      "date": "Thu Jul 30",
+      "time": "6:05 AM dep",
+      "ref": "—",
+      "note": "Kate & Jordyn split to Dublin."
+    }
+  ],
+  "trains": [
+    {
+      "shared": true,
+      "label": "TGV INOUI 5280 · CDG → Lille Europe",
+      "date": "Thu Jul 23",
+      "time": "14:58 → ~16:00 (~1h)",
+      "ref": "SM9FYU",
+      "note": "1st class (Standard Première). 4 pax. €184. e-ticket QR in SNCF Connect app."
+    },
+    {
+      "label": "Frecciarossa 9427 · Venezia S. Lucia → Roma Termini",
+      "date": "Sun Aug 2",
+      "time": "15:26 → 19:25 (~4h)",
+      "ref": "EYMKP5",
+      "note": "Coach 4, seats 8D/9D. RailClick ref 2316005. Emma free (FrecciaFAMILY).",
+      "assets": [
+        {
+          "label": "Tickets",
+          "file": "frecciarossa"
+        }
+      ]
+    },
+    {
+      "label": "Pompeii day trip (out + return)",
+      "date": "Tue Aug 4",
+      "time": "08:05 out / 17:40 back",
+      "ref": "RA8DSN",
+      "note": "FR9503+LK031 Roma→Pompei Scavi; NP22+21327+FR9658 return. €113."
+    }
+  ],
+  "hotels": [
+    {
+      "shared": true,
+      "name": "Florence & Michael's B&B",
+      "city": "Marchiennes",
+      "dates": "Jul 23–26",
+      "ref": "—",
+      "address": "49 rue du Hameau d'Elpret, 59870 Marchiennes",
+      "note": "Family hosting (~40 min SE of Lille). Likely our stay. 3 families split across 2 houses — see also the Airbnb below.",
+      "phone": ""
+    },
+    {
+      "shared": true,
+      "name": "Florence & Michael's Airbnb",
+      "city": "Marchiennes",
+      "dates": "Jul 23–26",
+      "ref": "—",
+      "address": "5 rue de l'Abreuvoir, 59870 Marchiennes",
+      "note": "Second property rented by Florence & Michael, part of the 3-family split.",
+      "phone": ""
+    },
+    {
+      "shared": true,
+      "name": "Airbnb - Pechbonnieu",
+      "city": "Toulouse",
+      "dates": "Jul 26–31",
+      "ref": "—",
+      "note": "Airbnb in Pechbonnieu (near Toulouse)",
+      "phone": "",
+      "address": "23 Chemin de la Serre, Pechbonnieu, Occitanie 31140, France"
+    },
+    {
+      "name": "Hotel al Ponte Mocenigo",
+      "city": "Venice",
+      "dates": "Jul 31 – Aug 2",
+      "ref": "832405567 · PIN 5610",
+      "address": "Santa Croce 1985, Venezia",
+      "phone": "+390415244797",
+      "note": "€370 total, pay at hotel. Vaporetto Line 1 → San Stae."
+    },
+    {
+      "name": "Torre Argentina Relais",
+      "city": "Rome",
+      "dates": "Aug 2–6",
+      "ref": "11287ROLYK0000000968",
+      "address": "Via di Torre Argentina 44, 00186 Roma",
+      "phone": "+390668340851",
+      "note": "€826 prepaid + €48 city tax. Taxi from Termini ~€15."
+    },
+    {
+      "name": "Hôtel Caron de Beaumarchais",
+      "city": "Paris",
+      "dates": "Aug 6–9",
+      "ref": "KB6TK3 · PIN 51196",
+      "address": "12 Rue Vieille du Temple, 75004 Paris (Le Marais)",
+      "phone": "+33142723412",
+      "note": "€585 prepaid + €105.18 at hotel. Front-side room, 2 single beds."
+    }
+  ],
+  "cars": [
+    {
+      "company": "Avis",
+      "city": "Lille",
+      "ref": "15879169US5",
+      "pickup": "Thu Jul 23, 3:30 PM · Lille Europe (LL8)",
+      "dropoff": "Sun Jul 26, 3:30 PM · Lille Airport (LIL)",
+      "vehicle": "Renault Symbioz (automatic, unlimited km)",
+      "phone": "+33159588131"
+    },
+    {
+      "company": "National",
+      "city": "Toulouse",
+      "ref": "2096707937",
+      "pickup": "Sun Jul 26, 5:30 PM · TLS Airport",
+      "dropoff": "Fri Jul 31, 1:30 PM · TLS Airport",
+      "vehicle": "Compact SUV (Renault Captur or similar, manual)",
+      "phone": "",
+      "note": "Emerald Club #660279989 · 1,250 km included"
+    }
+  ],
+  "tickets": [
+    {
+      "what": "Doge's Palace — Secret Itineraries",
+      "date": "Sat Aug 1 · 9:30 AM",
+      "city": "Venice",
+      "ref": "PS6KFPWOQW / 9TZW45WXQO",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "doges-palace"
+        }
+      ]
+    },
+    {
+      "what": "St. Mark's Basilica — Complete Experience",
+      "date": "Sat Aug 1 · 1:00 PM",
+      "city": "Venice",
+      "ref": "171-16HTATTH · SP4YUEE4WTAZ",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Jonathan",
+          "file": "st-marks-jonathan"
+        },
+        {
+          "label": "Emma",
+          "file": "st-marks-emma"
+        }
+      ]
+    },
+    {
+      "what": "Ancient Rome tour (Giusy)",
+      "date": "Mon Aug 3 · 9:00 AM",
+      "city": "Rome",
+      "ref": "via Massimiliano · €330 cash",
+      "status": "booked"
+    },
+    {
+      "what": "Colosseum 24h",
+      "date": "Mon Aug 3 · 11:00 AM",
+      "city": "Rome",
+      "ref": "via Zest Italy · 2 pax",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "colosseum"
+        }
+      ]
+    },
+    {
+      "what": "Pantheon timed entry",
+      "date": "Mon Aug 3 · PM",
+      "city": "Rome",
+      "ref": "€5/pp",
+      "status": "todo",
+      "bookUrl": "https://www.pantheonroma.com",
+      "bookNote": "Book online anytime (even same day) to skip the ticket line — no advance deadline."
+    },
+    {
+      "what": "Vatican Museums",
+      "date": "Wed Aug 5 · 9:00 AM",
+      "city": "Rome",
+      "ref": "GYGFWV9QZ3M7 · PIN PXjL#pLS",
+      "status": "booked"
+    },
+    {
+      "what": "Extended Vatican tour (Giusy)",
+      "date": "Wed Aug 5",
+      "city": "Rome",
+      "ref": "via Massimiliano · €420 cash",
+      "status": "booked"
+    },
+    {
+      "what": "St. Peter's Basilica",
+      "date": "Wed Aug 5 · 2:00 PM",
+      "city": "Rome",
+      "ref": "TIE-843566 · €18 · 3 tix",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "st-peters"
+        }
+      ]
+    },
+    {
+      "what": "Castel Sant'Angelo (optional, day-of)",
+      "date": "Wed Aug 5 · PM",
+      "city": "Rome",
+      "ref": "~€15/adult",
+      "status": "todo",
+      "bookUrl": "http://castelsantangelo.beniculturali.it"
+    },
+    {
+      "what": "Borghese Gallery (optional)",
+      "date": "Thu Aug 6 · AM (dropped)",
+      "city": "Rome",
+      "ref": "❌ Dropped Jul 20 — not going",
+      "status": "dropped"
+    },
+    {
+      "what": "Sainte-Chapelle",
+      "date": "Fri Aug 7 · 9:30 AM",
+      "city": "Paris",
+      "ref": "Museum Pass",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "sainte-chapelle"
+        }
+      ]
+    },
+    {
+      "what": "Notre-Dame Towers",
+      "date": "Fri Aug 7 · 10:30 AM",
+      "city": "Paris",
+      "ref": "CMN booking",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "notre-dame-towers"
+        }
+      ]
+    },
+    {
+      "what": "Notre-Dame Cathedral",
+      "date": "Fri Aug 7 · ~11:30 AM",
+      "city": "Paris",
+      "ref": "free — same-day slot",
+      "status": "todo",
+      "bookUrl": "https://resa.notredamedeparis.fr/en/reservationindividuelle/tickets",
+      "bookBy": "2026-08-07",
+      "bookLead": "same day — free slots open only a few hours before; book once you're in Paris"
+    },
+    {
+      "what": "Louvre",
+      "date": "Fri Aug 7 · 6:30 PM",
+      "city": "Paris",
+      "ref": "Museum Pass",
+      "status": "booked"
+    },
+    {
+      "what": "Versailles",
+      "date": "Sat Aug 8 · 9:00 AM",
+      "city": "Paris",
+      "ref": "Order 197328269 · Entrée A, Pavillon Dufour · 2 pax",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "versailles"
+        }
+      ]
+    },
+    {
+      "what": "Arc de Triomphe",
+      "date": "Sat Aug 8 · ~5:00 PM",
+      "city": "Paris",
+      "ref": "Museum Pass — reserve slot",
+      "status": "todo",
+      "bookUrl": "https://www.parismuseumpass.fr/en/reservation"
+    },
+    {
+      "what": "Eiffel Tower — 2nd floor",
+      "date": "Sat Aug 8 · 9:30 PM",
+      "city": "Paris",
+      "ref": "order 262010345189",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Ticket",
+          "file": "eiffel"
+        }
+      ]
+    },
+    {
+      "what": "Paris Museum Pass (2-day)",
+      "date": "Activates Aug 7",
+      "city": "Paris",
+      "ref": "C722677E800702O237282",
+      "status": "booked",
+      "assets": [
+        {
+          "label": "Pass",
+          "file": "museum-pass"
+        }
+      ]
+    }
+  ],
+  "tours": [
+    {
+      "id": "venice-grand-canal",
+      "title": "Grand Canal Cruise",
+      "by": "Rick Steves self-guided",
+      "type": "boat",
+      "date": "2026-08-02",
+      "city": "Venice",
+      "duration": "~45 min end to end",
+      "audio": "Rick Steves Audio Europe (free app) — search \"Venice Grand Canal\"",
+      "intro": "Ride Vaporetto Line 1 slowly down the Grand Canal from the train station toward San Marco, palaces gliding by on both banks.",
+      "board": "Vaporetto Line 1. Board at Ferrovia (Santa Lucia station) or Piazzale Roma — aim for an open-air seat at the back.",
+      "stops": [
+        {
+          "name": "Ferrovia (Santa Lucia station)",
+          "map": "Venezia Santa Lucia",
+          "text": "Board Line 1 in front of the train station and grab an open-air seat at the back. The Grand Canal is Venice's 2-mile 'Main Street' — no cars, ever, just boats, curving in a backward-S past 200 palaces. Across the water, the green-domed church of San Simeone Piccolo waves you off."
+        },
+        {
+          "name": "Ca' d'Oro",
+          "map": "Ca' d'Oro, Venice",
+          "text": "Watch the right bank for the Ca' d'Oro ('House of Gold'), the most beautiful Gothic palace on the canal — its lacy marble facade was once gilded and painted. Just before it, the covered Rialto markets have sold fish and produce on this spot for a thousand years."
+        },
+        {
+          "name": "Rialto Bridge",
+          "map": "Rialto Bridge, Venice",
+          "text": "The grand stone arch (1591) was for centuries the only bridge over the Grand Canal, and it's lined with shops just as medieval bridges were. This is the commercial heart of Venice — the quays where the merchants and money-changers of Shakespeare's day did business."
+        },
+        {
+          "name": "Ca' Rezzonico",
+          "map": "Ca' Rezzonico, Venice",
+          "text": "On the left, this Baroque palace is now a museum of 18th-century Venice, full of Tiepolo ceilings. All along here, notice the candy-striped mooring poles and the water-level doors: these palaces were built to be entered by boat, with the family living on the airy piano nobile above the damp."
+        },
+        {
+          "name": "Accademia Bridge",
+          "map": "Accademia Bridge, Venice",
+          "text": "The wooden Accademia Bridge frames one of the world's great views. On the near right, the Gallerie dell'Accademia holds Venice's finest paintings; as you glide under the bridge, the great domed church ahead swings into view."
+        },
+        {
+          "name": "Santa Maria della Salute",
+          "map": "Santa Maria della Salute, Venice",
+          "text": "That massive white Baroque church with the giant marble scrolls was built as a thank-offering after the plague of 1630 lifted — 'Salute' means health and salvation. Like all of Venice, it floats on a million wooden pilings driven into the lagoon mud."
+        },
+        {
+          "name": "San Marco (Vallaresso)",
+          "map": "San Marco Vallaresso, Venice",
+          "text": "The canal opens into St. Mark's Basin. Hop off at San Marco–Vallaresso for the Doge's Palace, the Campanile, and the Basilica — or ride one stop more. Look back across the water to the island of San Giorgio Maggiore, Palladio's serene white church: the classic Venice postcard."
+        }
+      ]
+    },
+    {
+      "id": "rome-heart-of-rome",
+      "title": "Heart of Rome Walk",
+      "by": "Rick Steves self-guided",
+      "type": "walk",
+      "date": "2026-08-03",
+      "city": "Rome",
+      "duration": "~2 hours, self-paced (magical after dark)",
+      "audio": "Rick Steves Audio Europe (free app) — search \"Heart of Rome\"",
+      "intro": "An evening ramble through Rome's floodlit center, linking its most beloved squares and fountains.",
+      "mapAsset": "tourmap-rome-heart-of-rome",
+      "stops": [
+        {
+          "name": "Campo de' Fiori",
+          "map": "Campo de' Fiori, Rome",
+          "text": "Start in this raffish market square — 'field of flowers,' once a meadow. By day it's a produce-and-flower market; by night a rowdy student bar scene. The brooding hooded statue in the center is Giordano Bruno, the philosopher burned here for heresy in 1600, staring pointedly toward the Vatican that condemned him. Grab a coffee or a slice before you plunge into the lanes."
+        },
+        {
+          "name": "Piazza Navona",
+          "map": "Piazza Navona, Rome",
+          "text": "A block north opens Rome's most beautiful Baroque square, its long oval tracing the ancient stadium of Domitian buried beneath. The centerpiece is Bernini's Fountain of the Four Rivers (1651) — muscular gods personifying the Nile (head veiled, its source then unknown), Ganges, Danube, and Río de la Plata, beneath an Egyptian obelisk. Facing it is Sant'Agnese by Bernini's rival Borromini. Cafés, street artists, and gelato make this the place to linger."
+        },
+        {
+          "name": "Pantheon",
+          "map": "Pantheon, Rome",
+          "note": "🎟️ €5 timed entry — book ahead",
+          "text": "Walk east to the best-preserved building of ancient Rome — a temple 'to all the gods' rebuilt by Hadrian around 125 AD, saved because it became a church. Step inside and look up: a perfect coffered dome whose height equals its diameter (142 ft), pierced by a 27-ft open oculus that drops a moving disk of sunlight (and the odd rain shower, which drains through holes in the floor). Raphael is buried here."
+        },
+        {
+          "name": "Trevi Fountain",
+          "map": "Trevi Fountain, Rome",
+          "text": "Follow the sound of rushing water to Rome's showstopper, where Neptune bursts from a palazzo wall on a shell chariot pulled by two sea horses — one wild, one calm, the moods of the sea. It marks the end of an ancient aqueduct. Toss a coin over your left shoulder with your right hand to ensure a return to Rome (the day's ~€3,000 funds a charity). Best after dark, floodlit."
+        },
+        {
+          "name": "Spanish Steps",
+          "map": "Piazza di Spagna, Rome",
+          "text": "End at the elegant sweep of the Spanish Steps — 135 travertine steps cascading from the twin-towered Trinità dei Monti church down to Piazza di Spagna, a French-built stairway on Spanish-embassy turf. At the base sits the Barcaccia, a half-sunk stone-boat fountain by Bernini's father. A classic spot to sit and watch Rome stroll by (no food on the steps — it's fined)."
+        }
+      ]
+    },
+    {
+      "id": "rome-st-peters",
+      "title": "St. Peter's Basilica",
+      "by": "self-guided basilica route",
+      "type": "indoor",
+      "date": "2026-08-05",
+      "city": "Rome",
+      "duration": "~1 hour inside (more if you climb the dome)",
+      "audio": "Rick Steves Audio Europe (free app) — search \"St. Peter's Basilica\"",
+      "intro": "A self-guided loop through the largest church in Christendom — from the square and facade to Michelangelo's Pietà, the main altar over St. Peter's tomb, and Bernini's golden throne. Dress code enforced: shoulders and knees covered.",
+      "mapAsset": "tourmap-rome-st-peters",
+      "stops": [
+        {
+          "name": "St. Peter's Square",
+          "map": "St. Peter's Square, Vatican City",
+          "text": "Before going in, take in Bernini's vast oval piazza (1667). Two curved colonnade 'arms' — 284 columns topped by 140 saints — reach out to embrace the crowd. The red-granite obelisk in the center is Egyptian, hauled to Rome by Caligula and a silent witness to St. Peter's crucifixion nearby. Stand on a round paving disk between a fountain and the obelisk and the four rows of columns line up as one."
+        },
+        {
+          "name": "The Facade & Holy Door",
+          "text": "Climb toward the towering facade (the dome hides behind it from here). Under the portico, the far-right bronze door is the Holy Door, cemented shut and opened only in Jubilee years. Remember the dress code — covered shoulders and knees — strictly enforced at security."
+        },
+        {
+          "name": "The Nave & Floor Markers",
+          "text": "Step into the nave and let the scale sink in — it runs the length of two football fields. Bronze lines in the marble floor mark how far the world's other great cathedrals would reach if set inside; they all fall short. The cherubs holding the holy-water basins are the size of grown adults — everything is bigger than it looks."
+        },
+        {
+          "name": "Michelangelo's Pietà",
+          "text": "In the first chapel on the right, behind glass since a 1972 attack, is Michelangelo's Pietà — Mary cradling the dead Christ, carved when he was just 24. It's the only work he ever signed: stung to hear it credited to a rival, he later chiseled his name across Mary's sash."
+        },
+        {
+          "name": "St. Peter Statue (kissable toe)",
+          "text": "Farther up on the right sits a dark bronze St. Peter enthroned, holding the keys. Pilgrims have touched and kissed its right foot for centuries until the toes are worn nearly smooth. Give it a rub as you pass."
+        },
+        {
+          "name": "Baldacchino & Main Altar",
+          "text": "At the crossing, directly over St. Peter's tomb, rises Bernini's 90-foot bronze canopy on barley-twist columns — cast, controversially, from bronze stripped off the Pantheon's porch. Only the pope says Mass at the altar beneath it; the sunken confessio in front glows with oil lamps at the tomb."
+        },
+        {
+          "name": "Michelangelo's Dome",
+          "text": "Look straight up into Michelangelo's dome, 448 feet to the top of the lantern. Around its base runs a six-foot-tall gold inscription — Christ's words to Peter: 'You are Peter (rock), and on this rock I will build my church.' The light pouring down is meant to feel like heaven opening."
+        },
+        {
+          "name": "Throne of St. Peter",
+          "text": "At the far end, behind the altar, Bernini's gilded Throne of St. Peter seems to float in a burst of golden clouds and angels, lit from behind by a honey-colored alabaster window with the dove of the Holy Spirit at its heart — Baroque theater at its most dazzling."
+        },
+        {
+          "name": "Dome Climb (optional)",
+          "text": "For the finale, join the separate dome climb (elevator partway, then ~320 tight, leaning steps). You first step out on an interior balcony high above the nave, then spiral to the lantern for a sweeping view down Bernini's colonnade and across Rome. Buy the climb ticket to the right as you exit the church."
+        }
+      ],
+      "outro": "Exit is usually via the right side toward the treasury and crypt. The papal tombs in the Grottoes are just downstairs; the deeper Scavi excavation tour to St. Peter's actual tomb must be booked far in advance."
+    },
+    {
+      "id": "versailles-palace",
+      "title": "Versailles — State Apartments",
+      "by": "self-guided palace route",
+      "type": "indoor",
+      "date": "2026-08-08",
+      "city": "Paris",
+      "duration": "~1.5–2h, one-way through the State Apartments",
+      "audio": "Rick Steves Audio Europe (free app) — search \"Versailles\"",
+      "intro": "The State Apartments are a fixed one-way loop — follow the flow from the chapel end through to the Hall of Mirrors and the royal bedchambers.",
+      "mapAsset": "tourmap-versailles-palace",
+      "stops": [
+        {
+          "name": "Royal Chapel",
+          "text": "From the entrance vestibule you look into the Royal Chapel, all white stone and gold, rising two stories. The king and royal family worshipped from the upper gallery (level with his apartments) while the court packed the floor below — and everyone faced the king as much as the altar. Finished in 1710, it's Versailles Baroque at full volume."
+        },
+        {
+          "name": "Hercules Drawing Room",
+          "text": "Named for its enormous ceiling — Hercules welcomed to Olympus, painted by François Lemoyne, who was so drained by the three-year effort that he took his own life soon after finishing. On the wall hangs a giant Veronese canvas, a diplomatic gift from the Republic of Venice."
+        },
+        {
+          "name": "Salon of Abundance",
+          "text": "A small antechamber that once led to Louis XIV's cabinet of curiosities — his medals, gems, and rarities. Look up: the trompe-l'œil ceiling opens onto a painted balustrade with figures leaning over to watch you."
+        },
+        {
+          "name": "Salon of Venus",
+          "text": "First of the planet-themed salons, each named for a god 'orbiting' the Sun King. Venus presides overhead; in a niche stands a marble Louis XIV dressed as a Roman emperor, flanked by painted false columns that fool the eye."
+        },
+        {
+          "name": "Salon of Diana",
+          "text": "Under Louis XIV this was the billiard room, where the king showed off before an admiring court. By the entrance sits Bernini's celebrated marble bust of the young Louis XIV — carved from life in 1665, all cascading hair and royal swagger."
+        },
+        {
+          "name": "Salon of Mars",
+          "text": "Begun as a guard room (hence Mars, god of war, on the ceiling) and later used for concerts and balls. Picture musicians in the side galleries and the court dancing beneath the warlike paintings."
+        },
+        {
+          "name": "Salon of Mercury",
+          "text": "The former ceremonial bedroom, with a state bed behind a gilded rail. When Louis XIV died in 1715 his body lay here in state for a week — and for years after, courtiers still bowed to the empty bed out of habit."
+        },
+        {
+          "name": "Salon of Apollo",
+          "text": "The throne room, dedicated to Apollo the sun god — the Sun King himself. The solid-silver throne that once stood on the dais was later melted down to fund a war. Overhead, Apollo drives his chariot across the heavens."
+        },
+        {
+          "name": "Salon of War",
+          "text": "A corner room glorifying Louis XIV's conquests. Above the fireplace, an oval stucco relief shows the king on horseback trampling his enemies underfoot. It opens straight into the palace's showpiece."
+        },
+        {
+          "name": "Hall of Mirrors",
+          "text": "The wow. A 240-foot gallery where 17 mirror-lined arches face 17 windows onto the gardens — 357 mirrors, in an age when a single one cost a fortune. Courtiers lined it daily hoping to catch the king's glance as he passed to Mass; the ceiling trumpets his reign; and here, in 1919, the Treaty of Versailles ended World War I. Walk slowly and watch the garden light ricochet."
+        },
+        {
+          "name": "Salon of Peace",
+          "text": "The Hall of Mirrors' twin at the far, queen's-side end — mirroring the War Salon but themed to the peace Louis's victories supposedly won. It opened into the queen's apartments."
+        },
+        {
+          "name": "King's Bedchamber",
+          "text": "Dead center of the palace, on the east–west axis facing the sunrise — the symbolic heart of Versailles. Here the king held the 'levée,' a theatrical getting-up ritual in which top nobles vied for the honor of handing him his shirt. The bed sits behind a gilded balustrade."
+        },
+        {
+          "name": "Queen's Bedchamber",
+          "text": "Marie-Antoinette's room, restored to its flowery 1780s look. Nineteen royal children were born here, often before an audience of courtiers — royal births were semi-public to prove the line was legitimate. A concealed door in the corner let the queen flee toward the king's rooms the night the mob stormed in, October 1789."
+        }
+      ],
+      "outro": "Exit to the Gardens (free most days; a fee applies on Musical Fountains / Musical Gardens days). If you still have energy, take the little train or a golf cart out to the Trianon palaces and Marie-Antoinette's rustic Hamlet."
+    },
+    {
+      "id": "paris-historic",
+      "title": "Historic Paris Walk",
+      "by": "Rick Steves self-guided",
+      "type": "walk",
+      "date": "2026-08-07",
+      "city": "Paris",
+      "duration": "~2–3h at an easy pace",
+      "audio": "Rick Steves Audio Europe (free app) — search \"Historic Paris\"",
+      "intro": "A loop around the Île de la Cité and the Left Bank — the historic heart of Paris, from Notre-Dame through the Latin Quarter to Sainte-Chapelle.",
+      "mapAsset": "tourmap-paris-historic",
+      "stops": [
+        {
+          "name": "Notre-Dame — Point Zéro",
+          "map": "Point Zero Notre-Dame Paris",
+          "text": "Start on the wide square (the parvis) facing the cathedral. The little bronze 'Point Zéro' star in the pavement is the exact point all distances in France are measured from — stand on it and you're at the center of the country. Read the facade like a medieval pilgrim: three carved portals (the Last Judgment fills the center), the row of 28 stone Kings of Judah above (beheaded by Revolutionary mobs who mistook them for French kings, later restored), and the great rose window that survived the 2019 fire. The twin towers never got their planned spires."
+        },
+        {
+          "name": "Deportation Memorial",
+          "map": "Mémorial des Martyrs de la Déportation Paris",
+          "text": "Behind the cathedral, at the island's downstream tip, slip down the narrow stairs into the Mémorial des Martyrs de la Déportation. It's built to feel like a prison — tight walls, a single barred slit toward the Seine. Inside, a long corridor glimmers with 200,000 backlit crystals, one for each person deported from Vichy France to the Nazi camps. Silent, moving, free — and easy to walk right past."
+        },
+        {
+          "name": "Île Saint-Louis",
+          "map": "Pont Saint-Louis Paris",
+          "text": "Cross the small Pont Saint-Louis (usually with a busker) onto Paris's quieter island — a planned 17th-century quarter of elegant stone mansions that still feels like a village. Its spine, Rue Saint-Louis-en-l'Île, is lined with little shops and the famous Berthillon ice cream (scooped at many cafés). A good place to slow down."
+        },
+        {
+          "name": "Latin Quarter",
+          "map": "Rue de la Huchette Paris",
+          "text": "Back on the Left Bank you enter the Latin Quarter — the student district around the Sorbonne since the 1200s, named for the Latin that scholars spoke here until the Revolution. The knot of lanes around Rue de la Huchette is touristy now and full of cheap eats, but the medieval street plan is genuine."
+        },
+        {
+          "name": "Saint-Séverin",
+          "map": "Église Saint-Séverin Paris",
+          "text": "Duck into this Flamboyant Gothic church, one of the oldest on the Left Bank. Walk behind the altar to its treasure: a double ambulatory where the vault ribs spiral down into a single central pillar carved to look like a twisting palm tree. The abstract 1960s stained glass in the apse glows in warm color."
+        },
+        {
+          "name": "Shakespeare and Company",
+          "map": "Shakespeare and Company Paris",
+          "text": "Across the river from Notre-Dame stands the world's most famous English-language bookshop — a cramped warren of rooms where, by tradition, young writers ('Tumbleweeds') have slept among the shelves in exchange for a little work. Opened in 1951, it borrowed the name of Sylvia Beach's 1920s shop that first published Joyce's Ulysses. Head upstairs for the reading room and the resident piano."
+        },
+        {
+          "name": "Sainte-Chapelle",
+          "map": "Sainte-Chapelle Paris",
+          "text": "The reason to walk the island. Louis IX (Saint Louis) built it in just seven years — finished 1248 — as a jewel-box for what he believed was Christ's Crown of Thorns. The low ground-floor chapel is the warm-up; climb the tight spiral stairs to the upper chapel and 15 walls of 13th-century stained glass soaring 50 feet, 1,113 scenes running Genesis to Christ (begin at the back-left window, read bottom to top). Go on a bright day. Your Museum Pass covers entry."
+        },
+        {
+          "name": "Conciergerie",
+          "map": "Conciergerie Paris",
+          "text": "Next door, the Conciergerie was a medieval royal palace before it became the Revolution's most feared prison. Marie-Antoinette spent her final weeks in a cell here before the guillotine in 1793; a small chapel now marks the spot. Downstairs, don't miss the cavernous Hall of the Men-at-Arms, one of the largest surviving medieval halls in Europe."
+        },
+        {
+          "name": "Pont Neuf & Square du Vert-Galant",
+          "map": "Square du Vert-Galant Paris",
+          "text": "Finish on the Pont Neuf — the 'New Bridge' that is, ironically, Paris's oldest (1607), and the first built without houses so people could stroll and watch the river. Look for the rows of grotesque carved faces (mascarons) along its sides. Then take the steps down to the Square du Vert-Galant, the leafy little park at the island's very point — a local picnic spot and a perfect place to end, with the Seine sliding past on both sides."
+        }
+      ]
+    }
+  ],
+  "cities": [
+    {
+      "shared": true,
+      "name": "Lille",
+      "flag": "🇫🇷",
+      "note": "Jul 23–26 · with Florence & Michael",
+      "tips": [
+        "Home base for Belgium day trips (Bruges/Ghent) and Lille's old town.",
+        "Rental car for the region; return it before the Sun Jul 26 flight to Toulouse."
+      ]
+    },
+    {
+      "shared": true,
+      "name": "Toulouse",
+      "flag": "🇫🇷",
+      "note": "Jul 26–31 · Florence & Michael's home (pool!)",
+      "tips": [
+        "Day trips are flexible — decide with your hosts; nothing needs advance booking.",
+        "Carcassonne, Cathar castles, Albi, Cité de l'Espace are all day-of."
+      ]
+    },
+    {
+      "name": "Venice",
+      "flag": "🇮🇹",
+      "note": "Jul 31 – Aug 2",
+      "tips": [
+        "Getting lost is the point — follow the yellow signs to San Marco / Rialto / Ferrovia.",
+        "Vaporetto Line 1 is the slow Grand Canal 'bus'.",
+        "Modest dress for St. Mark's (Aug 1)."
+      ]
+    },
+    {
+      "name": "Rome",
+      "flag": "🇮🇹",
+      "note": "Aug 2 – 6",
+      "tips": [
+        "Carry passports/IDs for the Colosseum.",
+        "Cash for the guides (Giusy, Carmine).",
+        "Modest dress for the Vatican, St. Peter's, and the Pantheon."
+      ]
+    },
+    {
+      "name": "Paris",
+      "flag": "🇫🇷",
+      "note": "Aug 6 – 9",
+      "tips": [
+        "Museum Pass covers most sights + skips lines (activates Aug 7).",
+        "RER C reaches Versailles (~1h); a Metro/RER carnet or Navigo Easy for the city.",
+        "Notre-Dame Cathedral: free same-day slot, booked a few hours ahead."
+      ]
+    }
+  ],
+  "contacts": [
+    {
+      "name": "Massimiliano Canneto",
+      "role": "Rome guide / coordinator",
+      "phone": "+393493720376",
+      "whatsapp": "+393493720376",
+      "email": "massicanneto@gmail.com",
+      "note": "IG: vatican_max"
+    },
+    {
+      "name": "Giusy Campanella",
+      "role": "Tour guide (Rome + Vatican)",
+      "phone": "+393479197580",
+      "whatsapp": "+393479197580",
+      "note": "Full name Giuseppa. Meet 9:00 AM metro Colosseo (Aug 3)."
+    },
+    {
+      "name": "Carmine Volpe",
+      "role": "Pompeii guide",
+      "phone": "+393929128540",
+      "whatsapp": "+393929128540",
+      "email": "carmine.guide@live.com",
+      "note": "Meet at Pompei Scavi entrance (Aug 4)."
+    },
+    {
+      "name": "Zest Italy Tours",
+      "role": "Colosseum tickets",
+      "phone": "+393420633005",
+      "email": "service@zestitalytours.com",
+      "note": "Emergency +39 347 601 2805."
+    },
+    {
+      "name": "Al Ponte Mocenigo",
+      "role": "Venice hotel",
+      "phone": "+390415244797"
+    },
+    {
+      "name": "Torre Argentina Relais",
+      "role": "Rome hotel",
+      "phone": "+390668340851"
+    },
+    {
+      "name": "Hôtel Caron de Beaumarchais",
+      "role": "Paris hotel",
+      "phone": "+33142723412"
+    },
+    {
+      "name": "Avis — Lille Europe desk",
+      "role": "Car rental",
+      "phone": "+33159588131"
+    }
+  ],
+  "dressCode": {
+    "note": "🔴 = strictly enforced (can be refused entry): covered shoulders + knees. Bring one modest outfit for each 🔴 day + a scarf/shawl in the day bag.",
+    "strict": [
+      {
+        "date": "Sat Aug 1",
+        "site": "St. Mark's Basilica",
+        "city": "Venice"
+      },
+      {
+        "date": "Mon Aug 3",
+        "site": "Pantheon (+ Santa Maria in Trastevere)",
+        "city": "Rome"
+      },
+      {
+        "date": "Wed Aug 5",
+        "site": "Vatican Museums + St. Peter's",
+        "city": "Rome"
+      },
+      {
+        "date": "Fri Aug 7",
+        "site": "Notre-Dame de Paris (strict)",
+        "city": "Paris"
+      }
+    ]
+  },
+  "tips": [
+    "Venice: wandering is the point. The Rick Steves Grand Canal audio tour is great.",
+    "Dinner on St. Mark's square with the dueling musicians is fun.",
+    "Better to leave too early than too late.",
+    "Pay guides in cash; tip 10–15%.",
+    "Pompeii > Herculaneum. Tour guides are worth it everywhere.",
+    "Bring passports/IDs to the Colosseum (a phone photo is fine).",
+    "Download offline Google Maps for Italy + Paris before you go."
+  ],
+  "apps": [
+    {
+      "name": "SNCF Connect",
+      "url": "https://www.sncf-connect.com/"
+    },
+    {
+      "name": "Trenitalia",
+      "url": "https://www.trenitalia.com/"
+    },
+    {
+      "name": "Ryanair",
+      "url": "https://www.ryanair.com/"
+    },
+    {
+      "name": "ATVO",
+      "url": "https://www.atvo.it/"
+    },
+    {
+      "name": "Vaporetto / ACTV",
+      "url": "https://avm.avmspa.it/"
+    },
+    {
+      "name": "Rick Steves Audio Europe",
+      "url": "https://www.ricksteves.com/watch-read-listen/audio/audio-europe"
+    },
+    {
+      "name": "Google Maps (offline)",
+      "url": "https://maps.google.com/"
+    },
+    {
+      "name": "Delta",
+      "url": "https://www.delta.com/"
+    }
+  ],
+  "prep": {
+    "packing": [
+      {
+        "cat": "📄 Documents & money",
+        "items": [
+          "Passports ×4 (check expiry — valid 3+ months past Aug 9)",
+          "Driver's license (for the two rental cars)",
+          "Credit cards + one backup card",
+          "Euros in CASH for guides + tips (~€750+ for Rome guides — get it before you go)",
+          "Travel insurance info",
+          "Printed backup of key confirmations (if a phone dies)"
+        ]
+      },
+      {
+        "cat": "🔌 Electronics",
+        "items": [
+          "Phones + charging cables",
+          "EU plug adapters (Type C/E/F) ×several",
+          "Power bank (fully charged)",
+          "Headphones (for the Rick Steves audio tours)",
+          "Camera + charger (optional)"
+        ]
+      },
+      {
+        "cat": "👕 Clothing",
+        "items": [
+          "Comfortable walking shoes, broken in — the #1 item",
+          "One modest outfit each: covered shoulders + knees (for Aug 1, 3, 5, 7)",
+          "Light layers + a packable rain jacket (Lille is Seattle-like)",
+          "Swimwear (Toulouse pool!)",
+          "Sun hat + sunglasses",
+          "One dressier outfit for a nice dinner"
+        ]
+      },
+      {
+        "cat": "🧴 Toiletries & health",
+        "items": [
+          "Sunscreen (August in Italy is hot)",
+          "Medications (+ a few days extra)",
+          "Blister plasters / Compeed",
+          "Hand sanitizer + tissues (some WCs lack both)"
+        ]
+      },
+      {
+        "cat": "🎒 Day bag",
+        "items": [
+          "Refillable water bottle each",
+          "Light scarf/shawl (throw over shoulders at churches)",
+          "Snacks for travel days",
+          "Portable charger + cable"
+        ]
+      },
+      {
+        "cat": "🧒 For Emma",
+        "items": [
+          "Her modest outfit for the 🔴 days",
+          "Entertainment for flights + the 4h Venice→Rome train",
+          "Her own small day bag + water bottle",
+          "Comfort item / headphones"
+        ]
+      }
+    ],
+    "beforeYouGo": [
+      {
+        "title": "Download all trip apps",
+        "detail": "SNCF Connect, Trenitalia, Ryanair, ATVO, Vaporetto/ACTV, Rick Steves Audio, Delta."
+      },
+      {
+        "title": "Download OFFLINE Google Maps",
+        "detail": "Italy + Paris + Lille/Toulouse — before you leave wifi."
+      },
+      {
+        "title": "Notify bank + AmEx of travel",
+        "detail": "France + Italy, Jul 22 – Aug 9, so cards don't freeze."
+      },
+      {
+        "title": "Get euros cash",
+        "detail": "Guides are cash-only: ~€330 (Aug 3) + €420 (Aug 5) + tips. Don't rely on ATMs abroad."
+      },
+      {
+        "title": "Ryanair check-in reminder (Jul 30)",
+        "detail": "Opens 24h before the Jul 31 flight — MANDATORY online or they charge at the airport."
+      },
+      {
+        "title": "EES biometric border — plan the buffer",
+        "detail": "The new EU Entry/Exit System is live. First EU entry at CDG (Jul 23) = fingerprints + photo for all 4, with 1–3 hr queues — the Lille TGV is tight, so have a backup train in mind. Kate & Jordyn get an EES exit check in Amsterdam (Jul 30); Jonathan & Emma exit at CDG (Aug 9), so arrive ~3 hrs early. Intra-Schengen flights (Lille→Toulouse, Toulouse→Venice, Rome→Paris) have no EES."
+      },
+      {
+        "title": "Delta check-in",
+        "detail": "24h before each Delta flight (Jul 21 for the outbound)."
+      },
+      {
+        "title": "Book the still-open tickets",
+        "detail": "Pantheon + Castel Sant'Angelo (~Jul 15), Borghese (now), Arc de Triomphe (overdue)."
+      },
+      {
+        "title": "Alarm: Notre-Dame Cathedral",
+        "detail": "Free entry books only 72h ahead — reserve from Rome on Aug 4."
+      },
+      {
+        "title": "Cache tickets offline",
+        "detail": "Open each ticket in the Bookings tab once online so it saves for offline."
+      },
+      {
+        "title": "Confirm arrival times with hosts",
+        "detail": "Florence & Michael — Lille (Jul 23) + Toulouse (Jul 26)."
+      },
+      {
+        "title": "Charge power banks + pack adapters",
+        "detail": "The night before."
+      }
+    ]
+  },
+  "emergency": [
+    {
+      "what": "EU emergency (all)",
+      "number": "112"
+    },
+    {
+      "what": "Italy Carabinieri",
+      "number": "112"
+    },
+    {
+      "what": "France emergency",
+      "number": "112"
+    }
+  ],
+  "branches": [
+    {
+      "id": "ireland",
+      "label": "Ireland",
+      "who": "Kate & Jordyn",
+      "flag": "🇮🇪",
+      "sharedUntil": "2026-07-30",
+      "note": "Sharkey Farm riding trip — Dublin arrival, southwest Ireland, then Dublin. Return flight home TBD.",
+      "days": [
+        {
+          "date": "2026-07-30",
+          "dow": "Thu",
+          "city": "Blarney",
+          "flag": "🇮🇪",
+          "title": "Fly to Dublin → Rock of Cashel → Blarney",
+          "alerts": [
+            {
+              "icon": "🛂",
+              "level": "amber",
+              "title": "EES exit check at Amsterdam",
+              "text": "Flying KLM Toulouse → Amsterdam → Dublin, you leave the Schengen area at Amsterdam Schiphol, where an EES exit/passport check applies (Dublin is outside Schengen). Schiphol's morning bank has run 2–3 hr — go straight to passport control on landing and make sure the layover is comfortable."
+            }
+          ],
+          "items": [
+            {
+              "time": "6:05 AM",
+              "icon": "✈️",
+              "title": "KLM · Toulouse → Amsterdam → Dublin",
+              "detail": "Depart Toulouse 6:05 AM. 🛂 EES exit check at Amsterdam."
+            },
+            {
+              "time": "1:00 PM",
+              "icon": "🧭",
+              "title": "Meet the tour · Dublin Airport Arrivals Hall",
+              "detail": "Group meets in the Arrivals Hall.",
+              "map": "Dublin Airport Arrivals"
+            },
+            {
+              "time": "Afternoon",
+              "icon": "🏰",
+              "title": "Rock of Cashel",
+              "detail": "~2 hr drive from Dublin. Last guided tour 3:45 PM, last entry 4:45 PM.",
+              "map": "Rock of Cashel"
+            },
+            {
+              "time": "Evening",
+              "icon": "🏨",
+              "title": "Drive to Blarney + check in",
+              "detail": "~1.5 hr from Cashel. Dinner flexible — Cashel, on the drive, or Blarney. Muskerry Arms often has live music."
+            }
+          ],
+          "lodging": "Blarney — Muskerry Arms / Woolen Mills"
+        },
+        {
+          "date": "2026-07-31",
+          "dow": "Fri",
+          "city": "Blarney",
+          "flag": "🇮🇪",
+          "title": "Blarney Castle → Cork / Midleton",
+          "items": [
+            {
+              "time": "9:00 AM",
+              "icon": "🏰",
+              "title": "Blarney Castle & Woolen Mills",
+              "detail": "Castle opens 9 AM — kiss the Blarney Stone, the gardens, then shop the Woolen Mills.",
+              "map": "Blarney Castle"
+            },
+            {
+              "time": "~Noon",
+              "icon": "🚌",
+              "title": "Bus to Cork (15 min)",
+              "detail": "Drop anyone who wants Cork; over-18s continue to Midleton.",
+              "map": "Cork Ireland"
+            },
+            {
+              "time": "Afternoon",
+              "icon": "🥃",
+              "title": "Midleton Distillery (over-18s)",
+              "detail": "45 min beyond Cork. Tour options: history / production / whiskey — all day.",
+              "map": "Midleton Distillery"
+            },
+            {
+              "time": "Evening",
+              "icon": "🍽️",
+              "title": "Dinner in Cork",
+              "detail": "Rejoin the group, then back to Blarney for the night."
+            }
+          ],
+          "lodging": "Blarney — Muskerry Arms / Woolen Mills"
+        },
+        {
+          "date": "2026-08-01",
+          "dow": "Sat",
+          "city": "Killarney",
+          "flag": "🇮🇪",
+          "title": "Gap of Dunloe → Killarney → Nenagh",
+          "items": [
+            {
+              "time": "By 9:00 AM",
+              "icon": "🚌",
+              "title": "Check out of Blarney, load buses",
+              "detail": "1.5 hr drive to the Gap of Dunloe."
+            },
+            {
+              "time": "Late morning",
+              "icon": "🐴",
+              "title": "Jaunting car up the Gap of Dunloe",
+              "detail": "From Kate Kearney's Cottage (bottom) to Lord Brandon's Cottage (top) — 1.5–2 hr, ~€35 pp. Lunch at the top.",
+              "map": "Kate Kearney's Cottage"
+            },
+            {
+              "time": "2:15 PM",
+              "icon": "⛵",
+              "title": "Boat tour → Ross Castle",
+              "detail": "Kate already has tickets. From Lord Brandon's Cottage down to Ross Castle.",
+              "map": "Ross Castle Killarney"
+            },
+            {
+              "time": "Afternoon",
+              "icon": "⛪",
+              "title": "Muckross Abbey + Killarney dinner",
+              "detail": "Explore the abbey, dinner in Killarney.",
+              "map": "Muckross Abbey"
+            },
+            {
+              "time": "Evening",
+              "icon": "🚌",
+              "title": "Drive to Abbey Court, Nenagh (~2 hr)",
+              "detail": "Home base for the next 5 nights."
+            }
+          ],
+          "lodging": "Abbey Court Hotel"
+        },
+        {
+          "date": "2026-08-02",
+          "dow": "Sun",
+          "city": "Nenagh",
+          "flag": "🇮🇪",
+          "title": "Crossogue Stud — ride day",
+          "items": [
+            {
+              "time": "Morning",
+              "icon": "🐴",
+              "title": "Crossogue Stud — XC jumping (riders)",
+              "detail": "45 min drive. 2 hr cross-country jumping, big homemade Irish lunch at Crossogue House, ride again in the afternoon.",
+              "map": "Crossogue Equestrian Thurles"
+            }
+          ],
+          "ideas": [
+            {
+              "title": "Farney Castle (non-riders)",
+              "detail": "Short walk to tour the castle."
+            },
+            {
+              "title": "Thatch Pub, Ballycahill / Thurles",
+              "detail": "Explore the village or nearby Thurles."
+            },
+            {
+              "title": "Rent a car for the Nenagh days",
+              "detail": "Non-riders may want their own wheels Aug 2–6."
+            }
+          ],
+          "lodging": "Abbey Court Hotel"
+        },
+        {
+          "date": "2026-08-03",
+          "dow": "Mon",
+          "city": "Adare",
+          "flag": "🇮🇪",
+          "title": "Clonshire → Adare → Bunratty",
+          "items": [
+            {
+              "time": "11:30 AM–1 PM",
+              "icon": "🐴",
+              "title": "Clonshire — XC ride (riders)",
+              "detail": "45 min drive. Cross-country ride.",
+              "map": "Clonshire Adare"
+            },
+            {
+              "time": "Lunch",
+              "icon": "🍽️",
+              "title": "Adare village",
+              "detail": "Explore + shop one of Ireland's prettiest villages. 🏌️ World-class golf for non-riders.",
+              "map": "Adare"
+            },
+            {
+              "time": "5:30 PM",
+              "icon": "🏰",
+              "title": "Bunratty Folk Park + medieval banquet",
+              "detail": "30 min drive. Explore the folk park, then the medieval banquet at 5:30 PM.",
+              "map": "Bunratty Castle"
+            }
+          ],
+          "lodging": "Abbey Court Hotel"
+        },
+        {
+          "date": "2026-08-04",
+          "dow": "Tue",
+          "city": "Cliffs of Moher",
+          "flag": "🇮🇪",
+          "title": "Cliffs of Moher → Doolin → the Burren",
+          "items": [
+            {
+              "time": "Morning",
+              "icon": "🌊",
+              "title": "Cliffs of Moher",
+              "detail": "1.5 hr drive — hike and the museum. Go early before the crowds.",
+              "map": "Cliffs of Moher"
+            },
+            {
+              "time": "Lunch",
+              "icon": "🛍️",
+              "title": "Doolin",
+              "detail": "Shopping + lunch in the trad-music village.",
+              "map": "Doolin"
+            },
+            {
+              "time": "Afternoon",
+              "icon": "🚗",
+              "title": "Drive back through the Burren",
+              "detail": "Leisurely stops across the limestone plateau.",
+              "map": "The Burren"
+            }
+          ],
+          "lodging": "Abbey Court Hotel"
+        },
+        {
+          "date": "2026-08-05",
+          "dow": "Wed",
+          "city": "Nenagh",
+          "flag": "🇮🇪",
+          "title": "Slieve Aughty → Flowerhill (hounds & tea)",
+          "items": [
+            {
+              "time": "9:00 AM",
+              "icon": "🐴",
+              "title": "Slieve Aughty — trek + XC ride",
+              "detail": "50 min drive. 90-min trek + cross-country through the woods, then a locally-sourced brunch at 11 AM at the ecotourism centre.",
+              "map": "Slieve Aughty Centre"
+            },
+            {
+              "time": "1:00 PM",
+              "icon": "🐕",
+              "title": "Flowerhill — hound exercise + tea with the huntsman",
+              "detail": "20 min drive.",
+              "map": "Flowerhill Equestrian"
+            },
+            {
+              "time": "Evening",
+              "icon": "🍽️",
+              "title": "Back to Nenagh for dinner",
+              "detail": ""
+            }
+          ],
+          "ideas": [
+            {
+              "title": "Non-riders",
+              "detail": "The gardens + ecotourism centre at Slieve Aughty are worth a wander."
+            }
+          ],
+          "lodging": "Abbey Court Hotel"
+        },
+        {
+          "date": "2026-08-06",
+          "dow": "Thu",
+          "city": "Galway",
+          "flag": "🇮🇪",
+          "title": "Flowerhill ride → Galway → Dublin",
+          "items": [
+            {
+              "time": "Morning",
+              "icon": "🐴",
+              "title": "Flowerhill Equestrian — XC all day (riders)",
+              "detail": "Check out of Abbey Court; 45 min drive.",
+              "map": "Flowerhill Equestrian"
+            },
+            {
+              "time": "Day",
+              "icon": "🏙️",
+              "title": "Galway (non-riders)",
+              "detail": "Bus continues to Galway to explore, then back to collect the riders.",
+              "map": "Galway"
+            },
+            {
+              "time": "Evening",
+              "icon": "🚌",
+              "title": "Drive to Dublin (~3 hr)",
+              "detail": "Tack-store stop on the way — Holmstead closes 5:30 PM, TRI closes 6 PM. Check in at Temple Bar Inn.",
+              "map": "Temple Bar Inn Dublin"
+            }
+          ],
+          "lodging": "Temple Bar Inn"
+        },
+        {
+          "date": "2026-08-07",
+          "dow": "Fri",
+          "city": "Dublin",
+          "flag": "🇮🇪",
+          "title": "Trinity College tour + Dublin Horse Show (RDS)",
+          "items": [
+            {
+              "time": "Morning",
+              "icon": "🍳",
+              "title": "Breakfast near the hotel",
+              "detail": ""
+            },
+            {
+              "time": "11:00 AM",
+              "icon": "🎓",
+              "title": "Trinity College Dublin campus tour",
+              "detail": "Booked · 1 hr (11:00 AM–12:00 PM Dublin/IST). Guided walk through the historic campus. (Book of Kells is a separate ticket — reserve ahead for the Aug 8 free day.)",
+              "map": "Trinity College Dublin"
+            },
+            {
+              "time": "Day",
+              "icon": "🏇",
+              "title": "Dublin Horse Show · RDS",
+              "detail": "The Aga Khan — Ireland's show-jumping Nations Cup. Huge shopping hall plus Irish hunters, pony jumpers, and in-hand classes.",
+              "map": "RDS Dublin"
+            },
+            {
+              "time": "Evening",
+              "icon": "🍺",
+              "title": "Dinner + Temple Bar nightlife",
+              "detail": "",
+              "map": "Temple Bar Dublin"
+            }
+          ],
+          "lodging": "Temple Bar Inn"
+        },
+        {
+          "date": "2026-08-08",
+          "dow": "Sat",
+          "city": "Dublin",
+          "flag": "🇮🇪",
+          "title": "Free day in Dublin",
+          "items": [
+            {
+              "time": "All day",
+              "icon": "🗺️",
+              "title": "Explore Dublin",
+              "detail": "Your pick of the city."
+            }
+          ],
+          "ideas": [
+            {
+              "title": "Book of Kells (Trinity College)",
+              "detail": "Book ahead — the Long Room library is the highlight."
+            },
+            {
+              "title": "Kilmainham Gaol",
+              "detail": "Powerful history tour — book ahead."
+            },
+            {
+              "title": "Guinness Storehouse",
+              "detail": "Gravity Bar views over the city."
+            },
+            {
+              "title": "Jameson Distillery experience",
+              "detail": "In Bow Street, Smithfield."
+            },
+            {
+              "title": "Grafton Street + St Stephen's Green",
+              "detail": "Shopping and a park stroll."
+            }
+          ],
+          "lodging": "Temple Bar Inn"
+        },
+        {
+          "date": "2026-08-09",
+          "dow": "Sun",
+          "city": "Dublin",
+          "flag": "🏠",
+          "title": "Depart Dublin",
+          "items": [
+            {
+              "time": "Morning",
+              "icon": "🚶",
+              "title": "Last Dublin sights",
+              "detail": "Check out; a little more of the city."
+            },
+            {
+              "time": "TBD",
+              "icon": "✈️",
+              "title": "Fly home / onward",
+              "detail": "Local transport to the airport. ⚠️ Return flight not yet confirmed — add details when booked."
+            }
+          ],
+          "lodging": "Departure"
+        }
+      ],
+      "hotels": [
+        {
+          "name": "Blarney — Muskerry Arms / Woolen Mills",
+          "city": "Blarney",
+          "dates": "Jul 30 – Aug 1",
+          "ref": "—",
+          "note": "Reservations made individually — confirm which. Muskerry Arms has live music most nights."
+        },
+        {
+          "name": "Abbey Court Hotel",
+          "city": "Nenagh",
+          "dates": "Aug 1 – Aug 6",
+          "ref": "—",
+          "address": "Dublin Rd, Nenagh, Co. Tipperary",
+          "note": "Base for the daily cross-country rides."
+        },
+        {
+          "name": "Temple Bar Inn",
+          "city": "Dublin",
+          "dates": "Aug 6 – Aug 9",
+          "ref": "—",
+          "address": "Fleet St, Temple Bar, Dublin 2",
+          "note": "Walkable to Temple Bar and the Dublin Horse Show."
+        }
+      ],
+      "flights": [
+        {
+          "label": "Dublin → home (Kate & Jordyn)",
+          "date": "Sun Aug 9",
+          "time": "TBD",
+          "ref": "—",
+          "note": "Return flight not yet confirmed — add details when booked."
+        }
+      ],
+      "tickets": [
+        {
+          "what": "Rock of Cashel",
+          "date": "Thu Jul 30",
+          "city": "Cashel",
+          "ref": "last entry 4:45 PM",
+          "status": "todo",
+          "bookUrl": "https://heritageireland.ie/places-to-visit/the-rock-of-cashel/"
+        },
+        {
+          "what": "Blarney Castle & Gardens",
+          "date": "Fri Jul 31",
+          "city": "Blarney",
+          "ref": "opens 9 AM",
+          "status": "todo",
+          "bookUrl": "https://blarneycastle.ie/"
+        },
+        {
+          "what": "Midleton Distillery tour",
+          "date": "Fri Jul 31",
+          "city": "Cork",
+          "ref": "over-18s",
+          "status": "todo",
+          "bookUrl": "https://www.jamesonwhiskey.com/en-us/visit-our-distilleries/midleton-distillery-cork/"
+        },
+        {
+          "what": "Gap of Dunloe boat (Ross Castle)",
+          "date": "Sat Aug 1",
+          "city": "Killarney",
+          "ref": "Kate has tickets",
+          "status": "booked",
+          "bookUrl": "https://killarneydaytour.rezgo.com/details/151468/ross-castle-return-boat-trip"
+        },
+        {
+          "what": "Bunratty medieval banquet",
+          "date": "Mon Aug 3",
+          "city": "Bunratty",
+          "ref": "5:30 PM",
+          "status": "todo",
+          "bookUrl": "https://www.bunrattycastle.ie/"
+        },
+        {
+          "what": "Dublin Horse Show (RDS)",
+          "date": "Fri Aug 7",
+          "city": "Dublin",
+          "ref": "Aga Khan Nations Cup",
+          "status": "todo",
+          "bookUrl": "https://www.dublinhorseshow.com/"
+        },
+        {
+          "what": "Book of Kells (Trinity)",
+          "date": "Sat Aug 8",
+          "city": "Dublin",
+          "ref": "free day",
+          "status": "todo",
+          "bookUrl": "https://www.tcd.ie/visitors/book-of-kells/"
+        }
+      ],
+      "cities": [
+        {
+          "name": "Blarney",
+          "flag": "🇮🇪",
+          "note": "Jul 30 – Aug 1 · Co. Cork",
+          "tips": [
+            "Blarney Castle opens 9 AM — kiss the Stone early before the queues.",
+            "Cork city and Midleton Distillery are short hops away.",
+            "Muskerry Arms often has live trad music."
+          ]
+        },
+        {
+          "name": "Killarney",
+          "flag": "🇮🇪",
+          "note": "Aug 1 · Gap of Dunloe",
+          "tips": [
+            "Jaunting car up the Gap, then the boat down to Ross Castle (Kate has tickets).",
+            "Muckross Abbey is a lovely quick stop before dinner."
+          ]
+        },
+        {
+          "name": "Nenagh",
+          "flag": "🇮🇪",
+          "note": "Aug 1 – 6 · Abbey Court base",
+          "tips": [
+            "Home base for the daily cross-country rides across Tipperary/Clare/Limerick.",
+            "Non-riders: consider renting a car to explore independently (Cliffs of Moher, Adare, Galway)."
+          ]
+        },
+        {
+          "name": "Dublin",
+          "flag": "🇮🇪",
+          "note": "Aug 6 – 9 · Temple Bar Inn",
+          "tips": [
+            "Dublin Horse Show at the RDS (Aug 7) — the Aga Khan Nations Cup.",
+            "Free day: Book of Kells, Kilmainham Gaol, Guinness Storehouse.",
+            "Temple Bar for nightlife — walkable from the hotel."
+          ]
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Abbey Court Hotel",
+          "role": "Nenagh hotel (Aug 1–6)",
+          "note": "abbeycourt.ie"
+        },
+        {
+          "name": "Temple Bar Inn",
+          "role": "Dublin hotel (Aug 6–9)",
+          "note": "templebarinn.com"
+        },
+        {
+          "name": "Sharkey Farm",
+          "role": "Riding-trip organizer",
+          "note": "Tour coordinator — day-to-day logistics."
+        }
+      ],
+      "emergency": [
+        {
+          "what": "Ireland / EU emergency",
+          "number": "112"
+        },
+        {
+          "what": "Ireland (Garda / ambulance)",
+          "number": "999"
+        }
+      ]
+    }
+  ],
+  "photos": [
+    {
+      "id": "photo-fa1ff784f7",
+      "file": "photo-fa1ff784f7",
+      "date": "2026-07-22",
+      "dow": "Wed",
+      "city": "In transit",
+      "dayTitle": "Fly to France",
+      "taken": "2026-07-23T01:17:32Z",
+      "caption": "Jul 22 — In transit — Fly to France",
+      "desc": "The girls stretched out in lie-flat business-class pods on the overnight flight — one flashing a thumbs-up as the adventure kicks off.",
+      "people": [
+        "Jordyn",
+        "Emma"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-b65a6fa0a3",
+      "file": "photo-b65a6fa0a3",
+      "date": "2026-07-23",
+      "dow": "Thu",
+      "city": "Lille",
+      "dayTitle": "Arrive CDG → TGV to Lille",
+      "taken": "2026-07-23T03:01:58.29Z",
+      "caption": "Jul 23 — Lille — Arrive CDG → TGV to Lille",
+      "desc": "Flying business class to Europe — dinner in the lie-flat suite before landing."
+    },
+    {
+      "id": "photo-5a07818b18",
+      "file": "photo-5a07818b18",
+      "date": "2026-07-22",
+      "dow": "Wed",
+      "city": "In transit",
+      "dayTitle": "Fly to France",
+      "taken": "2026-07-23T04:01:50Z",
+      "caption": "Jul 22 — In transit — Fly to France",
+      "desc": "Dinner and a good book in the lie-flat seat, somewhere over the Atlantic en route to Paris.",
+      "people": [
+        "Emma"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-ed65ce569a",
+      "file": "photo-ed65ce569a",
+      "date": "2026-07-23",
+      "dow": "Thu",
+      "city": "Lille",
+      "dayTitle": "Arrive CDG → TGV to Lille",
+      "taken": "2026-07-23T20:24:20Z",
+      "caption": "Jul 23 — Lille — Arrive CDG → TGV to Lille",
+      "desc": "Morning light in the business cabin on final approach to Paris-CDG — carry-ons packed and ready to land.",
+      "people": [
+        "Jordyn"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-f20e8355db",
+      "file": "photo-f20e8355db",
+      "date": "2026-07-23",
+      "dow": "Thu",
+      "city": "Lille",
+      "dayTitle": "Arrive CDG → TGV to Lille",
+      "taken": "2026-07-23T21:44:59Z",
+      "caption": "Jul 23 — Lille — Arrive CDG → TGV to Lille",
+      "desc": "Family selfie aboard the SNCF TGV from Paris to Lille — 'Le WiFi s'invite à bord' glowing on the seatback.",
+      "people": [
+        "Jordyn",
+        "Kate"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-c0d4234476",
+      "file": "photo-c0d4234476",
+      "date": "2026-07-23",
+      "dow": "Thu",
+      "city": "Lille",
+      "dayTitle": "Arrive CDG → TGV to Lille",
+      "taken": "2026-07-24T02:31:05Z",
+      "caption": "Jul 23 — Lille — Arrive CDG → TGV to Lille",
+      "desc": "A warm welcome at the B&B home base near Lille — dropping the bags and settling in.",
+      "people": [
+        "Trevor"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-7f7a63c342",
+      "file": "photo-7f7a63c342",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T09:44:52.356Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The girls posing under the grand arched gateway in Lille’s old town."
+    },
+    {
+      "id": "photo-fba2587654",
+      "file": "photo-fba2587654",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T09:45:17.61Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Group shot of the whole crew under the ornate Lille gateway."
+    },
+    {
+      "id": "photo-0312af07bb",
+      "file": "photo-0312af07bb",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T13:23:59.158Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Madonna-and-child shrine glowing with red votive lamps inside Lille cathedral."
+    },
+    {
+      "id": "photo-a93e888dde",
+      "file": "photo-a93e888dde",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T13:27:10.73Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The striking modern marble facade of Cathédrale Notre-Dame de la Treille, Lille."
+    },
+    {
+      "id": "photo-e2dd31f8f9",
+      "file": "photo-e2dd31f8f9",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T17:08:31Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Fresh baguette in hand on a little stone bridge over the canal near the B&B — peak first-morning-in-France energy.",
+      "people": [
+        "Jordyn"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-5ce73784dd",
+      "file": "photo-5ce73784dd",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T18:36:43Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Clowning around on a Lille side street by the parking meter, under a 'Bureau 110 m² à vendre' sign.",
+      "people": [
+        "Jordyn"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-eb419d34ca",
+      "file": "photo-eb419d34ca",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T18:45:11Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The six of them framed under one of Vieux Lille's grand stone gateways, a carved mascaron keystone overhead.",
+      "people": [
+        "Zoe",
+        "Emma",
+        "JuJu",
+        "Jordyn",
+        "Kylie",
+        "Milo"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-7477c51b2b",
+      "file": "photo-7477c51b2b",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T18:45:18Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Group shot beneath an ornate Flemish-Renaissance stone facade in old Lille (likely the Vieille Bourse)."
+    },
+    {
+      "id": "photo-e2ad7cd3de",
+      "file": "photo-e2ad7cd3de",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T19:21:35Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The ornate arcaded courtyard of Lille's Vieille Bourse (Old Stock Exchange), its Flemish-Renaissance stonework framing the inner book-market cloister."
+    },
+    {
+      "id": "photo-9a7380b4c4",
+      "file": "photo-9a7380b4c4",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T19:24:03Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "A cannonball still lodged in the red-brick side wall of an old Vieux Lille building, next to a carved stone mascaron."
+    },
+    {
+      "id": "photo-6cc699692b",
+      "file": "photo-6cc699692b",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T19:57:00Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Lunch in a cozy Vieux Lille estaminet — the whole crew around a rustic wooden table hung with old prints.",
+      "people": [
+        "Jordyn"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-69a532263f",
+      "file": "photo-69a532263f",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T20:09:27Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "A proper Lille 'Welsh' - a cast-iron dish of beer-melted cheese over ham and bread, browned on top, with a mound of fries and a little salad in a Vieux Lille estaminet."
+    },
+    {
+      "id": "photo-adb59eef5f",
+      "file": "photo-adb59eef5f",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T21:51:56Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Pastry pit-stop: the dads outside a Belle Époque boulangerie in Vieux Lille, pain au chocolat and thumbs-up.",
+      "people": [
+        "Jonathan",
+        "Trevor"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-7ffa44ad58",
+      "file": "photo-7ffa44ad58",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T22:04:01Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "In the candle-lit choir of Lille's Cathédrale Notre-Dame de la Treille, a shaft of light across the votive stands.",
+      "people": [
+        "Trevor"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-8d7bc387ae",
+      "file": "photo-8d7bc387ae",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T22:04:05Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The dads in front of the stained-glass apse and gilded altar of Notre-Dame de la Treille.",
+      "people": [
+        "Jonathan",
+        "Trevor"
+      ],
+      "peopleSource": "auto"
+    },
+    {
+      "id": "photo-5ae6af229b",
+      "file": "photo-5ae6af229b",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T22:16:00Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The cathedral's showpiece — the translucent marble west wall and modern rose window of Notre-Dame de la Treille glowing amber."
+    },
+    {
+      "id": "photo-7e60878212",
+      "file": "photo-7e60878212",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-24T23:02:31Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Cold drinks on a café terrace on Lille's Grand-Place, the busy square buzzing behind the umbrellas."
+    },
+    {
+      "id": "photo-9600914c1b",
+      "file": "photo-9600914c1b",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-25T03:42:44Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "The hilariously tiny washbasin at the gite - barely bigger than a hand, glowing under warm orange light."
+    },
+    {
+      "id": "photo-5eea40729f",
+      "file": "photo-5eea40729f",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-25T04:21:24Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Beef tartare in a crispy shoestring-potato nest topped with an egg yolk and dots of sauce - plated by the gite's private chef (F&M's)."
+    },
+    {
+      "id": "photo-c72288029d",
+      "file": "photo-c72288029d",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-25T06:35:08Z",
+      "caption": "Jul 24 — Lille — Explore Lille",
+      "desc": "Dad olympics back at the gîte — all three hanging from the exposed timber roof trusses, wine poured below.",
+      "people": [
+        "Trevor",
+        "Michael",
+        "Jonathan"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-6cdb7dc5cc",
+      "file": "photo-6cdb7dc5cc",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-25T07:06:40Z",
+      "caption": "Jul 24 - Lille - Explore Lille",
+      "desc": "Late-night street antics outside the brick townhouses — shimmying up the lamppost while someone loses it laughing.",
+      "people": [
+        "Jonathan"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-b4d44a2691",
+      "file": "photo-b4d44a2691",
+      "date": "2026-07-24",
+      "dow": "Fri",
+      "city": "Lille",
+      "dayTitle": "Explore Lille",
+      "taken": "2026-07-25T07:09:21Z",
+      "caption": "Jul 24 - Lille - Explore Lille",
+      "desc": "…and all the way to the top, looking straight up as he reaches the glowing street lamp.",
+      "people": [
+        "Jonathan"
+      ],
+      "peopleSource": "labeled"
+    },
+    {
+      "id": "photo-099cfb2311",
+      "file": "photo-099cfb2311",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:04:52.896Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "On Bruges’ Markt square beneath the towering medieval Belfry."
+    },
+    {
+      "id": "photo-710f4b07b6",
+      "file": "photo-710f4b07b6",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:18:53.379Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "In front of the lacy Gothic facade of Bruges’ City Hall on Burg square."
+    },
+    {
+      "id": "photo-826ac9d4ca",
+      "file": "photo-826ac9d4ca",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:19:07.06Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Another angle of the ornate Bruges City Hall on the Burg."
+    },
+    {
+      "id": "photo-bf6d688953",
+      "file": "photo-bf6d688953",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:49:58.331Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Family selfie under the Belfry of Bruges."
+    },
+    {
+      "id": "photo-f24084f467",
+      "file": "photo-f24084f467",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:55:31.422Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Choosing Belgian chocolates at Le Comptoir de Mathilde in Bruges."
+    },
+    {
+      "id": "photo-6d4fde7ae9",
+      "file": "photo-6d4fde7ae9",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:59:09.357Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Street snack stop — Chez Albert chocolate treats in hand."
+    },
+    {
+      "id": "photo-ac71caec2d",
+      "file": "photo-ac71caec2d",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T12:59:29.756Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "The girls with their Chez Albert treats on a bustling Bruges waffle-shop street."
+    },
+    {
+      "id": "photo-cef2bee6f1",
+      "file": "photo-cef2bee6f1",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:03:35.028Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Dad-and-daughter selfie on Bruges’ Markt with the colorful guild houses behind."
+    },
+    {
+      "id": "photo-2fb9a62423",
+      "file": "photo-2fb9a62423",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:13:09.956Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Beside a spiked interrogation chair at the Bruges Torture Museum."
+    },
+    {
+      "id": "photo-ef02b75047",
+      "file": "photo-ef02b75047",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:13:38.254Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "A gruesome iron “Breast Ripper” on display at the Torture Museum."
+    },
+    {
+      "id": "photo-dceda96b5a",
+      "file": "photo-dceda96b5a",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:14:44.871Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Eyeing the hooded executioner figure inside the Torture Museum."
+    },
+    {
+      "id": "photo-648f45db24",
+      "file": "photo-648f45db24",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:17:26.809Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "The Rack (Le Chevalet) exhibit at the Bruges Torture Museum."
+    },
+    {
+      "id": "photo-74564def41",
+      "file": "photo-74564def41",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:23:55.063Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Judas Cradle and old engravings at the Torture Museum."
+    },
+    {
+      "id": "photo-a76f8ecc32",
+      "file": "photo-a76f8ecc32",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:29:23.731Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "An iron shame-mask displayed at the Torture Museum."
+    },
+    {
+      "id": "photo-62b58bb5b0",
+      "file": "photo-62b58bb5b0",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:31:02.165Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "A Victorian-era chastity-belt exhibit at the Torture Museum."
+    },
+    {
+      "id": "photo-58686fbf9d",
+      "file": "photo-58686fbf9d",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:34:31.997Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Locked in the pillory outside the “De Oude Steen” Torture Museum in Bruges."
+    },
+    {
+      "id": "photo-8631af2d91",
+      "file": "photo-8631af2d91",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:37:17.138Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Dad-and-daughter selfie on a canal bridge, Church of Our Lady tower behind."
+    },
+    {
+      "id": "photo-6f1283e468",
+      "file": "photo-6f1283e468",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:52:29.065Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Posing on the little St. Boniface Bridge over a quiet Bruges canal."
+    },
+    {
+      "id": "photo-2efabf806d",
+      "file": "photo-2efabf806d",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:52:31.766Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "On St. Boniface Bridge as a canal tour boat glides underneath."
+    },
+    {
+      "id": "photo-591940b0dc",
+      "file": "photo-591940b0dc",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T13:58:23.112Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Walking through a brick archway beside the Church of Our Lady."
+    },
+    {
+      "id": "photo-1c28527e98",
+      "file": "photo-1c28527e98",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T14:26:45.23Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Heading down a shady brick passage in old-town Bruges."
+    },
+    {
+      "id": "photo-518b33c88a",
+      "file": "photo-518b33c88a",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T14:26:53.768Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Passing under a vaulted brick archway in Bruges."
+    },
+    {
+      "id": "photo-0160daedc4",
+      "file": "photo-0160daedc4",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Bruges",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T14:28:56.532Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "A quiet cobbled Bruges lane framing St. Salvator’s Cathedral tower."
+    },
+    {
+      "id": "photo-b38d5912fe",
+      "file": "photo-b38d5912fe",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Lille",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T15:58:19.398Z",
+      "caption": "Jul 25 — Bruges — Bruges day trip",
+      "desc": "Back at the rental house near Lille after the Bruges day trip."
+    },
+    {
+      "id": "photo-15b9a0cd3a",
+      "file": "photo-15b9a0cd3a",
+      "date": "2026-07-25",
+      "dow": "Sat",
+      "city": "Lille",
+      "dayTitle": "Bruges day trip",
+      "taken": "2026-07-25T16:04:37.798Z",
+      "caption": "Jul 25 — Lille — Bruges day trip",
+      "desc": "A quiet brick-terraced street in the neighborhood near the house."
+    }
+  ]
+}
+
