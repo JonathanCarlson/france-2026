@@ -755,11 +755,16 @@ function photoOverlay() {
   if (!o) {
     o = document.createElement('div');
     o.id = 'photo-overlay'; o.className = 'tv'; o.hidden = true;
-    o.innerHTML = `<div class="tv-bar"><span class="tv-title"></span><button class="tv-close" aria-label="Close">✕</button></div>`
+    o.innerHTML = `<div class="tv-bar"><span class="tv-title"></span>`
+      + `<div class="tv-bar-actions">`
+      + `<button class="tv-dl" aria-label="Save photo" title="Save photo">⬇</button>`
+      + `<button class="tv-close" aria-label="Close">✕</button>`
+      + `</div></div>`
       + `<div class="tv-body"></div>`
       + `<button class="tv-nav tv-prev" aria-label="Previous photo" hidden>‹</button>`
       + `<button class="tv-nav tv-next" aria-label="Next photo" hidden>›</button>`;
     o.querySelector('.tv-close').addEventListener('click', () => dismissOverlay(o));
+    o.querySelector('.tv-dl').addEventListener('click', () => downloadCurrentPhoto(o));
     o.querySelector('.tv-prev').addEventListener('click', () => stepPhoto(o, -1));
     o.querySelector('.tv-next').addEventListener('click', () => stepPhoto(o, 1));
     document.body.appendChild(o);
@@ -868,6 +873,50 @@ async function showPhoto(id) {
   o._photoNav = { ids, index, showHint: true };
   showOverlay(o, () => { o.querySelector('.tv-body').innerHTML = ''; o._photoNav = null; });
   await renderPhotoAt(o);
+}
+
+// Save the currently-shown photo to the device. On phones we prefer the native
+// share sheet (iOS "Save Image" / Android "Save to Photos"), which is the action
+// people actually want and the only reliable path in an installed PWA. Where
+// file-sharing isn't supported (most desktops) we fall back to a plain
+// <a download> off the already-decrypted blob URL.
+async function downloadCurrentPhoto(o) {
+  const nav = o && o._photoNav;
+  if (!nav) return;
+  const id = nav.ids[nav.index];
+  const ph = (DATA.photos || []).find((p) => p.id === id);
+  if (!ph) return;
+  const btn = o.querySelector('.tv-dl');
+  if (btn) { btn.disabled = true; btn.classList.add('busy'); }
+  const name = 'france-2026-' + String(ph.date || 'photo') + '-'
+    + String(id).replace(/^photo-/, '').replace(/[^\w.-]+/g, '-') + '.jpg';
+  try {
+    const url = await photoUrl(id);
+    let handled = false;
+    try {
+      const blob = await (await fetch(url)).blob();
+      const file = new File([blob], name, { type: blob.type || 'image/jpeg' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: ph.caption || 'Trip photo' });
+          handled = true;               // shared successfully
+        } catch (err) {
+          // AbortError = the user dismissed the share sheet on purpose; don't
+          // then force a background download. Any other error → fall back.
+          if (err && err.name === 'AbortError') handled = true;
+        }
+      }
+    } catch { /* fetch/File/share unsupported — fall through to <a download> */ }
+    if (!handled) {
+      const a = document.createElement('a');
+      a.href = url; a.download = name; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  } catch {
+    /* decrypt failed — the viewer already shows an error; nothing to save */
+  } finally {
+    if (btn) { btn.disabled = false; btn.classList.remove('busy'); }
+  }
 }
 
 // ---------- Overlay stack (nested-overlay stacking + device Back) ----------

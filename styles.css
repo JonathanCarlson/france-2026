@@ -272,7 +272,10 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 }
 .tv-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
 .tv-title { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-bar-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .tv-close { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 10px; width: 40px; height: 36px; font-size: 16px; }
+.tv-dl { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 10px; width: 40px; height: 36px; font-size: 17px; line-height: 1; }
+.tv-dl.busy { opacity: .55; }
 .tv-body { flex: 1; position: relative; display: flex; flex-direction: column; }
 .day-detail, .tour-detail, .city-detail { display: block; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 14px calc(28px + var(--safe-bottom)); }
 .tv-frame { flex: 1; width: 100%; border: none; background: #fff; }
