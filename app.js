@@ -719,7 +719,7 @@ function renderPhotos() {
   }
   groups.sort((a, b) => a.date.localeCompare(b.date));
   let html = `<div class="section-title" style="margin-top:6px">📷 Trip photos</div>`
-    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view full-screen</div>`;
+    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view · swipe to browse</div>`;
   for (const g of groups) {
     html += `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
     for (const p of g.items) {
@@ -754,29 +754,110 @@ function photoOverlay() {
   if (!o) {
     o = document.createElement('div');
     o.id = 'photo-overlay'; o.className = 'tv'; o.hidden = true;
-    o.innerHTML = `<div class="tv-bar"><span class="tv-title"></span><button class="tv-close" aria-label="Close">✕</button></div><div class="tv-body"></div>`;
+    o.innerHTML = `<div class="tv-bar"><span class="tv-title"></span><button class="tv-close" aria-label="Close">✕</button></div>`
+      + `<div class="tv-body"></div>`
+      + `<button class="tv-nav tv-prev" aria-label="Previous photo" hidden>‹</button>`
+      + `<button class="tv-nav tv-next" aria-label="Next photo" hidden>›</button>`;
     o.querySelector('.tv-close').addEventListener('click', () => dismissOverlay(o));
+    o.querySelector('.tv-prev').addEventListener('click', () => stepPhoto(o, -1));
+    o.querySelector('.tv-next').addEventListener('click', () => stepPhoto(o, 1));
     document.body.appendChild(o);
   }
   return o;
 }
 
-async function showPhoto(id) {
+// Photo ids in the same order the grid shows them (taken/date asc, grouped by
+// day, days asc) so left/right navigation matches what the user tapped through.
+function orderedPhotoIds() {
+  const photos = (DATA.photos || []).slice();
+  photos.sort((a, b) => String(a.taken || a.date).localeCompare(String(b.taken || b.date)));
+  const groups = [];
+  const byDate = {};
+  for (const p of photos) {
+    if (!byDate[p.date]) { byDate[p.date] = []; groups.push({ date: p.date, items: byDate[p.date] }); }
+    byDate[p.date].push(p);
+  }
+  groups.sort((a, b) => a.date.localeCompare(b.date));
+  const ids = [];
+  for (const g of groups) for (const p of g.items) ids.push(p.id);
+  return ids;
+}
+
+function updatePhotoNavButtons(o) {
+  const nav = o._photoNav;
+  const prev = o.querySelector('.tv-prev');
+  const next = o.querySelector('.tv-next');
+  if (!prev || !next) return;
+  if (!nav || nav.ids.length <= 1) { prev.hidden = true; next.hidden = true; return; }
+  prev.hidden = nav.index <= 0;
+  next.hidden = nav.index >= nav.ids.length - 1;
+}
+
+// Horizontal swipe pages between photos — but only when the image isn't
+// pinch-zoomed, so dragging a zoomed-in photo pans instead of jumping.
+function initPhotoSwipe(o, body) {
+  const wrap = body.querySelector('.tv-zoom');
+  if (!wrap) return;
+  let sx = 0, sy = 0, active = false;
+  wrap.addEventListener('touchstart', (e) => {
+    active = e.touches.length === 1;
+    if (active) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }
+  }, { passive: true });
+  wrap.addEventListener('touchend', (e) => {
+    if (!active) return;
+    active = false;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const z = wrap.__zoom && wrap.__zoom.state();
+    if (z && z.scale > z.base * 1.05) return; // zoomed in → that gesture was a pan
+    const dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) stepPhoto(o, dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+
+function stepPhoto(o, delta) {
+  const nav = o._photoNav;
+  if (!nav) return;
+  const next = nav.index + delta;
+  if (next < 0 || next >= nav.ids.length) return;
+  nav.index = next;
+  renderPhotoAt(o);
+}
+
+async function renderPhotoAt(o) {
+  const nav = o._photoNav;
+  if (!nav) return;
+  const id = nav.ids[nav.index];
   const ph = (DATA.photos || []).find((p) => p.id === id);
   if (!ph) return;
-  const o = photoOverlay();
-  o.querySelector('.tv-title').textContent = ph.caption || 'Photo';
+  const total = nav.ids.length;
+  o.querySelector('.tv-title').textContent = (ph.caption || 'Photo') + (total > 1 ? `  ·  ${nav.index + 1} / ${total}` : '');
   const body = o.querySelector('.tv-body');
   body.innerHTML = '<div class="tv-msg">Decrypting…</div>';
-  showOverlay(o, () => { o.querySelector('.tv-body').innerHTML = ''; });
+  updatePhotoNavButtons(o);
   try {
     const url = await photoUrl(id);
+    const hint = (nav.showHint && total > 1) ? `<div class="tv-hint">‹ Swipe or use arrows to browse ›</div>` : '';
     body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="" /></div>`
+      + hint
       + (ph.desc ? `<div class="photo-caption">${esc(ph.desc)}</div>` : '');
+    nav.showHint = false;
     initZoom(body);
+    initPhotoSwipe(o, body);
   } catch (e) {
     body.innerHTML = `<div class="tv-msg">Couldn't load this photo. If you're offline, open it once while online so it caches.</div>`;
   }
+}
+
+async function showPhoto(id) {
+  if (!(DATA.photos || []).some((p) => p.id === id)) return;
+  const ids = orderedPhotoIds();
+  let index = ids.indexOf(id);
+  if (index < 0) { ids.push(id); index = ids.length - 1; }
+  const o = photoOverlay();
+  o._photoNav = { ids, index, showHint: true };
+  showOverlay(o, () => { o.querySelector('.tv-body').innerHTML = ''; o._photoNav = null; });
+  await renderPhotoAt(o);
 }
 
 // ---------- Overlay stack (nested-overlay stacking + device Back) ----------
@@ -831,6 +912,15 @@ function dismissOverlay(o) {
 }
 
 window.addEventListener('popstate', () => { if (OVERLAY_STACK.length) hideTopOverlay(); });
+
+// Desktop: left/right arrow keys page through photos when the viewer is on top.
+window.addEventListener('keydown', (e) => {
+  const o = document.getElementById('photo-overlay');
+  if (!o || o.hidden || !o._photoNav) return;
+  if (OVERLAY_STACK[OVERLAY_STACK.length - 1] !== o) return;
+  if (e.key === 'ArrowLeft') { stepPhoto(o, -1); e.preventDefault(); }
+  else if (e.key === 'ArrowRight') { stepPhoto(o, 1); e.preventDefault(); }
+});
 
 function ticketOverlay() {
   let o = document.getElementById('ticket-overlay');
