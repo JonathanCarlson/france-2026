@@ -719,13 +719,14 @@ function renderPhotos() {
   }
   groups.sort((a, b) => a.date.localeCompare(b.date));
   let html = `<div class="section-title" style="margin-top:6px">📷 Trip photos</div>`
-    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view · swipe to browse</div>`;
+    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view · swipe to browse · 👥 names auto-detected</div>`;
   for (const g of groups) {
     html += `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
     for (const p of g.items) {
       html += `<button class="photo-tile" data-photo="${esc(p.id)}" aria-label="${esc(p.desc || 'Photo')}">`
         + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
         + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
+        + (p.people && p.people.length ? `<span class="photo-people">👥 ${esc(p.people.join(', '))}</span>` : '')
         + `</button>`;
     }
     html += `</div>`;
@@ -840,7 +841,16 @@ async function renderPhotoAt(o) {
     const hint = (nav.showHint && total > 1) ? `<div class="tv-hint">‹ Swipe or use arrows to browse ›</div>` : '';
     body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="" /></div>`
       + hint
-      + (ph.desc ? `<div class="photo-caption">${esc(ph.desc)}</div>` : '');
+      + ((ph.desc || (ph.people && ph.people.length))
+          ? `<div class="photo-caption">`
+            + (ph.desc ? esc(ph.desc) : '')
+            + (ph.people && ph.people.length
+                ? `<span class="ppl">👥 ${esc(ph.people.join(', '))}`
+                  + (ph.peopleSource === 'auto' ? ` <span class="ppl-auto">· auto-detected</span>` : '')
+                  + `</span>`
+                : '')
+            + `</div>`
+          : '');
     nav.showHint = false;
     initZoom(body);
     initPhotoSwipe(o, body);

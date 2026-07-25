@@ -10,6 +10,9 @@ build/photos/
 *.local
 TRIP_PASSPHRASE*
 
+# Face-recognition working dir — ONNX models (37MB), Python venv artifacts, scratch scripts
+build/facerec/
+
 # Node / OS
 node_modules/
 .DS_Store
