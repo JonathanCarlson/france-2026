@@ -218,7 +218,8 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .ideas-h { font-size: 12px; text-transform: uppercase; letter-spacing: .6px; color: #e6c15a; margin-bottom: 6px; }
 .idea { padding: 6px 0; border-top: 1px solid #33301f; }
 .idea:first-of-type { border-top: none; }
-.idea-img { width: 100%; max-width: 280px; height: auto; border-radius: 8px; margin-bottom: 8px; display: block; }
+.idea-imgs { display: flex; gap: 6px; margin: 4px 0 8px; }
+.idea-img { flex: 1 1 0; min-width: 0; height: 128px; object-fit: cover; border-radius: 8px; display: block; }
 .idea-t { font-weight: 600; font-size: 14.5px; }
 .idea-d { color: var(--muted); font-size: 13.5px; }
 
