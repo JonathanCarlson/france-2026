@@ -579,7 +579,10 @@ function ideasBlock(day) {
     const imgs = srcs.length
       ? `<div class="idea-imgs">${srcs.map((s) => `<img class="idea-img" src="${esc(s)}" alt="${esc(i.title)}" loading="lazy" />`).join('')}</div>`
       : '';
-    return `<div class="idea">${imgs}<div class="idea-t">${esc(i.title)}</div><div class="idea-d">${esc(i.detail)}</div></div>`;
+    const links = Array.isArray(i.links) && i.links.length
+      ? `<div class="idea-links">${i.links.map((l) => `<a class="idea-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} ↗</a>`).join('')}</div>`
+      : '';
+    return `<div class="idea">${imgs}<div class="idea-t">${esc(i.title)}</div><div class="idea-d">${esc(i.detail)}</div>${links}</div>`;
   }).join('')}</div>`;
 }
 

@@ -233,6 +233,9 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .idea-img { flex: 1 1 0; min-width: 0; height: 128px; object-fit: cover; border-radius: 8px; display: block; }
 .idea-t { font-weight: 600; font-size: 14.5px; }
 .idea-d { color: var(--muted); font-size: 13.5px; }
+.idea-links { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 8px; }
+.idea-link { font-size: 12.5px; color: #e6c15a; text-decoration: none; border: 1px solid #4a421f; background: #2a2413; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.idea-link:active, .idea-link:hover { background: #3a3016; }
 
 /* ---------- Checklists ---------- */
 .check { display: flex; gap: 12px; align-items: flex-start; padding: 11px 2px; border-top: 1px solid var(--border); cursor: pointer; }
