@@ -488,7 +488,10 @@ function itemRow(it) {
 
 function ideasBlock(day) {
   if (!day.ideas || !day.ideas.length) return '';
-  return `<div class="ideas"><div class="ideas-h">💡 While you're in the area</div>${day.ideas.map((i) => `<div class="idea"><div class="idea-t">${esc(i.title)}</div><div class="idea-d">${esc(i.detail)}</div></div>`).join('')}</div>`;
+  return `<div class="ideas"><div class="ideas-h">💡 While you're in the area</div>${day.ideas.map((i) => {
+    const img = i.image ? `<img class="idea-img" src="${esc(i.image)}" alt="${esc(i.title)}" loading="lazy" />` : '';
+    return `<div class="idea">${img}<div class="idea-t">${esc(i.title)}</div><div class="idea-d">${esc(i.detail)}</div></div>`;
+  }).join('')}</div>`;
 }
 
 function dayTicketCount(day) {
