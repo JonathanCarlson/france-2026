@@ -554,6 +554,7 @@ function itemActions(it) {
     if (appUrl) btns.push(`<a class="ia ia-app" href="${esc(appUrl)}" target="_blank" rel="noopener">\uD83D\uDCF1 ${esc(itemAppName(it.app))} <span class="chip-go">\u2197</span></a>`);
   }
   if (it.map) btns.push(`<a class="ia" href="${mapLink(it.map)}" target="_blank" rel="noopener">\uD83D\uDCCD Map</a>`);
+  if (it.dir) btns.push(`<a class="ia" href="${esc(it.dir)}" target="_blank" rel="noopener">\uD83E\uDDED Directions</a>`);
   if (it.call) btns.push(`<a class="ia call" href="${telLink(it.call)}">\uD83D\uDCDE Call</a>`);
   if (it.wa) btns.push(`<a class="ia" href="${waLink(it.wa)}">\uD83D\uDCAC WhatsApp</a>`);
   if (it.ref) btns.push(`<span class="ia ref" data-copy="${esc(it.ref)}">${esc(it.ref)} \u29C9</span>`);
