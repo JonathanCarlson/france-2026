@@ -197,6 +197,17 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .wx-sub { color: var(--muted); font-size: 13px; margin-top: 1px; }
 .wx-c { font-size: 11px; opacity: .75; }
 
+/* ---------- Air quality (live European AQI) ---------- */
+.aq { display: flex; align-items: center; gap: 13px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 11px 14px; margin-bottom: 12px; }
+.aq-ic { font-size: 26px; line-height: 1; flex: none; }
+.aq-body { min-width: 0; }
+.aq-temp { font-weight: 700; font-size: 15px; }
+.aq-temp .muted { font-weight: 600; font-size: 12.5px; }
+.aq-sub { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
+.aq-moderate { border-color: #5a4a1e; }
+.aq-poor, .aq-vpoor, .aq-xpoor { border-color: #7a2b1e; background: #241310; }
+.aq-poor .aq-temp, .aq-vpoor .aq-temp, .aq-xpoor .aq-temp { color: #ff9d86; }
+
 /* ---------- Per-day alerts (EES / border / disruptions) ---------- */
 .alert { border-radius: 13px; padding: 11px 13px; margin-bottom: 12px; font-size: 14px; line-height: 1.42; }
 .alert-h { font-weight: 700; margin-bottom: 3px; }

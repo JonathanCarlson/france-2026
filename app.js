@@ -153,6 +153,7 @@ function openApp() {
   maybeShowInstallHint();
   render();
   loadWeather();
+  loadAir();
 }
 
 async function onShare() {
@@ -416,6 +417,91 @@ function refreshWeatherViews() {
   } catch { /* non-fatal */ }
 }
 
+// ---------- Air quality (live European AQI, refreshes on every online open) ----------
+// Same Open-Meteo family as the weather (free, no key), sibling endpoint
+// air-quality-api.open-meteo.com. Fetched per unique visited location whenever the
+// app opens online; cached in localStorage so the last reading still shows offline.
+// Added after wildfires near Bordeaux (Gironde) raised smoke/particulate concerns
+// for the SW-France day trips — reuses the WX_LOCS coordinates via weatherLocationFor.
+const AQ_KEY = 'trip_air_v1';
+let AIR = null;   // { fetchedAt, byLoc: { 'Toulouse': { aqi, pm25, pm10 } } }
+
+// European AQI band → [emoji, label, css level]. EEA bands:
+// 0-20 good, 20-40 fair, 40-60 moderate, 60-80 poor, 80-100 very poor, 100+ extremely poor.
+function euAqiBand(v) {
+  if (v == null) return null;
+  if (v <= 20) return ['🟢', 'Good', 'good'];
+  if (v <= 40) return ['🟡', 'Fair', 'fair'];
+  if (v <= 60) return ['🟠', 'Moderate', 'moderate'];
+  if (v <= 80) return ['🔴', 'Poor', 'poor'];
+  if (v <= 100) return ['🟣', 'Very poor', 'vpoor'];
+  return ['🟤', 'Extremely poor', 'xpoor'];
+}
+
+async function loadAir() {
+  // 1) Show cached reading immediately (works offline).
+  try {
+    const cached = JSON.parse(localStorage.getItem(AQ_KEY) || 'null');
+    if (cached && cached.byLoc) AIR = cached;
+  } catch { /* ignore bad cache */ }
+
+  if (!navigator.onLine) { refreshWeatherViews(); return; }
+
+  // 2) Fetch the current AQI once per unique visited location.
+  try {
+    const locs = [];
+    const seen = new Set();
+    for (const d of allDays()) {
+      const l = weatherLocationFor(d);
+      if (l && !seen.has(l.name)) { seen.add(l.name); locs.push(l); }
+    }
+    const byLoc = {};
+    await Promise.all(locs.map(async (l) => {
+      const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${l.lat}&longitude=${l.lon}`
+        + `&current=european_aqi,pm2_5,pm10&timezone=auto`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) return;
+      const j = await res.json();
+      const c = j.current || {};
+      if (c.european_aqi == null) return;
+      byLoc[l.name] = { aqi: c.european_aqi, pm25: c.pm2_5, pm10: c.pm10 };
+    }));
+    if (Object.keys(byLoc).length) {
+      AIR = { fetchedAt: Date.now(), byLoc };
+      localStorage.setItem(AQ_KEY, JSON.stringify(AIR));
+    }
+  } catch { /* keep whatever cache we have */ }
+  refreshWeatherViews();
+}
+
+function aqForDay(day) {
+  if (!AIR || !AIR.byLoc) return null;
+  const loc = weatherLocationFor(day);
+  if (!loc) return null;
+  const a = AIR.byLoc[loc.name];
+  if (!a || a.aqi == null) return null;
+  return { loc: loc.name, ...a };
+}
+
+function airCard(day) {
+  const a = aqForDay(day);
+  if (!a) return '';
+  const band = euAqiBand(a.aqi);
+  if (!band) return '';
+  const [ic, label, lvl] = band;
+  const when = AIR.fetchedAt
+    ? ` · as of ${new Date(AIR.fetchedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`
+    : '';
+  const pm = (a.pm25 != null) ? ` · PM2.5 ${Math.round(a.pm25)}` : '';
+  return `<div class="aq aq-${lvl}">
+    <div class="aq-ic">${ic}</div>
+    <div class="aq-body">
+      <div class="aq-temp">Air quality: ${esc(label)} <span class="muted">EU AQI ${a.aqi}</span></div>
+      <div class="aq-sub">${esc(a.loc)}${pm}${when}</div>
+    </div>
+  </div>`;
+}
+
 // ---------- Per-day alerts (border / EES / disruptions) ----------
 function alertsBlock(day) {
   if (!day.alerts || !day.alerts.length) return '';
@@ -542,6 +628,7 @@ function renderToday() {
     html += `<div class="hero"><div class="sub">${current.flag || ''} Today · ${esc(fmtDate(current.date))}</div><div class="big">${esc(current.title)}</div><div class="sub">${esc(current.city)}</div></div>`;
     html += alertsBlock(current);
     html += weatherCard(current);
+    html += airCard(current);
     html += glanceCard();
     html += dayBookRemindersBlock(current);
     html += `<div class="card">${(current.items || []).map(itemRow).join('') || '<div class="muted">Free day.</div>'}
@@ -1339,6 +1426,7 @@ function openDay(date) {
     <div class="hero"><div class="sub">${day.flag || ''} ${esc(fmtDate(day.date))} · ${esc(day.city)}</div><div class="big">${esc(day.title)}</div></div>
     ${alertsBlock(day)}
     ${weatherCard(day)}
+    ${airCard(day)}
     ${day.dress ? dressWarn() : ''}
     ${dayBookRemindersBlock(day)}
     <div class="card">${(day.items || []).map(itemRow).join('') || '<div class="muted">Free day \u2014 enjoy!</div>'}</div>
