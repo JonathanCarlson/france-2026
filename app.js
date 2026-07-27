@@ -637,7 +637,7 @@ function renderToday() {
     html += dayBookRemindersBlock(current);
     html += `<div class="card">${(current.items || []).map(itemRow).join('') || '<div class="muted">Free day.</div>'}
       ${ideasBlock(current)}
-      ${current.lodging ? `<div class="kv" style="margin-top:8px"><span class="k">🛏️ Stay</span><span class="v">${esc(current.lodging)}</span></div>` : ''}</div>`;
+      ${current.lodging ? `<div class="kv" style="margin-top:8px"><span class="k">🛏️ Stay</span><span class="v">${esc(current.lodging)}</span></div>${lodgingCode(current.lodging)}` : ''}</div>`;
     html += dayToursBlock(current);
     if (current.dress) html += dressWarn();
     const idx = days.indexOf(current);
@@ -1204,6 +1204,12 @@ function hotelForLodging(lodging) {
   const base = lodging.split(' (')[0].trim();
   return pHotels().find((h) => lodging.includes(h.name) || (base && h.name.includes(base))) || null;
 }
+// Tap-to-copy lockbox/access-code chip for a day's lodging, when the matched
+// hotel carries a `code` (e.g. the Toulouse Airbnb lockbox). Returns '' otherwise.
+function lodgingCode(lodging) {
+  const h = hotelForLodging(lodging);
+  return h && h.code ? `<div class="kv"><span class="k">🔑 Lockbox</span><span class="v"><span class="ref" data-copy="${esc(h.code)}">${esc(h.code)} ⧉</span></span></div>` : '';
+}
 function stayBlock(day) {
   if (!day.lodging) return '';
   const hotel = hotelForLodging(day.lodging);
@@ -1212,6 +1218,7 @@ function stayBlock(day) {
     if (hotel.address) btns.push(`<a class="ia" href="${mapLink(hotel.address + ', ' + hotel.city)}" target="_blank" rel="noopener">📍 Map</a>`);
     if (hotel.phone) btns.push(`<a class="ia call" href="${telLink(hotel.phone)}">📞 Call</a>`);
     if (hotel.ref && hotel.ref !== '\u2014') btns.push(`<span class="ia ref" data-copy="${esc(hotel.ref)}">${esc(hotel.ref)} ⧉</span>`);
+    if (hotel.code) btns.push(`<span class="ia ref" data-copy="${esc(hotel.code)}">🔑 ${esc(hotel.code)} ⧉</span>`);
   }
   return `<div class="section-title">🛏️ Stay</div><div class="card">
     <div class="ti">${esc(day.lodging)}</div>
