@@ -1215,7 +1215,7 @@ function stayBlock(day) {
   const hotel = hotelForLodging(day.lodging);
   const btns = [];
   if (hotel) {
-    if (hotel.address) btns.push(`<a class="ia" href="${mapLink(hotel.address + ', ' + hotel.city)}" target="_blank" rel="noopener">📍 Map</a>`);
+    if (hotel.map || hotel.address) btns.push(`<a class="ia" href="${mapLink(hotel.map || (hotel.address + ', ' + hotel.city))}" target="_blank" rel="noopener">📍 Map</a>`);
     if (hotel.phone) btns.push(`<a class="ia call" href="${telLink(hotel.phone)}">📞 Call</a>`);
     if (hotel.ref && hotel.ref !== '\u2014') btns.push(`<span class="ia ref" data-copy="${esc(hotel.ref)}">${esc(hotel.ref)} ⧉</span>`);
     if (hotel.code) btns.push(`<span class="ia ref" data-copy="${esc(hotel.code)}">🔑 ${esc(hotel.code)} ⧉</span>`);
