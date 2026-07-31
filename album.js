@@ -259,23 +259,121 @@ async function renderAt(o) {
     if (ph && ph.people && ph.people.length) capBits.push('👥 ' + esc(ph.people.join(', ')));
     body.innerHTML = `<div class="tv-zoom"><img class="tv-img" src="${url}" alt="" /></div>`
       + (capBits.length ? `<div class="photo-caption">${capBits.join('<br>')}</div>` : '');
-    initSwipe(o, body);
+    initZoom(o, body);
   } catch {
     body.innerHTML = '<div class="tv-msg">Couldn’t load this photo. If you’re offline, open it once while online.</div>';
   }
 }
 
-function initSwipe(o, body) {
+function initZoom(o, body) {
   const zoom = body.querySelector('.tv-zoom');
-  if (!zoom) return;
-  let x0 = null; let y0 = null;
-  zoom.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; } }, { passive: true });
+  const img = zoom.querySelector('.tv-img');
+  if (!img) return;
+   
+  let nw = 0, nh = 0, base = 1, scale = 1, tx = 0, ty = 0;
+  let mode = 0, last = null, startDist = null, startScale = null, startX = null;
+   
+  img.addEventListener('load', () => {
+    if (!img.naturalWidth) return;
+    nw = img.naturalWidth;
+    nh = img.naturalHeight;
+    fit();
+    apply();
+  });
+   
+  if (img.complete) img.dispatchEvent(new Event('load'));
+   
+  function clamp() {
+    const cw = zoom.clientWidth, ch = zoom.clientHeight;
+    const iw = nw * scale, ih = nh * scale;
+    if (iw <= cw) tx = (cw - iw) / 2; else { tx = Math.max(-iw + cw, Math.min(0, tx)); }
+    if (ih <= ch) ty = (ch - ih) / 2; else { ty = Math.max(-ih + ch, Math.min(0, ty)); }
+  }
+   
+  function fit() {
+    const cw = zoom.clientWidth, ch = zoom.clientHeight;
+    if (nw === 0 || nh === 0) return;
+    base = Math.min(cw / nw, ch / nh);
+    scale = base;
+    tx = (cw - nw * scale) / 2;
+    ty = (ch - nh * scale) / 2;
+  }
+   
+  function apply() {
+    img.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${scale})`;
+  }
+   
+  function rel(px, py) {
+    const r = zoom.getBoundingClientRect();
+    return { x: px - r.left, y: py - r.top };
+  }
+   
+  function tdist(t1, t2) {
+    const dx = t1.clientX - t2.clientX, dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+   
+  function zoomAt(px, py, next) {
+    next = Math.max(base, Math.min(next, base * 3));
+    const cx = (px - tx) / scale, cy = (py - ty) / scale;
+    scale = next;
+    tx = px - cx * scale;
+    ty = py - cy * scale;
+    clamp();
+    apply();
+  }
+   
+  zoom.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      mode = 1;
+      last = rel(e.touches[0].clientX, e.touches[0].clientY);
+      startX = e.touches[0].clientX;
+    } else if (e.touches.length === 2) {
+      mode = 2;
+      startDist = tdist(e.touches[0], e.touches[1]);
+      startScale = scale;
+    }
+  }, { passive: true });
+   
+  zoom.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && startDist) {
+      const d = tdist(e.touches[0], e.touches[1]);
+      const m = rel((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+      zoomAt(m.x, m.y, startScale * (d / startDist));
+    } else if (e.touches.length === 1 && mode === 1 && last) {
+      const p = rel(e.touches[0].clientX, e.touches[0].clientY);
+      tx += p.x - last.x;
+      ty += p.y - last.y;
+      clamp();
+      apply();
+      last = p;
+    }
+  }, { passive: true });
+   
   zoom.addEventListener('touchend', (e) => {
-    if (x0 == null) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - x0; const dy = t.clientY - y0;
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) step(o, dx < 0 ? 1 : -1);
-    x0 = null; y0 = null;
+    if (e.touches.length >= 1) {
+      mode = e.touches.length === 1 ? 1 : 2;
+      if (e.touches[0]) last = rel(e.touches[0].clientX, e.touches[0].clientY);
+      return;
+    }
+    const z = { scale, base };
+    if (z.scale > z.base * 1.05) {
+      mode = 0;
+      startDist = null;
+      startScale = null;
+      startX = null;
+      last = null;
+      return;
+    }
+    if (startX !== null && e.changedTouches.length > 0) {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 55) step(o, dx < 0 ? 1 : -1);
+    }
+    mode = 0;
+    startDist = null;
+    startScale = null;
+    startX = null;
+    last = null;
   }, { passive: true });
 }
 

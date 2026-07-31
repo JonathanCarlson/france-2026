@@ -29,14 +29,15 @@
     .album-wrap { padding: 0 16px calc(28px + var(--safe-bottom)); max-width: 760px; margin: 0 auto; }
     #album-status { padding: 40px 22px; text-align: center; color: var(--muted); }
     #album-status .big { font-size: 40px; margin-bottom: 10px; }
-    /* Lightweight fit-to-screen viewer (no pinch-zoom engine on this page) */
+    /* Fit-to-screen viewer with pinch-to-zoom support */
     #photo-overlay .tv-zoom {
-      display: flex; align-items: center; justify-content: center;
+      flex: 1; position: relative; overflow: hidden;
       background: #05070f; touch-action: none;
     }
     #photo-overlay .tv-img {
-      position: static; max-width: 100%; max-height: 100%;
-      width: auto; height: auto; object-fit: contain;
+      position: absolute; top: 0; left: 0;
+      transform-origin: 0 0; will-change: transform;
+      user-select: none; -webkit-user-select: none; -webkit-user-drag: none;
     }
     #photo-overlay .photo-caption { color: var(--text); }
   </style>
