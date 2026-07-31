@@ -800,6 +800,26 @@ async function photoUrl(id) {
   return url;
 }
 
+// Low-res thumbnail blobs (data/photos/thumbs/<file>.enc, ~20 KB each) — what the
+// grid shows. Cached separately from the full-res blobs. Older photos synced
+// before thumbnails existed have no thumb asset, so we gracefully fall back to
+// the full image and cache that under the thumb key.
+const PHOTO_THUMB_URLS = {};
+async function photoThumbUrl(id) {
+  if (PHOTO_THUMB_URLS[id]) return PHOTO_THUMB_URLS[id];
+  const ph = (DATA.photos || []).find((p) => p.id === id);
+  const file = ph ? ph.file : id;
+  try {
+    const url = await decryptAsset(file, 'image/jpeg', 'photos/thumbs');
+    PHOTO_THUMB_URLS[id] = url;
+    return url;
+  } catch {
+    const url = await photoUrl(id); // no thumb → fall back to full-res
+    PHOTO_THUMB_URLS[id] = url;
+    return url;
+  }
+}
+
 function renderPhotos() {
   const photos = (DATA.photos || []).slice();
   // Friends-safe shareable album link (photos-only, separate key from the family
@@ -845,20 +865,48 @@ function renderPhotos() {
   return html;
 }
 
-// Lazily decrypt each visible thumbnail after the grid is in the DOM. Sequential
-// to avoid spawning 18 parallel PBKDF2 derivations on a phone.
-async function hydratePhotoThumbs() {
+// Lazily decrypt thumbnails as tiles scroll near the viewport. With 180+ photos,
+// decrypting every full-res image up front (~57 MB, 184 blob URLs) was slow and
+// memory-hungry; now the grid pulls each ~20 KB low-res thumb only for tiles the
+// user actually scrolls to, and at most 2 PBKDF2 derivations run at once. Full-res
+// is decrypted separately when a photo is opened. Re-rendering the tab disconnects
+// the previous observer so we never leak observers or double-hydrate.
+let PHOTO_IO = null;
+function hydratePhotoThumbs() {
+  if (PHOTO_IO) { PHOTO_IO.disconnect(); PHOTO_IO = null; }
   const imgs = Array.from(document.querySelectorAll('#view [data-photo-img]'));
-  for (const img of imgs) {
-    const id = img.getAttribute('data-photo-img');
-    try {
-      const url = await photoUrl(id);
-      img.src = url;
-      img.closest('.photo-tile')?.classList.add('loaded');
-    } catch {
-      img.closest('.photo-tile')?.classList.add('failed');
+  if (!imgs.length) return;
+
+  const queue = [];
+  let active = 0;
+  const MAX = 2;
+  const pump = () => {
+    while (active < MAX && queue.length) {
+      const img = queue.shift();
+      if (!img || img.dataset.hydrated) continue;
+      img.dataset.hydrated = '1';
+      active++;
+      const id = img.getAttribute('data-photo-img');
+      photoThumbUrl(id)
+        .then((url) => { img.src = url; img.closest('.photo-tile')?.classList.add('loaded'); })
+        .catch(() => { img.closest('.photo-tile')?.classList.add('failed'); })
+        .finally(() => { active--; pump(); });
     }
+  };
+
+  if (!('IntersectionObserver' in window)) {
+    imgs.forEach((img) => queue.push(img));
+    pump();
+    return;
   }
+
+  PHOTO_IO = new IntersectionObserver((entries, obs) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { obs.unobserve(e.target); queue.push(e.target); }
+    }
+    pump();
+  }, { rootMargin: '600px 0px', threshold: 0.01 });
+  imgs.forEach((img) => PHOTO_IO.observe(img));
 }
 
 function photoOverlay() {
@@ -950,28 +998,49 @@ async function renderPhotoAt(o) {
   const total = nav.ids.length;
   o.querySelector('.tv-title').textContent = (ph.caption || 'Photo') + (total > 1 ? `  ·  ${nav.index + 1} / ${total}` : '');
   const body = o.querySelector('.tv-body');
-  body.innerHTML = '<div class="tv-msg">Decrypting…</div>';
   updatePhotoNavButtons(o);
-  try {
-    const url = await photoUrl(id);
-    const hint = (nav.showHint && total > 1) ? `<div class="tv-hint">‹ Swipe or use arrows to browse ›</div>` : '';
-    body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="" /></div>`
-      + hint
-      + ((ph.desc || (ph.people && ph.people.length))
-          ? `<div class="photo-caption">`
-            + (ph.desc ? esc(ph.desc) : '')
-            + (ph.people && ph.people.length
-                ? `<span class="ppl">👥 ${esc(ph.people.join(', '))}`
-                  + (ph.peopleSource === 'auto' ? ` <span class="ppl-auto">· auto-detected</span>` : '')
-                  + `</span>`
-                : '')
-            + `</div>`
-          : '');
+  const hint = (nav.showHint && total > 1) ? `<div class="tv-hint">‹ Swipe or use arrows to browse ›</div>` : '';
+  const caption = (ph.desc || (ph.people && ph.people.length))
+    ? `<div class="photo-caption">`
+      + (ph.desc ? esc(ph.desc) : '')
+      + (ph.people && ph.people.length
+          ? `<span class="ppl">👥 ${esc(ph.people.join(', '))}`
+            + (ph.peopleSource === 'auto' ? ` <span class="ppl-auto">· auto-detected</span>` : '')
+            + `</span>`
+          : '')
+      + `</div>`
+    : '';
+  // Progressive: if the grid already decrypted this photo's low-res thumb, show it
+  // instantly (blurred) so the viewer opens with zero wait, then swap in the
+  // sharp full-res as soon as it decrypts. Otherwise fall back to a "Decrypting…"
+  // placeholder.
+  const thumb = PHOTO_THUMB_URLS[id];
+  if (thumb) {
+    body.innerHTML = `<div class="tv-zoom"><img class="tv-img tv-lowres" draggable="false" src="${thumb}" alt="" /></div>` + hint + caption;
     nav.showHint = false;
     initZoom(body);
     initPhotoSwipe(o, body);
+  } else {
+    body.innerHTML = '<div class="tv-msg">Decrypting…</div>';
+  }
+  try {
+    const url = await photoUrl(id);
+    // If the user paged to another photo while this decrypted, don't clobber it.
+    if (!o._photoNav || o._photoNav.ids[o._photoNav.index] !== id) return;
+    const existing = body.querySelector('.tv-img');
+    if (thumb && existing) {
+      existing.src = url;
+      existing.classList.remove('tv-lowres');
+    } else {
+      body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="" /></div>`
+        + hint
+        + caption;
+      nav.showHint = false;
+      initZoom(body);
+      initPhotoSwipe(o, body);
+    }
   } catch (e) {
-    body.innerHTML = `<div class="tv-msg">Couldn't load this photo. If you're offline, open it once while online so it caches.</div>`;
+    if (!thumb) body.innerHTML = `<div class="tv-msg">Couldn't load this photo. If you're offline, open it once while online so it caches.</div>`;
   }
 }
 
