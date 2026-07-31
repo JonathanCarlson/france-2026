@@ -9,6 +9,9 @@ build/photos/
 .env
 *.local
 TRIP_PASSPHRASE*
+# Album access key — the friends-album URL token. Kept out of git so the shared
+# link isn't leaked in history; build/build-album.mjs reads/creates it locally.
+build/album-key.txt
 
 # Face-recognition working dir — ONNX models (37MB), Python venv artifacts, scratch scripts
 build/facerec/

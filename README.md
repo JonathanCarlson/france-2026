@@ -63,6 +63,41 @@ full-screen — offline once cached. Reference them from a ticket's `assets` arr
 
 Share the URL + passphrase with parents / emergency contacts — same one-tap access.
 
+## Friends photo album (shareable link — photos only)
+
+Want to share **just the photos** with friends without handing over the family
+passphrase (which unlocks the whole itinerary, tickets, and contacts)? There's a
+standalone, photos-only album page:
+
+```
+https://jonathancarlson.github.io/france-2026/album.html#k=<album-key>
+```
+
+- The token after `#k=` is an **independent** high-entropy key (≈192 bits) — it is
+  **not** the family passphrase. It is both the access token and the decryption
+  key for a separate, photos-only bundle (`data/album/`). Anyone with the full
+  link sees the photos; without it, `data/album/*` is unreadable ciphertext.
+- The key rides in the **URL fragment** (`#…`), which browsers never send to the
+  server — so it stays client-side ("security by obscurity": the URL *is* the
+  access control). Treat the link like a password: don't post it publicly.
+- Sharing this link **cannot** expose the itinerary, bookings, confirmation
+  numbers, or contacts — the album page can only decrypt the photo bundle.
+- No `#k=`? The page shows a small "album code" box so you can hand the key out
+  of band and let friends type it.
+
+### Build / refresh the album
+
+```powershell
+node build/build-album.mjs            # reuse the saved key, (re)encrypt photos + manifest
+node build/build-album.mjs --rotate   # mint a BRAND-NEW key (old links stop working)
+```
+
+It re-encrypts `build/photos/*` → `data/album/photos/*.enc` and writes the
+encrypted manifest `data/album/index.enc`. The key is persisted to the gitignored
+`build/album-key.txt` so the shared URL stays **stable** across republishes; the
+script prints the full shareable link each run. `publish.ps1` runs it
+automatically and ships the album bundle.
+
 ## Keeping it updated
 
 ### Quick publish (one command)

@@ -63,6 +63,13 @@ if (-not $SkipEncrypt) {
     Write-Host '-> Encrypting ticket assets...' -ForegroundColor Cyan
     node build/encrypt-assets.mjs
     if ($LASTEXITCODE -ne 0) { throw 'encrypt-assets.mjs failed.' }
+    # Friends photo album — independent album key (build/album-key.txt), NOT the
+    # family passphrase. Incremental: only re-encrypts changed/new photos.
+    if (Test-Path 'build/build-album.mjs') {
+      Write-Host '-> Building friends photo album...' -ForegroundColor Cyan
+      node build/build-album.mjs
+      if ($LASTEXITCODE -ne 0) { throw 'build-album.mjs failed.' }
+    }
   }
   finally {
     # Scrub the passphrase from memory/env as soon as encryption is done.
@@ -74,8 +81,11 @@ if (-not $SkipEncrypt) {
 
 # --- Stage ---
 git add data/itinerary.enc.json data/tickets/*.enc
+# Friends photo album bundle (photos-only, separate key) — ship it if present.
+if (Test-Path 'data/album/index.enc') { git add data/album/index.enc }
+if (Test-Path 'data/album/photos') { git add data/album/photos/*.enc }
 if ($IncludeCode) {
-  git add app.js styles.css sw.js index.html manifest.webmanifest 2>$null
+  git add app.js styles.css sw.js index.html manifest.webmanifest album.html album.js 2>$null
 }
 
 # Nothing to do?

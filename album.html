@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>France &amp; Italy 2026 — Photos</title>
+  <meta name="description" content="Shared trip photo album" />
+  <!-- Keep this page out of search engines and don't leak the URL/path to any resource. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="France Photos" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Album-specific chrome layered on top of the shared styles.css */
+    .album-head {
+      padding: calc(16px + var(--safe-top)) 16px 6px;
+      position: sticky; top: 0; z-index: 5;
+      background: linear-gradient(var(--bg) 78%, transparent);
+    }
+    .album-head h1 { font-size: 20px; margin: 0; }
+    .album-head .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .album-wrap { padding: 0 16px calc(28px + var(--safe-bottom)); max-width: 760px; margin: 0 auto; }
+    #album-status { padding: 40px 22px; text-align: center; color: var(--muted); }
+    #album-status .big { font-size: 40px; margin-bottom: 10px; }
+    /* Lightweight fit-to-screen viewer (no pinch-zoom engine on this page) */
+    #photo-overlay .tv-zoom {
+      display: flex; align-items: center; justify-content: center;
+      background: #05070f; touch-action: none;
+    }
+    #photo-overlay .tv-img {
+      position: static; max-width: 100%; max-height: 100%;
+      width: auto; height: auto; object-fit: contain;
+    }
+    #photo-overlay .photo-caption { color: var(--text); }
+  </style>
+</head>
+<body>
+  <!-- Optional code prompt (only shown when the URL has no #k= token) -->
+  <section id="gate" class="lock" hidden>
+    <div class="lock-card">
+      <div class="lock-flag">🇫🇷 📷 🇮🇹</div>
+      <h1>Trip Photos</h1>
+      <p class="muted">Enter the album code to view the photos.</p>
+      <form id="gate-form" autocomplete="off">
+        <input id="album-code" type="password" inputmode="text" placeholder="Album code"
+               autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
+        <button type="submit" id="gate-btn">View photos</button>
+        <p id="gate-error" class="error" hidden></p>
+      </form>
+      <p class="muted tiny">Photos only — this album can't see the itinerary or bookings.</p>
+    </div>
+  </section>
+
+  <!-- Album -->
+  <main id="album" hidden>
+    <div class="album-head">
+      <h1 id="album-title">Trip Photos</h1>
+      <div class="sub" id="album-sub"></div>
+    </div>
+    <div class="album-wrap">
+      <div id="album-status"><div class="big">📷</div>Decrypting album…</div>
+      <div id="album-grid"></div>
+    </div>
+  </main>
+
+  <script src="album.js"></script>
+</body>
+</html>
