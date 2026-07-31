@@ -7,8 +7,10 @@
     1. Prompts for the family passphrase (never written to disk; held in-process only).
     2. Runs build/encrypt.mjs        -> data/itinerary.enc.json  (from build/itinerary.json)
     3. Runs build/encrypt-assets.mjs -> data/tickets/*.enc       (from build/tickets/*)
-    4. Commits ONLY the encrypted blobs (+ any staged app-code changes you pass -IncludeCode).
-    5. Pushes to the personal GitHub account (JonathanCarlson) using a credential override,
+    4. Runs build/encrypt-photos.mjs -> data/photos/*.enc + data/photos/thumbs/*.enc
+       (full-res + quick-load thumbnails; incremental, family passphrase).
+    5. Commits ONLY the encrypted blobs (+ any staged app-code changes you pass -IncludeCode).
+    6. Pushes to the personal GitHub account (JonathanCarlson) using a credential override,
        because Git Credential Manager on this box is pinned to the work EMU account.
 
   Live site: https://jonathancarlson.github.io/france-2026/
@@ -63,6 +65,14 @@ if (-not $SkipEncrypt) {
     Write-Host '-> Encrypting ticket assets...' -ForegroundColor Cyan
     node build/encrypt-assets.mjs
     if ($LASTEXITCODE -ne 0) { throw 'encrypt-assets.mjs failed.' }
+    # Trip photos — full-res + progressive low-res thumbnails, family passphrase.
+    # Incremental (mtime-based): only re-encrypts changed/new photos. This is the
+    # "quick load" tier, so new photo drops go live without a manual encrypt-photos step.
+    if (Test-Path 'build/encrypt-photos.mjs') {
+      Write-Host '-> Encrypting trip photos (full-res + thumbnails)...' -ForegroundColor Cyan
+      node build/encrypt-photos.mjs
+      if ($LASTEXITCODE -ne 0) { throw 'encrypt-photos.mjs failed.' }
+    }
     # Friends photo album — independent album key (build/album-key.txt), NOT the
     # family passphrase. Incremental: only re-encrypts changed/new photos.
     if (Test-Path 'build/build-album.mjs') {
@@ -81,6 +91,9 @@ if (-not $SkipEncrypt) {
 
 # --- Stage ---
 git add data/itinerary.enc.json data/tickets/*.enc
+# Trip photos: full-res + quick-load thumbnails. Guarded so a photo-less trip still publishes.
+if (Test-Path 'data/photos') { git add data/photos/*.enc 2>$null }
+if (Test-Path 'data/photos/thumbs') { git add data/photos/thumbs/*.enc 2>$null }
 # Friends photo album bundle (photos-only, separate key) — ship it if present.
 if (Test-Path 'data/album/index.enc') { git add data/album/index.enc }
 if (Test-Path 'data/album/photos') { git add data/album/photos/*.enc }
