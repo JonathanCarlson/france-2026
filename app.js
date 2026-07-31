@@ -1031,6 +1031,13 @@ async function renderPhotoAt(o) {
     if (thumb && existing) {
       existing.src = url;
       existing.classList.remove('tv-lowres');
+      // Force a re-fit against the full-res dimensions. iOS Safari doesn't
+      // reliably re-fire `load` when an <img>'s src is reassigned to an
+      // already-decoded blob, which would otherwise leave the photo pinned at
+      // the thumb's fit scale — i.e. it opens at full resolution, overflowing
+      // the screen. refit() re-runs fit() now and again once the new src decodes.
+      const zc = body.querySelector('.tv-zoom');
+      if (zc && zc.__zoom && zc.__zoom.refit) zc.__zoom.refit();
     } else {
       body.innerHTML = `<div class="tv-zoom"><img class="tv-img" draggable="false" src="${url}" alt="" /></div>`
         + hint
@@ -1275,15 +1282,28 @@ function initZoom(scope) {
   wrap.addEventListener('wheel', (e) => { const p = rel(e.clientX, e.clientY); zoomAt(p.x, p.y, scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15)); e.preventDefault(); }, { passive: false });
   wrap.addEventListener('dblclick', (e) => { const p = rel(e.clientX, e.clientY); zoomAt(p.x, p.y, scale > base * 1.3 ? base : base * 3); e.preventDefault(); });
 
-  wrap.__zoom = { fit, zoomAt, pan: (dx, dy) => { tx += dx; ty += dy; apply(); }, state: () => ({ base: +base.toFixed(4), scale: +scale.toFixed(4), tx: +tx.toFixed(1), ty: +ty.toFixed(1), nw, nh, cw: wrap.clientWidth, ch: wrap.clientHeight }) };
+  const refit = () => { fit(); if (img.decode) img.decode().then(fit).catch(() => {}); };
+  wrap.__zoom = { fit, refit, zoomAt, pan: (dx, dy) => { tx += dx; ty += dy; apply(); }, state: () => ({ base: +base.toFixed(4), scale: +scale.toFixed(4), tx: +tx.toFixed(1), ty: +ty.toFixed(1), nw, nh, cw: wrap.clientWidth, ch: wrap.clientHeight }) };
 
-  // Re-fit on EVERY load, not just the first: the viewer opens on a cached
-  // low-res thumb (already `complete`), then swaps in the full-res via
-  // `existing.src = url`. That swap fires a fresh `load`, and we must re-run
-  // fit() with the full-res naturalWidth/Height — otherwise the thumb-scale
-  // transform is applied to the full-res image and it opens unfitted.
+  // Fit reliably across engines — especially iOS Safari, which is inconsistent
+  // about WHEN an <img>'s naturalWidth becomes readable and whether `load`
+  // re-fires after the src is swapped (the viewer opens on a cached low-res
+  // thumb, then swaps in the full-res via `existing.src = url`). If fit() only
+  // ever runs against the thumb — or before the container has been laid out —
+  // the full-res image is left at thumb scale and opens at full resolution,
+  // overflowing the screen. So drive fit() from every independent readiness
+  // signal; fit() is idempotent, so firing it repeatedly is harmless and the
+  // last call with valid dimensions wins:
+  //   1. the `load` event (first load + most src swaps)
+  //   2. img.decode() — resolves once the *current* src has decoded and
+  //      naturalWidth is populated (reliable on iOS, where a re-assigned blob
+  //      src may never re-fire `load`)
+  //   3. a ResizeObserver on the viewport box — covers a zero-size container at
+  //      first fit (safe-area insets/URL bar resolving late) and device rotation.
   img.addEventListener('load', fit);
+  if (img.decode) img.decode().then(fit).catch(() => {});
   if (img.complete && img.naturalWidth) fit();
+  if (typeof ResizeObserver === 'function') { new ResizeObserver(() => fit()).observe(wrap); }
   if (hint) setTimeout(() => { hint.style.opacity = '0'; }, 2800);
 }
 

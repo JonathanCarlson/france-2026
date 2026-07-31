@@ -273,15 +273,18 @@ function initZoom(o, body) {
   let nw = 0, nh = 0, base = 1, scale = 1, tx = 0, ty = 0;
   let mode = 0, last = null, startDist = null, startScale = null, startX = null;
    
-  img.addEventListener('load', () => {
+  img.addEventListener('load', refit);
+  if (img.decode) img.decode().then(refit).catch(() => {});
+  if (img.complete) refit();
+  if (typeof ResizeObserver === 'function') { new ResizeObserver(() => refit()).observe(zoom); }
+
+  function refit() {
     if (!img.naturalWidth) return;
     nw = img.naturalWidth;
     nh = img.naturalHeight;
     fit();
     apply();
-  });
-   
-  if (img.complete) img.dispatchEvent(new Event('load'));
+  }
    
   function clamp() {
     const cw = zoom.clientWidth, ch = zoom.clientHeight;
