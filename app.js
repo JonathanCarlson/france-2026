@@ -1277,7 +1277,13 @@ function initZoom(scope) {
 
   wrap.__zoom = { fit, zoomAt, pan: (dx, dy) => { tx += dx; ty += dy; apply(); }, state: () => ({ base: +base.toFixed(4), scale: +scale.toFixed(4), tx: +tx.toFixed(1), ty: +ty.toFixed(1), nw, nh, cw: wrap.clientWidth, ch: wrap.clientHeight }) };
 
-  if (img.complete && img.naturalWidth) fit(); else img.addEventListener('load', fit);
+  // Re-fit on EVERY load, not just the first: the viewer opens on a cached
+  // low-res thumb (already `complete`), then swaps in the full-res via
+  // `existing.src = url`. That swap fires a fresh `load`, and we must re-run
+  // fit() with the full-res naturalWidth/Height — otherwise the thumb-scale
+  // transform is applied to the full-res image and it opens unfitted.
+  img.addEventListener('load', fit);
+  if (img.complete && img.naturalWidth) fit();
   if (hint) setTimeout(() => { hint.style.opacity = '0'; }, 2800);
 }
 
