@@ -802,8 +802,21 @@ async function photoUrl(id) {
 
 function renderPhotos() {
   const photos = (DATA.photos || []).slice();
+  // Friends-safe shareable album link (photos-only, separate key from the family
+  // passphrase). Lives in the encrypted itinerary so it's only visible to people
+  // already inside the app; surfaced here so it's easy to find and share.
+  const albumUrl = DATA.trip && DATA.trip.albumUrl;
+  const albumBar = albumUrl
+    ? `<div class="album-share">`
+      + `<div class="album-share-txt"><b>📸 Shareable photo album</b>`
+      + `<div class="tiny muted">A friends-safe link — photos only, no tickets or contacts. Send it to family &amp; friends.</div></div>`
+      + `<div class="ia-row">`
+      + `<button class="ia tkt" data-share-album="1">🔗 Share album link</button>`
+      + `<a class="ia" href="${esc(albumUrl)}" target="_blank" rel="noopener">👁️ Open ↗</a>`
+      + `</div></div>`
+    : '';
   if (!photos.length) {
-    return `<div class="photos-empty"><div class="photos-empty-icon">📷</div>`
+    return albumBar + `<div class="photos-empty"><div class="photos-empty-icon">📷</div>`
       + `<div>No photos yet.</div>`
       + `<div class="tiny muted">Shared photos get added here, grouped by day, after each stop.</div></div>`;
   }
@@ -815,7 +828,8 @@ function renderPhotos() {
     byDate[p.date].items.push(p);
   }
   groups.sort((a, b) => a.date.localeCompare(b.date));
-  let html = `<div class="section-title" style="margin-top:6px">📷 Trip photos</div>`
+  let html = albumBar
+    + `<div class="section-title" style="margin-top:6px">📷 Trip photos</div>`
     + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view · swipe to browse · 👥 names auto-detected</div>`;
   for (const g of groups) {
     html += `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
@@ -1478,6 +1492,22 @@ function shareLink() {
   toast(url);
 }
 
+function shareAlbumLink() {
+  const url = DATA && DATA.trip && DATA.trip.albumUrl;
+  if (!url) { toast('No album link set'); return; }
+  const title = ((DATA && DATA.trip && DATA.trip.title) || 'Trip') + ' — Photos';
+  const text = 'Photos from our trip';
+  if (navigator.share) {
+    navigator.share({ title, text, url }).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => toast('Album link copied')).catch(() => toast(url));
+    return;
+  }
+  toast(url);
+}
+
 function onViewClick(e) {
   const path = e.target.closest('[data-path]');
   if (path) { setPath(path.getAttribute('data-path')); return; }
@@ -1504,6 +1534,8 @@ function onViewClick(e) {
     navigator.clipboard?.writeText(text).then(() => toast('Copied ' + text)).catch(() => toast(text));
     return;
   }
+  const shareAlbum = e.target.closest('[data-share-album]');
+  if (shareAlbum) { shareAlbumLink(); return; }
   if (e.target.closest('a')) return; // map/call/email/WhatsApp links handle themselves
   const openday = e.target.closest('[data-openday]');
   if (openday) { openDay(openday.getAttribute('data-openday')); return; }
