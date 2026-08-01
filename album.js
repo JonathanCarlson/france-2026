@@ -146,26 +146,84 @@ function render() {
   const groups = [];
   const byDate = {};
   for (const p of photos) {
-    if (!byDate[p.date]) { byDate[p.date] = { date: p.date, label: p.caption || p.dayTitle || p.date, items: [] }; groups.push(byDate[p.date]); }
+    if (!byDate[p.date]) { byDate[p.date] = { date: p.date, city: p.city || '', label: p.caption || p.dayTitle || p.date, items: [] }; groups.push(byDate[p.date]); }
     byDate[p.date].items.push(p);
   }
   groups.sort((a, b) => a.date.localeCompare(b.date));
 
-  let html = '';
+  let html = albumJumpBar(photos, groups);
   for (const g of groups) {
-    html += `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
+    html += `<div class="photo-group">`
+      + `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
     for (const p of g.items) {
-      html += `<button class="photo-tile" data-photo="${esc(p.id)}" aria-label="${esc(p.desc || 'Photo')}">`
+      const ppl = p.people && p.people.length ? p.people : [];
+      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''} aria-label="${esc(p.desc || 'Photo')}">`
         + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
         + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
-        + (p.people && p.people.length ? `<span class="photo-people">👥 ${esc(p.people.join(', '))}</span>` : '')
+        + (ppl.length ? `<span class="photo-people">👥 ${esc(ppl.join(', '))}</span>` : '')
         + '</button>';
     }
-    html += '</div>';
+    html += '</div></div>';
   }
+  ALBUM_FILTER = { kind: 'all', value: '' };
   $('#album-grid').innerHTML = html;
   $('#album-grid').addEventListener('click', onGridClick);
   hydrateThumbs();
+}
+
+// Lightweight "jump to" index (city + person chips) above the album grid — see
+// the matching photoJumpBar() in app.js. Filtering only toggles tile visibility;
+// all thumbnails are already decrypted up front, so no re-hydration is needed.
+function albumJumpBar(photos, groups) {
+  const cities = [];
+  const cityCount = {};
+  for (const p of photos) {
+    const c = p.city || '';
+    if (!c) continue;
+    if (!(c in cityCount)) { cityCount[c] = 0; cities.push(c); }
+    cityCount[c]++;
+  }
+  const peopleCount = {};
+  for (const p of photos) for (const person of (p.people || [])) peopleCount[person] = (peopleCount[person] || 0) + 1;
+  const people = Object.keys(peopleCount).sort((a, b) => peopleCount[b] - peopleCount[a] || a.localeCompare(b));
+  if (cities.length < 2 && people.length < 2) return '';
+  const allChip = '<button class="pj on" data-pjk="all" data-pjv="">All</button>';
+  let bar = '<div class="photo-jump"><div class="pj-lead tiny muted">Jump to</div>';
+  if (cities.length > 1) {
+    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">📍</span>' + allChip;
+    for (const c of cities) bar += `<button class="pj" data-pjk="city" data-pjv="${esc(c)}">${esc(c)} <span class="pj-n">${cityCount[c]}</span></button>`;
+    bar += '</div>';
+  }
+  if (people.length > 1) {
+    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">👥</span>' + (cities.length > 1 ? '' : allChip);
+    for (const person of people) bar += `<button class="pj" data-pjk="person" data-pjv="${esc(person)}">${esc(person)} <span class="pj-n">${peopleCount[person]}</span></button>`;
+    bar += '</div>';
+  }
+  return bar + '</div>';
+}
+
+let ALBUM_FILTER = { kind: 'all', value: '' };
+function applyAlbumFilter(kind, value) {
+  value = value || '';
+  if (kind !== 'all' && ALBUM_FILTER.kind === kind && ALBUM_FILTER.value === value) { kind = 'all'; value = ''; }
+  ALBUM_FILTER = { kind, value };
+  const root = document.getElementById('album-grid');
+  if (!root) return;
+  const needle = value.toLowerCase();
+  root.querySelectorAll('.photo-group').forEach((g) => {
+    let shown = 0;
+    g.querySelectorAll('.photo-tile').forEach((t) => {
+      let vis = true;
+      if (kind === 'city') vis = (t.getAttribute('data-city') || '') === needle;
+      else if (kind === 'person') vis = (t.getAttribute('data-people') || '').split('|').includes(needle);
+      t.style.display = vis ? '' : 'none';
+      if (vis) shown++;
+    });
+    g.style.display = (kind === 'all' || shown > 0) ? '' : 'none';
+  });
+  root.querySelectorAll('.photo-jump .pj').forEach((c) => {
+    c.classList.toggle('on', c.getAttribute('data-pjk') === kind && (c.getAttribute('data-pjv') || '') === value);
+  });
 }
 
 // Sequentially decrypt thumbnails so a phone isn't hit with 100 parallel PBKDF2 runs.
@@ -183,6 +241,8 @@ async function hydrateThumbs() {
 }
 
 function onGridClick(e) {
+  const pj = e.target.closest('[data-pjk]');
+  if (pj) { applyAlbumFilter(pj.getAttribute('data-pjk'), pj.getAttribute('data-pjv') || ''); return; }
   const tile = e.target.closest('[data-photo]');
   if (tile) showPhoto(tile.getAttribute('data-photo'));
 }

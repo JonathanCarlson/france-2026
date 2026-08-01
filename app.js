@@ -844,25 +844,89 @@ function renderPhotos() {
   const groups = [];
   const byDate = {};
   for (const p of photos) {
-    if (!byDate[p.date]) { byDate[p.date] = { date: p.date, label: p.caption || p.dayTitle || p.date, items: [] }; groups.push(byDate[p.date]); }
+    if (!byDate[p.date]) { byDate[p.date] = { date: p.date, city: p.city || '', label: p.caption || p.dayTitle || p.date, items: [] }; groups.push(byDate[p.date]); }
     byDate[p.date].items.push(p);
   }
   groups.sort((a, b) => a.date.localeCompare(b.date));
   let html = albumBar
     + `<div class="section-title" style="margin-top:6px">📷 Trip photos</div>`
-    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view · swipe to browse · 👥 names auto-detected</div>`;
+    + `<div class="tiny muted" style="margin:0 4px 8px">${photos.length} photo${photos.length === 1 ? '' : 's'} · tap any to view · swipe to browse · 👥 names auto-detected</div>`
+    + photoJumpBar(photos, groups);
   for (const g of groups) {
-    html += `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
+    html += `<div class="photo-group">`
+      + `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
     for (const p of g.items) {
-      html += `<button class="photo-tile" data-photo="${esc(p.id)}" aria-label="${esc(p.desc || 'Photo')}">`
+      const ppl = p.people && p.people.length ? p.people : [];
+      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''} aria-label="${esc(p.desc || 'Photo')}">`
         + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
         + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
-        + (p.people && p.people.length ? `<span class="photo-people">👥 ${esc(p.people.join(', '))}</span>` : '')
+        + (ppl.length ? `<span class="photo-people">👥 ${esc(ppl.join(', '))}</span>` : '')
         + `</button>`;
     }
-    html += `</div>`;
+    html += `</div></div>`;
   }
+  PHOTO_FILTER = { kind: 'all', value: '' };
   return html;
+}
+
+// Lightweight "jump to" index shown at the top of the Photos tab: a row of city
+// chips and a row of people chips. Tapping one filters the grid to that city or
+// person; "All" (or tapping the active chip again) clears it. Pure client-side —
+// it only shows/hides already-rendered tiles, so there's no extra decryption.
+// City and person are matched per-photo (a single day can span two cities).
+function photoJumpBar(photos, groups) {
+  const cities = [];
+  const cityCount = {};
+  for (const p of photos) {
+    const c = p.city || '';
+    if (!c) continue;
+    if (!(c in cityCount)) { cityCount[c] = 0; cities.push(c); }
+    cityCount[c]++;
+  }
+  const peopleCount = {};
+  for (const p of photos) for (const person of (p.people || [])) peopleCount[person] = (peopleCount[person] || 0) + 1;
+  const people = Object.keys(peopleCount).sort((a, b) => peopleCount[b] - peopleCount[a] || a.localeCompare(b));
+  if (cities.length < 2 && people.length < 2) return '';
+  const allChip = `<button class="pj on" data-pjk="all" data-pjv="">All</button>`;
+  let bar = `<div class="photo-jump"><div class="pj-lead tiny muted">Jump to</div>`;
+  if (cities.length > 1) {
+    bar += `<div class="pj-row"><span class="pj-lbl" aria-hidden="true">📍</span>` + allChip;
+    for (const c of cities) bar += `<button class="pj" data-pjk="city" data-pjv="${esc(c)}">${esc(c)} <span class="pj-n">${cityCount[c]}</span></button>`;
+    bar += `</div>`;
+  }
+  if (people.length > 1) {
+    bar += `<div class="pj-row"><span class="pj-lbl" aria-hidden="true">👥</span>` + (cities.length > 1 ? '' : allChip);
+    for (const person of people) bar += `<button class="pj" data-pjk="person" data-pjv="${esc(person)}">${esc(person)} <span class="pj-n">${peopleCount[person]}</span></button>`;
+    bar += `</div>`;
+  }
+  return bar + `</div>`;
+}
+
+// Active photo filter for the Photos tab; reset to "all" on every re-render.
+let PHOTO_FILTER = { kind: 'all', value: '' };
+function applyPhotoFilter(kind, value) {
+  value = value || '';
+  // Tapping the currently-active chip toggles the filter back off.
+  if (kind !== 'all' && PHOTO_FILTER.kind === kind && PHOTO_FILTER.value === value) { kind = 'all'; value = ''; }
+  PHOTO_FILTER = { kind, value };
+  const root = document.getElementById('view');
+  if (!root) return;
+  const needle = value.toLowerCase();
+  root.querySelectorAll('.photo-group').forEach((g) => {
+    let shown = 0;
+    g.querySelectorAll('.photo-tile').forEach((t) => {
+      let vis = true;
+      if (kind === 'city') vis = (t.getAttribute('data-city') || '') === needle;
+      else if (kind === 'person') vis = (t.getAttribute('data-people') || '').split('|').includes(needle);
+      t.style.display = vis ? '' : 'none';
+      if (vis) shown++;
+    });
+    g.style.display = (kind === 'all' || shown > 0) ? '' : 'none';
+  });
+  root.querySelectorAll('.photo-jump .pj').forEach((c) => {
+    c.classList.toggle('on', c.getAttribute('data-pjk') === kind && (c.getAttribute('data-pjv') || '') === value);
+  });
+  hydratePhotoThumbs();
 }
 
 // Lazily decrypt thumbnails as tiles scroll near the viewport. With 180+ photos,
@@ -1651,6 +1715,8 @@ function onViewClick(e) {
   }
   const shareAlbum = e.target.closest('[data-share-album]');
   if (shareAlbum) { shareAlbumLink(); return; }
+  const pj = e.target.closest('[data-pjk]');
+  if (pj) { applyPhotoFilter(pj.getAttribute('data-pjk'), pj.getAttribute('data-pjv') || ''); return; }
   if (e.target.closest('a')) return; // map/call/email/WhatsApp links handle themselves
   const openday = e.target.closest('[data-openday]');
   if (openday) { openDay(openday.getAttribute('data-openday')); return; }
