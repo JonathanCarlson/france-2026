@@ -126,6 +126,27 @@ async function openAlbum(alreadyLoaded) {
   render();
 }
 
+// Coarse "trip level" metadata for per-trip day grouping + the 🧳 trip filter.
+// Mirrors the same helpers in app.js: on days where two parallel trips overlap
+// (main family in France/Italy vs the Kate & Jordyn Ireland branch) photos are
+// grouped by date+trip so each day shows separate "Aug 1 · Italy" / "Aug 1 ·
+// Ireland" headings.
+const TRIP_FLAG = { France: '🇫🇷', Italy: '🇮🇹', Ireland: '🇮🇪' };
+function tripRank(t) { const r = { France: 0, Italy: 1, Ireland: 2 }; return t in r ? r[t] : 3; }
+function fmtDayLabel(dateStr) {
+  const d = new Date(String(dateStr) + 'T12:00:00');
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function photoGroupLabel(p) {
+  const trip = p.trip || '';
+  const flag = TRIP_FLAG[trip] || '';
+  const place = trip || p.city || '';
+  const head = `${esc(fmtDayLabel(p.date))} · ${flag ? flag + ' ' : ''}${esc(place)}`;
+  const sub = p.dayTitle && p.dayTitle !== trip ? p.dayTitle : '';
+  return sub ? `${head}<span style="font-weight:400;opacity:.65"> · ${esc(sub)}</span>` : head;
+}
+
 function render() {
   document.title = (MANIFEST.title || 'Trip Photos') + ' — Photos';
   $('#album-title').textContent = MANIFEST.title || 'Trip Photos';
@@ -144,20 +165,22 @@ function render() {
 
   photos.sort((a, b) => String(a.taken || a.date).localeCompare(String(b.taken || b.date)));
   const groups = [];
-  const byDate = {};
+  const byKey = {};
   for (const p of photos) {
-    if (!byDate[p.date]) { byDate[p.date] = { date: p.date, city: p.city || '', label: p.caption || p.dayTitle || p.date, items: [] }; groups.push(byDate[p.date]); }
-    byDate[p.date].items.push(p);
+    const trip = p.trip || '';
+    const key = p.date + '|' + trip;
+    if (!byKey[key]) { byKey[key] = { date: p.date, trip, city: p.city || '', label: photoGroupLabel(p), items: [] }; groups.push(byKey[key]); }
+    byKey[key].items.push(p);
   }
-  groups.sort((a, b) => a.date.localeCompare(b.date));
+  groups.sort((a, b) => a.date.localeCompare(b.date) || tripRank(a.trip) - tripRank(b.trip));
 
   let html = albumJumpBar(photos, groups);
   for (const g of groups) {
     html += `<div class="photo-group">`
-      + `<div class="photo-group-title">${esc(g.label)}</div><div class="photo-grid">`;
+      + `<div class="photo-group-title">${g.label}</div><div class="photo-grid">`;
     for (const p of g.items) {
       const ppl = p.people && p.people.length ? p.people : [];
-      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''} aria-label="${esc(p.desc || 'Photo')}">`
+      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}" data-trip="${esc((p.trip || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''} aria-label="${esc(p.desc || 'Photo')}">`
         + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
         + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
         + (ppl.length ? `<span class="photo-people">👥 ${esc(ppl.join(', '))}</span>` : '')
@@ -175,6 +198,15 @@ function render() {
 // the matching photoJumpBar() in app.js. Filtering only toggles tile visibility;
 // all thumbnails are already decrypted up front, so no re-hydration is needed.
 function albumJumpBar(photos, groups) {
+  const trips = [];
+  const tripCount = {};
+  for (const p of photos) {
+    const t = p.trip || '';
+    if (!t) continue;
+    if (!(t in tripCount)) { tripCount[t] = 0; trips.push(t); }
+    tripCount[t]++;
+  }
+  trips.sort((a, b) => tripRank(a) - tripRank(b));
   const cities = [];
   const cityCount = {};
   for (const p of photos) {
@@ -186,16 +218,24 @@ function albumJumpBar(photos, groups) {
   const peopleCount = {};
   for (const p of photos) for (const person of (p.people || [])) peopleCount[person] = (peopleCount[person] || 0) + 1;
   const people = Object.keys(peopleCount).sort((a, b) => peopleCount[b] - peopleCount[a] || a.localeCompare(b));
-  if (cities.length < 2 && people.length < 2) return '';
+  if (trips.length < 2 && cities.length < 2 && people.length < 2) return '';
   const allChip = '<button class="pj on" data-pjk="all" data-pjv="">All</button>';
   let bar = '<div class="photo-jump"><div class="pj-lead tiny muted">Jump to</div>';
+  let allPlaced = false;
+  if (trips.length > 1) {
+    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">🧳</span>' + allChip;
+    for (const t of trips) bar += `<button class="pj" data-pjk="trip" data-pjv="${esc(t)}">${TRIP_FLAG[t] ? TRIP_FLAG[t] + ' ' : ''}${esc(t)} <span class="pj-n">${tripCount[t]}</span></button>`;
+    bar += '</div>';
+    allPlaced = true;
+  }
   if (cities.length > 1) {
-    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">📍</span>' + allChip;
+    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">📍</span>' + (allPlaced ? '' : allChip);
     for (const c of cities) bar += `<button class="pj" data-pjk="city" data-pjv="${esc(c)}">${esc(c)} <span class="pj-n">${cityCount[c]}</span></button>`;
     bar += '</div>';
+    allPlaced = true;
   }
   if (people.length > 1) {
-    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">👥</span>' + (cities.length > 1 ? '' : allChip);
+    bar += '<div class="pj-row"><span class="pj-lbl" aria-hidden="true">👥</span>' + (allPlaced ? '' : allChip);
     for (const person of people) bar += `<button class="pj" data-pjk="person" data-pjv="${esc(person)}">${esc(person)} <span class="pj-n">${peopleCount[person]}</span></button>`;
     bar += '</div>';
   }
@@ -214,7 +254,8 @@ function applyAlbumFilter(kind, value) {
     let shown = 0;
     g.querySelectorAll('.photo-tile').forEach((t) => {
       let vis = true;
-      if (kind === 'city') vis = (t.getAttribute('data-city') || '') === needle;
+      if (kind === 'trip') vis = (t.getAttribute('data-trip') || '') === needle;
+      else if (kind === 'city') vis = (t.getAttribute('data-city') || '') === needle;
       else if (kind === 'person') vis = (t.getAttribute('data-people') || '').split('|').includes(needle);
       t.style.display = vis ? '' : 'none';
       if (vis) shown++;

@@ -149,6 +149,7 @@ const manifest = {
     dayTitle: p.dayTitle || '',
     taken: p.taken || p.date,
     caption: p.caption || '',
+    trip: p.trip || '',
     desc: p.desc || '',
     people: Array.isArray(p.people) ? p.people : [],
   })),
