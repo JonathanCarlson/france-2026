@@ -73,6 +73,13 @@ if (-not $SkipEncrypt) {
       node build/encrypt-photos.mjs
       if ($LASTEXITCODE -ne 0) { throw 'encrypt-photos.mjs failed.' }
     }
+    # Trip videos — web-safe H.264 clips (build/videos/*.mp4). Incremental, family
+    # passphrase. Posters live in build/photos/ and ship via encrypt-photos above.
+    if (Test-Path 'build/encrypt-videos.mjs') {
+      Write-Host '-> Encrypting trip videos...' -ForegroundColor Cyan
+      node build/encrypt-videos.mjs
+      if ($LASTEXITCODE -ne 0) { throw 'encrypt-videos.mjs failed.' }
+    }
     # Friends photo album — independent album key (build/album-key.txt), NOT the
     # family passphrase. Incremental: only re-encrypts changed/new photos.
     if (Test-Path 'build/build-album.mjs') {
@@ -94,9 +101,12 @@ git add data/itinerary.enc.json data/tickets/*.enc
 # Trip photos: full-res + quick-load thumbnails. Guarded so a photo-less trip still publishes.
 if (Test-Path 'data/photos') { git add data/photos/*.enc 2>$null }
 if (Test-Path 'data/photos/thumbs') { git add data/photos/thumbs/*.enc 2>$null }
+# Trip videos: encrypted H.264 clips (posters ship with the photos above).
+if (Test-Path 'data/videos') { git add data/videos/*.enc 2>$null }
 # Friends photo album bundle (photos-only, separate key) — ship it if present.
 if (Test-Path 'data/album/index.enc') { git add data/album/index.enc }
 if (Test-Path 'data/album/photos') { git add data/album/photos/*.enc }
+if (Test-Path 'data/album/videos') { git add data/album/videos/*.enc 2>$null }
 if ($IncludeCode) {
   git add app.js styles.css sw.js index.html manifest.webmanifest album.html album.js 2>$null
 }

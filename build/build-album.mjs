@@ -39,6 +39,8 @@ const ROOT = join(__dirname, '..');
 const PHOTOS_SRC = join(__dirname, 'photos');
 const OUT_DIR = join(ROOT, 'data', 'album');
 const OUT_PHOTOS = join(OUT_DIR, 'photos');
+const OUT_VIDEOS = join(OUT_DIR, 'videos');
+const VIDEOS_SRC = join(__dirname, 'videos');
 const KEY_FILE = join(__dirname, 'album-key.txt');
 const ITINERARY = join(__dirname, 'itinerary.json');
 
@@ -140,19 +142,28 @@ const manifest = {
   dates: (data.trip && data.trip.dates) || '',
   updated: new Date().toISOString(),
   count: usable.length,
-  photos: usable.map((p) => ({
-    id: p.id,
-    file: p.file || p.id,
-    date: p.date,
-    dow: p.dow || '',
-    city: p.city || '',
-    dayTitle: p.dayTitle || '',
-    taken: p.taken || p.date,
-    caption: p.caption || '',
-    trip: p.trip || '',
-    desc: p.desc || '',
-    people: Array.isArray(p.people) ? p.people : [],
-  })),
+  photos: usable.map((p) => {
+    const o = {
+      id: p.id,
+      file: p.file || p.id,
+      date: p.date,
+      dow: p.dow || '',
+      city: p.city || '',
+      dayTitle: p.dayTitle || '',
+      taken: p.taken || p.date,
+      caption: p.caption || '',
+      trip: p.trip || '',
+      desc: p.desc || '',
+      people: Array.isArray(p.people) ? p.people : [],
+    };
+    // Video entries carry the clip reference + type so album.js plays a <video>.
+    if (p.type === 'video') {
+      o.type = 'video';
+      o.videoFile = p.videoFile || p.file || p.id;
+      if (p.durationSec != null) o.durationSec = p.durationSec;
+    }
+    return o;
+  }),
 };
 
 // --- Write the bundle -----------------------------------------------------
@@ -180,12 +191,30 @@ for (const p of usable) {
 const indexPayload = await encryptJsonPayload(manifest);
 writeFileSync(join(OUT_DIR, 'index.enc'), JSON.stringify(indexPayload));
 
+// --- Video clips: encrypt build/videos/<videoFile>.mp4 -> data/album/videos/<id>.enc
+let vidEncrypted = 0, vidSkipped = 0;
+const videoItems = usable.filter((p) => p.type === 'video' && (p.videoFile || p.file || p.id));
+if (videoItems.length) {
+  mkdirSync(OUT_VIDEOS, { recursive: true });
+  for (const p of videoItems) {
+    const vid = p.videoFile || p.file || p.id;
+    const srcPath = join(VIDEOS_SRC, vid + '.mp4');
+    if (!existsSync(srcPath)) continue; // clip not transcoded yet — poster still shows
+    const outPath = join(OUT_VIDEOS, vid + '.enc');
+    if (existsSync(outPath) && statSync(outPath).mtimeMs >= statSync(srcPath).mtimeMs) { vidSkipped++; continue; }
+    const outBytes = await encryptBytes(new Uint8Array(readFileSync(srcPath)));
+    writeFileSync(outPath, Buffer.from(outBytes));
+    vidEncrypted++;
+  }
+}
+
 const shareUrl = `${PUBLIC_BASE}/album.html#k=${albumKey}`;
 
 console.log('');
 console.log('📷  France & Italy 2026 — friends album built');
 console.log(`    key source : ${keySource}`);
 console.log(`    photos     : ${usable.length} (${encrypted} encrypted, ${skipped} unchanged)`);
+if (videoItems.length) console.log(`    videos     : ${videoItems.length} (${vidEncrypted} encrypted, ${vidSkipped} unchanged)`);
 console.log(`    manifest   : data/album/index.enc`);
 console.log('');
 console.log('    SHAREABLE LINK (send this to friends — grants photos only):');
