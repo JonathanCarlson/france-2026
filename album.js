@@ -66,6 +66,30 @@ async function photoUrl(id) {
   return url;
 }
 
+// Video clips (data/album/videos/<file>.enc, H.264/AAC) — decrypted on demand when
+// a video entry opens in the viewer, cached for the session. A video is a normal
+// manifest photo with type:"video" + videoFile; its poster comes from photoUrl().
+const VIDEO_URLS = {};
+async function decryptVideo(file) {
+  const res = await fetch(`data/album/videos/${encodeURIComponent(file)}.enc`, { cache: 'force-cache' });
+  if (!res.ok) throw new Error('fetch ' + res.status);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  const salt = bytes.slice(0, 16);
+  const iv = bytes.slice(16, 28);
+  const ct = bytes.slice(28);
+  const key = await deriveKey(salt, 'decrypt');
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+  return URL.createObjectURL(new Blob([pt], { type: 'video/mp4' }));
+}
+async function videoUrl(id) {
+  if (VIDEO_URLS[id]) return VIDEO_URLS[id];
+  const ph = (MANIFEST.photos || []).find((p) => p.id === id);
+  const file = (ph && (ph.videoFile || ph.file)) || id;
+  const url = await decryptVideo(file);
+  VIDEO_URLS[id] = url;
+  return url;
+}
+
 // ---------- boot ----------
 (function boot() {
   const m = /[#&]k=([^&]+)/.exec(location.hash || '');
@@ -180,8 +204,9 @@ function render() {
       + `<div class="photo-group-title">${g.label}</div><div class="photo-grid">`;
     for (const p of g.items) {
       const ppl = p.people && p.people.length ? p.people : [];
-      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}" data-trip="${esc((p.trip || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''} aria-label="${esc(p.desc || 'Photo')}">`
-        + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
+      const isVid = p.type === 'video';
+      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}" data-trip="${esc((p.trip || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''}${isVid ? ' data-video="1"' : ''} aria-label="${esc((p.desc || 'Photo') + (isVid ? ' (video)' : ''))}">`
+        + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" />${isVid ? '<span class="photo-vbadge" aria-hidden="true">▶</span>' : ''}</span>`
         + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
         + (ppl.length ? `<span class="photo-people">👥 ${esc(ppl.join(', '))}</span>` : '')
         + '</button>';
@@ -353,6 +378,25 @@ async function renderAt(o) {
   o.querySelector('.tv-title').textContent = ((ph && ph.caption) || 'Photo') + (total > 1 ? `  ·  ${nav.index + 1} / ${total}` : '');
   body.innerHTML = '<div class="tv-msg">Decrypting…</div>';
   updateNav(o);
+  // Video entries play a <video> (poster = the already-decrypted full JPEG).
+  if (ph && ph.type === 'video') {
+    const poster = PHOTO_URLS[id] || '';
+    const capBits = [];
+    if (ph.desc) capBits.push(esc(ph.desc));
+    if (ph.people && ph.people.length) capBits.push('👥 ' + esc(ph.people.join(', ')));
+    body.innerHTML = `<div class="tv-videowrap"><video class="tv-video" controls autoplay playsinline preload="metadata"${poster ? ` poster="${esc(poster)}"` : ''}></video></div>`
+      + (capBits.length ? `<div class="photo-caption">${capBits.join('<br>')}</div>` : '');
+    const vEl = body.querySelector('.tv-video');
+    try {
+      const vurl = await videoUrl(id);
+      if (!o._nav || o._nav.ids[o._nav.index] !== id) return;
+      if (vEl) { vEl.src = vurl; vEl.play?.().catch(() => {}); }
+    } catch {
+      if (!o._nav || o._nav.ids[o._nav.index] !== id) return;
+      body.innerHTML = '<div class="tv-msg">Couldn’t load this video. If you’re offline, open it once while online.</div>';
+    }
+    return;
+  }
   try {
     const url = await photoUrl(id);
     const capBits = [];
@@ -504,14 +548,15 @@ async function downloadCurrent(o) {
   if (!nav) return;
   const id = nav.ids[nav.index];
   const ph = (MANIFEST.photos || []).find((p) => p.id === id);
+  const isVid = ph && ph.type === 'video';
   const name = 'france-2026-' + String((ph && ph.date) || 'photo') + '-'
-    + String(id).replace(/^photo-/, '').replace(/[^\w.-]+/g, '-') + '.jpg';
+    + String(id).replace(/^photo-/, '').replace(/[^\w.-]+/g, '-') + (isVid ? '.mp4' : '.jpg');
   try {
-    const url = await photoUrl(id);
+    const url = isVid ? await videoUrl(id) : await photoUrl(id);
     if (navigator.share && navigator.canShare) {
       try {
         const blob = await (await fetch(url)).blob();
-        const file = new File([blob], name, { type: 'image/jpeg' });
+        const file = new File([blob], name, { type: isVid ? 'video/mp4' : 'image/jpeg' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file], title: (ph && ph.caption) || 'Trip photo' });
           return;

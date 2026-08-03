@@ -296,6 +296,8 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 .day-detail, .tour-detail, .city-detail { display: block; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 14px calc(28px + var(--safe-bottom)); }
 .tv-frame { flex: 1; width: 100%; border: none; background: #fff; }
 .tv-zoom { flex: 1; position: relative; overflow: hidden; background: #fff; touch-action: none; }
+.tv-videowrap { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: #000; min-height: 0; }
+.tv-video { max-width: 100%; max-height: 100%; width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
 .tv-img { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
 .tv-img.tv-lowres { filter: blur(12px); transition: filter .3s ease; }
 .tv-hint { position: absolute; bottom: calc(12px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.62); color: #fff; font-size: 11px; padding: 5px 12px; border-radius: 20px; pointer-events: none; transition: opacity .6s ease; }
@@ -393,6 +395,14 @@ ul.tips li { margin: 6px 0; color: #d7def7; }
 }
 .photo-tile.loaded .photo-thumb { opacity: 1; }
 .photo-tile.failed .photo-thumb-wrap::before { content: "⚠️"; }
+.photo-vbadge {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(5,7,15,.5); color: #fff; font-size: 19px; line-height: 46px;
+  text-align: left; text-indent: 17px; pointer-events: none; z-index: 2;
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  box-shadow: 0 1px 6px rgba(0,0,0,.35);
+}
 .photo-cap {
   padding: 8px 10px 10px; font-size: 12px; line-height: 1.35; color: var(--muted);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;

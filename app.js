@@ -820,6 +820,20 @@ async function photoThumbUrl(id) {
   }
 }
 
+// Full video blobs (data/videos/<file>.enc, H.264/AAC) — decrypted on demand the
+// first time a video entry is opened in the viewer, then cached for the session.
+// A video is a normal photos[] entry with type:"video" + videoFile (the .enc base
+// name). Its poster still comes from the photos/thumbs tiers above.
+const VIDEO_URLS = {};
+async function videoUrl(id) {
+  if (VIDEO_URLS[id]) return VIDEO_URLS[id];
+  const ph = (DATA.photos || []).find((p) => p.id === id);
+  const file = (ph && (ph.videoFile || ph.file)) || id;
+  const url = await decryptAsset(file, 'video/mp4', 'videos');
+  VIDEO_URLS[id] = url;
+  return url;
+}
+
 // Coarse "trip level" metadata for per-trip day grouping + the 🧳 trip filter.
 // On days where two parallel trips overlap (main family in France/Italy vs the
 // Kate & Jordyn Ireland branch) photos are grouped by date+trip so each day can
@@ -879,8 +893,9 @@ function renderPhotos() {
       + `<div class="photo-group-title">${g.label}</div><div class="photo-grid">`;
     for (const p of g.items) {
       const ppl = p.people && p.people.length ? p.people : [];
-      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}" data-trip="${esc((p.trip || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''} aria-label="${esc(p.desc || 'Photo')}">`
-        + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" /></span>`
+      const isVid = p.type === 'video';
+      html += `<button class="photo-tile" data-photo="${esc(p.id)}" data-city="${esc((p.city || '').toLowerCase())}" data-trip="${esc((p.trip || '').toLowerCase())}"${ppl.length ? ` data-people="${esc(ppl.join('|').toLowerCase())}"` : ''}${isVid ? ' data-video="1"' : ''} aria-label="${esc((p.desc || 'Photo') + (isVid ? ' (video)' : ''))}">`
+        + `<span class="photo-thumb-wrap"><img class="photo-thumb" data-photo-img="${esc(p.id)}" alt="${esc(p.desc || '')}" />${isVid ? '<span class="photo-vbadge" aria-hidden="true">▶</span>' : ''}</span>`
         + (p.desc ? `<span class="photo-cap">${esc(p.desc)}</span>` : '')
         + (ppl.length ? `<span class="photo-people">👥 ${esc(ppl.join(', '))}</span>` : '')
         + `</button>`;
@@ -1114,6 +1129,27 @@ async function renderPhotoAt(o) {
           : '')
       + `</div>`
     : '';
+  // Video entries play a <video> instead of the pan/zoom image. The user tap that
+  // opened the viewer is a user-activation, so autoplay-with-sound is allowed; if a
+  // browser still blocks it, the poster + play button show. Re-rendering (nav/close)
+  // replaces body.innerHTML, which tears down the old <video> and stops playback.
+  if (ph.type === 'video') {
+    const poster = PHOTO_THUMB_URLS[id] || '';
+    body.innerHTML = `<div class="tv-videowrap"><video class="tv-video" controls autoplay playsinline preload="metadata"${poster ? ` poster="${esc(poster)}"` : ''}></video></div>`
+      + hint + caption;
+    nav.showHint = false;
+    initPhotoSwipe(o, body);
+    const vEl = body.querySelector('.tv-video');
+    try {
+      const vurl = await videoUrl(id);
+      if (!o._photoNav || o._photoNav.ids[o._photoNav.index] !== id) return;
+      if (vEl) { vEl.src = vurl; vEl.play?.().catch(() => {}); }
+    } catch {
+      if (!o._photoNav || o._photoNav.ids[o._photoNav.index] !== id) return;
+      body.innerHTML = `<div class="tv-msg">Couldn't load this video. If you're offline, open it once while online so it caches.</div>` + caption;
+    }
+    return;
+  }
   // Progressive: if the grid already decrypted this photo's low-res thumb, show it
   // instantly (blurred) so the viewer opens with zero wait, then swap in the
   // sharp full-res as soon as it decrypts. Otherwise fall back to a "Decrypting…"
@@ -1193,14 +1229,15 @@ async function downloadCurrentPhoto(o) {
   if (!ph) return;
   const btn = o.querySelector('.tv-dl');
   if (btn) { btn.disabled = true; btn.classList.add('busy'); }
+  const isVid = ph.type === 'video';
   const name = 'france-2026-' + String(ph.date || 'photo') + '-'
-    + String(id).replace(/^photo-/, '').replace(/[^\w.-]+/g, '-') + '.jpg';
+    + String(id).replace(/^photo-/, '').replace(/[^\w.-]+/g, '-') + (isVid ? '.mp4' : '.jpg');
   try {
-    const url = await photoUrl(id);
+    const url = isVid ? await videoUrl(id) : await photoUrl(id);
     let handled = false;
     try {
       const blob = await (await fetch(url)).blob();
-      const file = new File([blob], name, { type: blob.type || 'image/jpeg' });
+      const file = new File([blob], name, { type: blob.type || (isVid ? 'video/mp4' : 'image/jpeg') });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({ files: [file], title: ph.caption || 'Trip photo' });
