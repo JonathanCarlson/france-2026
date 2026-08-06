@@ -144,10 +144,15 @@ function renderIntro() {
   (w.mustHaves || []).forEach((x) => chips.push(`<span class="want-chip must">✓ ${esc(x)}</span>`));
   (w.niceToHaves || []).forEach((x) => chips.push(`<span class="want-chip">${esc(x)}</span>`));
   (w.avoid || []).forEach((x) => chips.push(`<span class="want-chip avoid">${esc(x)}</span>`));
+  const links = (DATA.resources || [])
+    .filter((r) => r && r.url && r.label)
+    .map((r) => `<a class="resource-link" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">🔎 ${esc(r.label)} ↗</a>`)
+    .join('');
   $('#intro').innerHTML = `
     <div class="card">
       <p style="margin:0 0 6px">${esc(DATA.intro || '')}</p>
       ${chips.length ? `<div class="want-row">${chips.join('')}</div>` : ''}
+      ${links ? `<div class="resource-row">${links}</div>` : ''}
     </div>`;
 }
 
@@ -216,6 +221,14 @@ function renderCars() {
   grid.querySelectorAll('.vbtn').forEach((btn) => {
     btn.addEventListener('click', () => vote(btn.dataset.vin, btn.dataset.v));
   });
+  // If a listing photo fails to load (e.g. the car sold and its image 404'd), drop the
+  // whole photo wrapper so the card degrades cleanly instead of showing a broken image.
+  grid.querySelectorAll('.photo img').forEach((img) => {
+    img.addEventListener('error', () => {
+      const wrap = img.closest('.photo');
+      if (wrap) wrap.remove();
+    });
+  });
 }
 
 function carCard(c) {
@@ -231,8 +244,18 @@ function carCard(c) {
     : `<div class="price"><span class="calld">Call for price</span></div>`;
   const distTxt = c.distanceMi != null ? `${c.distanceMi} mi away` : '';
   const highlights = (c.highlights || []).map((h) => `<span class="hl">${esc(h)}</span>`).join('');
+  const alt = `${esc(c.year)} Mach-E ${esc(c.trim)} in ${esc(c.color)}`;
+  // Actual listing photo, hotlinked from Autotrader's image CDN and wrapped in the
+  // listing link so tapping it opens the full listing (more photos + info). If the
+  // photo 404s later (e.g. the car sells), renderCars() removes the wrapper.
+  const photoHtml = c.photo
+    ? (c.url
+      ? `<a class="photo" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(c.photo)}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer"><span class="photo-cta">Photos &amp; details ↗</span></a>`
+      : `<div class="photo"><img src="${esc(c.photo)}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer"></div>`)
+    : '';
   return `
     <div class="carcard${cls}">
+      ${photoHtml}
       <div class="top">
         <h2>${esc(c.year)} Mach-E ${esc(c.trim)}</h2>
         ${priceHtml}
@@ -254,7 +277,7 @@ function carCard(c) {
           <button class="vbtn up${v === 'up' ? ' on' : ''}" data-vin="${esc(c.vin)}" data-v="up" aria-label="Like">👍</button>
           <button class="vbtn down${v === 'down' ? ' on' : ''}" data-vin="${esc(c.vin)}" data-v="down" aria-label="Pass">👎</button>
         </div>
-        ${c.url ? `<a class="listing-link" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">Listing ↗</a>` : ''}
+        ${c.url ? `<a class="listing-link" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">More info ↗</a>` : ''}
       </div>
     </div>`;
 }
