@@ -252,6 +252,17 @@ function renderCars() {
       updateTally();
     });
   });
+  // Tap a car photo → open the in-app pinch-to-zoom viewer (ported from the trip
+  // album). Tapping the "Listing ↗" chip still opens the full Autotrader listing.
+  grid.querySelectorAll('.photo[data-full]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.photo-cta')) return; // let the listing link win
+      openPhotoViewer(el);
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPhotoViewer(el); }
+    });
+  });
   // If a listing photo fails to load (e.g. the car sold and its image 404'd), drop the
   // whole photo wrapper so the card degrades cleanly instead of showing a broken image.
   grid.querySelectorAll('.photo img').forEach((img) => {
@@ -276,13 +287,18 @@ function carCard(c) {
   const distTxt = c.distanceMi != null ? `${c.distanceMi} mi away` : '';
   const highlights = (c.highlights || []).map((h) => `<span class="hl">${esc(h)}</span>`).join('');
   const alt = `${esc(c.year)} Mach-E ${esc(c.trim)} in ${esc(c.color)}`;
-  // Actual listing photo, hotlinked from Autotrader's image CDN and wrapped in the
-  // listing link so tapping it opens the full listing (more photos + info). If the
-  // photo 404s later (e.g. the car sells), renderCars() removes the wrapper.
+  const photoTitle = esc(`${c.year} Mach-E ${c.trim}`);
+  // Actual listing photo, hotlinked from Autotrader's image CDN. Tapping the photo
+  // opens the in-app pinch-to-zoom viewer (openPhotoViewer — logic ported from the
+  // trip photo album): quick to load, fit-to-screen, no bounce out to Autotrader.
+  // The "Listing ↗" chip still opens the full listing. If the photo 404s later
+  // (e.g. the car sells), renderCars() removes the wrapper so the card degrades cleanly.
   const photoHtml = c.photo
-    ? (c.url
-      ? `<a class="photo" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(c.photo)}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer"><span class="photo-cta">Photos &amp; details ↗</span></a>`
-      : `<div class="photo"><img src="${esc(c.photo)}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer"></div>`)
+    ? `<div class="photo" role="button" tabindex="0" data-full="${esc(c.photo)}" data-title="${photoTitle}"${c.url ? ` data-listing="${esc(c.url)}"` : ''} aria-label="Zoom photo — ${alt}">`
+      + `<img src="${esc(c.photo)}" alt="${alt}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+      + `<span class="zoom-hint">🔍 Tap to zoom</span>`
+      + (c.url ? `<a class="photo-cta" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">Listing ↗</a>` : '')
+      + `</div>`
     : '';
   return `
     <div class="carcard${cls}">
@@ -413,3 +429,220 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
 }
+
+// ---------- full-screen photo viewer (ported from the trip album) ----------
+// Kate tapped a car photo → open a fit-to-screen, pinch-to-zoom viewer instead of
+// bouncing out to Autotrader. Same gesture model as album.js's initZoom: fit on
+// load, pinch to zoom (up to 3x), one-finger pan, swipe to change cars, ‹ › /
+// arrow keys to step, Esc to close. Car photos are plain hotlinked URLs (no
+// decryption), and the card image is already cached, so opening is instant. The
+// full Autotrader listing stays one tap away via the ↗ button in the bar.
+
+function viewerOverlay() {
+  let o = document.getElementById('photo-overlay');
+  if (!o) {
+    o = document.createElement('div');
+    o.id = 'photo-overlay'; o.className = 'tv'; o.hidden = true;
+    o.innerHTML = '<div class="tv-bar"><span class="tv-title"></span>'
+      + '<div class="tv-bar-actions">'
+      + '<a class="tv-open-listing" target="_blank" rel="noopener noreferrer" hidden>Listing ↗</a>'
+      + '<button class="tv-close" aria-label="Close">✕</button>'
+      + '</div></div>'
+      + '<div class="tv-body"></div>'
+      + '<button class="tv-nav tv-prev" aria-label="Previous car" hidden>‹</button>'
+      + '<button class="tv-nav tv-next" aria-label="Next car" hidden>›</button>';
+    o.querySelector('.tv-close').addEventListener('click', () => dismissViewer(o));
+    o.querySelector('.tv-prev').addEventListener('click', () => viewerStep(o, -1));
+    o.querySelector('.tv-next').addEventListener('click', () => viewerStep(o, 1));
+    document.body.appendChild(o);
+  }
+  return o;
+}
+
+function viewerUpdateNav(o) {
+  const nav = o._nav;
+  const prev = o.querySelector('.tv-prev');
+  const next = o.querySelector('.tv-next');
+  if (!nav || nav.items.length <= 1) { prev.hidden = true; next.hidden = true; return; }
+  prev.hidden = nav.index <= 0;
+  next.hidden = nav.index >= nav.items.length - 1;
+}
+
+function viewerStep(o, delta) {
+  const nav = o._nav;
+  if (!nav) return;
+  const i = nav.index + delta;
+  if (i < 0 || i >= nav.items.length) return;
+  nav.index = i;
+  viewerRenderAt(o);
+}
+
+function viewerRenderAt(o) {
+  const nav = o._nav;
+  const item = nav.items[nav.index];
+  const total = nav.items.length;
+  const body = o.querySelector('.tv-body');
+  o.querySelector('.tv-title').textContent = (item.title || 'Photo') + (total > 1 ? `  ·  ${nav.index + 1} / ${total}` : '');
+  const openA = o.querySelector('.tv-open-listing');
+  if (item.listing) { openA.href = item.listing; openA.hidden = false; }
+  else { openA.removeAttribute('href'); openA.hidden = true; }
+  body.innerHTML = `<div class="tv-zoom"><img class="tv-img" src="${esc(item.url)}" alt="${esc(item.title || '')}" referrerpolicy="no-referrer" /></div>`;
+  viewerUpdateNav(o);
+  initZoom(o, body);
+}
+
+// Pinch-to-zoom + pan — copied verbatim from album.js's initZoom (only the swipe
+// handoff calls viewerStep instead of the album's step).
+function initZoom(o, body) {
+  const zoom = body.querySelector('.tv-zoom');
+  const img = zoom.querySelector('.tv-img');
+  if (!img) return;
+
+  let nw = 0, nh = 0, base = 1, scale = 1, tx = 0, ty = 0;
+  let mode = 0, last = null, startDist = null, startScale = null, startX = null;
+
+  img.addEventListener('load', refit);
+  if (img.decode) img.decode().then(refit).catch(() => {});
+  if (img.complete) refit();
+  if (typeof ResizeObserver === 'function') { new ResizeObserver(() => refit()).observe(zoom); }
+
+  function refit() {
+    if (!img.naturalWidth) return;
+    nw = img.naturalWidth;
+    nh = img.naturalHeight;
+    fit();
+    apply();
+  }
+
+  function clamp() {
+    const cw = zoom.clientWidth, ch = zoom.clientHeight;
+    const iw = nw * scale, ih = nh * scale;
+    if (iw <= cw) tx = (cw - iw) / 2; else { tx = Math.max(-iw + cw, Math.min(0, tx)); }
+    if (ih <= ch) ty = (ch - ih) / 2; else { ty = Math.max(-ih + ch, Math.min(0, ty)); }
+  }
+
+  function fit() {
+    const cw = zoom.clientWidth, ch = zoom.clientHeight;
+    if (nw === 0 || nh === 0) return;
+    base = Math.min(cw / nw, ch / nh);
+    scale = base;
+    tx = (cw - nw * scale) / 2;
+    ty = (ch - nh * scale) / 2;
+  }
+
+  function apply() {
+    img.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${scale})`;
+  }
+
+  function rel(px, py) {
+    const r = zoom.getBoundingClientRect();
+    return { x: px - r.left, y: py - r.top };
+  }
+
+  function tdist(t1, t2) {
+    const dx = t1.clientX - t2.clientX, dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function zoomAt(px, py, next) {
+    next = Math.max(base, Math.min(next, base * 3));
+    const cx = (px - tx) / scale, cy = (py - ty) / scale;
+    scale = next;
+    tx = px - cx * scale;
+    ty = py - cy * scale;
+    clamp();
+    apply();
+  }
+
+  zoom.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      mode = 1;
+      last = rel(e.touches[0].clientX, e.touches[0].clientY);
+      startX = e.touches[0].clientX;
+    } else if (e.touches.length === 2) {
+      mode = 2;
+      startDist = tdist(e.touches[0], e.touches[1]);
+      startScale = scale;
+    }
+  }, { passive: true });
+
+  zoom.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && startDist) {
+      const d = tdist(e.touches[0], e.touches[1]);
+      const m = rel((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+      zoomAt(m.x, m.y, startScale * (d / startDist));
+    } else if (e.touches.length === 1 && mode === 1 && last) {
+      const p = rel(e.touches[0].clientX, e.touches[0].clientY);
+      tx += p.x - last.x;
+      ty += p.y - last.y;
+      clamp();
+      apply();
+      last = p;
+    }
+  }, { passive: true });
+
+  zoom.addEventListener('touchend', (e) => {
+    if (e.touches.length >= 1) {
+      mode = e.touches.length === 1 ? 1 : 2;
+      if (e.touches[0]) last = rel(e.touches[0].clientX, e.touches[0].clientY);
+      return;
+    }
+    const z = { scale, base };
+    if (z.scale > z.base * 1.05) {
+      mode = 0;
+      startDist = null;
+      startScale = null;
+      startX = null;
+      last = null;
+      return;
+    }
+    if (startX !== null && e.changedTouches.length > 0) {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 55) viewerStep(o, dx < 0 ? 1 : -1);
+    }
+    mode = 0;
+    startDist = null;
+    startScale = null;
+    startX = null;
+    last = null;
+  }, { passive: true });
+
+  // Desktop: double-click toggles between fit and 2x for quick inspection.
+  zoom.addEventListener('dblclick', (e) => {
+    const p = rel(e.clientX, e.clientY);
+    zoomAt(p.x, p.y, scale > base * 1.05 ? base : base * 2);
+  });
+}
+
+function openPhotoViewer(el) {
+  const grid = $('#cars-grid');
+  if (!grid) return;
+  const tiles = Array.from(grid.querySelectorAll('.photo[data-full]'));
+  const items = tiles.map((t) => ({
+    url: t.getAttribute('data-full'),
+    title: t.getAttribute('data-title') || 'Photo',
+    listing: t.getAttribute('data-listing') || '',
+  }));
+  if (!items.length) return;
+  const index = Math.max(0, tiles.indexOf(el));
+  const o = viewerOverlay();
+  o._nav = { items, index };
+  o.hidden = false;
+  document.body.style.overflow = 'hidden';
+  viewerRenderAt(o);
+}
+
+function dismissViewer(o) {
+  o.hidden = true;
+  o._nav = null;
+  o.querySelector('.tv-body').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  const o = document.getElementById('photo-overlay');
+  if (!o || o.hidden || !o._nav) return;
+  if (e.key === 'Escape') { dismissViewer(o); }
+  else if (e.key === 'ArrowLeft') { viewerStep(o, -1); e.preventDefault(); }
+  else if (e.key === 'ArrowRight') { viewerStep(o, 1); e.preventDefault(); }
+});
