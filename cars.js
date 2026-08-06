@@ -83,20 +83,46 @@ function setComment(vin, text) {
 }
 
 // ---------- boot ----------
-(function boot() {
+// Remembered car key: once a link with #k=<key> has opened the page (or Kate has
+// typed the code once), stash the key in localStorage so a pull-to-refresh or a PWA
+// relaunch — which reload the page WITHOUT the #k= fragment — reopen straight to the
+// cars instead of dropping back to the access-code box. Same "keep me unlocked"
+// tradeoff the main app makes; the car key is cars-only and can never touch the
+// itinerary, tickets, or contacts. A stale key (after a rotate) just falls back to
+// the gate.
+const CARKEY_KEY = 'kate-cars-key-v1';
+function rememberKey(k) { try { localStorage.setItem(CARKEY_KEY, k); } catch { /* private mode */ } }
+function forgetKey() { try { localStorage.removeItem(CARKEY_KEY); } catch { /* ignore */ } }
+function showGate() {
+  $('#gate').hidden = false;
+  $('#gate-form').addEventListener('submit', onGate);
+}
+
+(async function boot() {
   loadVotes();
   loadComments();
   const m = /[#&]k=([^&]+)/.exec(location.hash || '');
   if (m) {
     KEY = decodeURIComponent(m[1]).trim();
+    rememberKey(KEY);
     // Strip the key from the visible URL bar (it stays in memory) so a casual
     // over-the-shoulder glance / screenshot of the address doesn't reveal it.
     try { history.replaceState(null, '', location.pathname + location.search); } catch { /* ignore */ }
     openApp();
-  } else {
-    $('#gate').hidden = false;
-    $('#gate-form').addEventListener('submit', onGate);
+    return;
   }
+  // No key in the URL — try one we remembered from a prior open so a refresh or PWA
+  // relaunch doesn't re-prompt for the access code.
+  let saved = null;
+  try { saved = localStorage.getItem(CARKEY_KEY); } catch { /* ignore */ }
+  if (saved) {
+    KEY = saved;
+    const ok = await tryLoadData();
+    if (ok) { openApp(true); return; }
+    KEY = null;
+    forgetKey(); // remembered key no longer works (rotated) — fall through to the gate
+  }
+  showGate();
 })();
 
 async function onGate(e) {
@@ -109,6 +135,7 @@ async function onGate(e) {
   $('#gate-btn').textContent = 'Opening…';
   const ok = await tryLoadData();
   if (ok) {
+    rememberKey(KEY); // so a later refresh / PWA relaunch reopens without re-asking
     $('#gate').hidden = true;
     openApp(true);
   } else {
