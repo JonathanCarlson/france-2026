@@ -177,6 +177,11 @@
     <button id="send-btn" disabled>Send my picks</button>
   </div>
 
-  <script src="cars.js"></script>
+  <!-- Version query busts the browser HTTP cache so a redeploy of cars.js is
+       actually picked up (the cars page has no service worker of its own — it's
+       often opened standalone by Kate, never via the main app that registers
+       sw.js — so without this a stale cached cars.js kept re-showing the gate).
+       Bump this whenever cars.js changes. -->
+  <script src="cars.js?v=2"></script>
 </body>
 </html>
