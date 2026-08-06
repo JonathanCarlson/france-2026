@@ -87,6 +87,13 @@ if (-not $SkipEncrypt) {
       node build/build-album.mjs
       if ($LASTEXITCODE -ne 0) { throw 'build-album.mjs failed.' }
     }
+    # Kate's car shortlist — independent car key (build/cars-key.txt), NOT the
+    # family passphrase. Encrypts build/cars.json -> data/cars.enc.json.
+    if (Test-Path 'build/build-cars.mjs') {
+      Write-Host '-> Building car shortlist...' -ForegroundColor Cyan
+      node build/build-cars.mjs
+      if ($LASTEXITCODE -ne 0) { throw 'build-cars.mjs failed.' }
+    }
   }
   finally {
     # Scrub the passphrase from memory/env as soon as encryption is done.
@@ -107,8 +114,10 @@ if (Test-Path 'data/videos') { git add data/videos/*.enc 2>$null }
 if (Test-Path 'data/album/index.enc') { git add data/album/index.enc }
 if (Test-Path 'data/album/photos') { git add data/album/photos/*.enc }
 if (Test-Path 'data/album/videos') { git add data/album/videos/*.enc 2>$null }
+# Kate's car shortlist (cars-only, separate key) — ship the encrypted blob if present.
+if (Test-Path 'data/cars.enc.json') { git add data/cars.enc.json }
 if ($IncludeCode) {
-  git add app.js styles.css sw.js index.html manifest.webmanifest album.html album.js 2>$null
+  git add app.js styles.css sw.js index.html manifest.webmanifest album.html album.js cars.html cars.js 2>$null
 }
 
 # Nothing to do?

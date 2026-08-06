@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Mach-E shortlist</title>
+  <meta name="description" content="Cars we're tracking — thumbs up or down" />
+  <!-- Keep this page out of search engines and don't leak the URL/path. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kate's Cars" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Car-page chrome layered on top of the shared styles.css */
+    .cars-head {
+      padding: calc(16px + var(--safe-top)) 16px 6px;
+      position: sticky; top: 0; z-index: 5;
+      background: linear-gradient(var(--bg) 82%, transparent);
+    }
+    .cars-head h1 { font-size: 20px; margin: 0; }
+    .cars-head .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .cars-wrap { padding: 0 16px calc(120px + var(--safe-bottom)); max-width: 760px; margin: 0 auto; }
+    #cars-status { padding: 40px 22px; text-align: center; color: var(--muted); }
+    #cars-status .big { font-size: 40px; margin-bottom: 10px; }
+
+    /* Intro + trends cards reuse .card */
+    .trend-list { margin: 8px 0 0; padding-left: 18px; }
+    .trend-list li { margin: 6px 0; }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; text-align: center; }
+    .stat .n { font-size: 17px; font-weight: 700; color: var(--text); }
+    .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .want-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .want-chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
+    .want-chip.must { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
+    .want-chip.avoid { color: #ff9a9a; border-color: #5a2020; background: #2a1010; text-decoration: line-through; }
+
+    /* Filter bar */
+    .filterbar { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 4px; -webkit-overflow-scrolling: touch; }
+    .filterbar::-webkit-scrollbar { display: none; }
+    .fbtn { flex: 0 0 auto; font-size: 13px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); white-space: nowrap; }
+    .fbtn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    /* Car card */
+    .carcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin: 12px 0; transition: border-color .15s, opacity .15s; }
+    .carcard.v-up { border-color: #1e5a3e; box-shadow: 0 0 0 1px #1e5a3e inset; }
+    .carcard.v-down { opacity: .5; }
+    .carcard .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .carcard h2 { font-size: 17px; margin: 0; color: var(--text); text-transform: none; letter-spacing: 0; }
+    .carcard .price { font-size: 19px; font-weight: 800; white-space: nowrap; }
+    .carcard .price .note { display: block; font-size: 11px; font-weight: 500; color: var(--amber); text-align: right; }
+    .carcard .price .calld { font-size: 13px; font-weight: 700; color: var(--muted); }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
+    .badge { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
+    .badge.awd { color: var(--accent); border-color: #2a4a7c; background: #0f1c33; }
+    .badge.rwd { color: var(--muted); }
+    .badge.roof { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
+    .badge.roof.q { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
+    .badge.roof.no { color: #ff9a9a; border-color: #5a2020; background: #2a1010; }
+    .badge.star { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
+    .carmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+    .carmeta b { color: var(--text); font-weight: 600; }
+    .highlights { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 0; }
+    .hl { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--bg2); color: var(--muted); border: 1px solid var(--border); }
+    .carnote { font-size: 13.5px; color: var(--muted); margin: 10px 0 0; line-height: 1.4; }
+    .carfoot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    .vote { flex: 1; display: flex; gap: 8px; }
+    .vbtn { flex: 1; padding: 11px; font-size: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); transition: transform .1s, background .15s, border-color .15s; }
+    .vbtn:active { transform: scale(.94); }
+    .vbtn.up.on { background: #0f2a20; border-color: var(--green); }
+    .vbtn.down.on { background: #2a1010; border-color: var(--red); }
+    .listing-link { flex: 0 0 auto; font-size: 13px; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--accent); color: var(--accent); background: transparent; text-decoration: none; }
+    .listing-link:active { background: var(--accent); color: var(--bg); }
+
+    /* Sticky summary / send bar */
+    .sendbar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      padding: 10px 16px calc(10px + var(--safe-bottom));
+      background: linear-gradient(transparent, var(--bg) 26%);
+      display: flex; gap: 10px; align-items: center; max-width: 760px; margin: 0 auto;
+    }
+    .tally { flex: 1; font-size: 13px; color: var(--muted); }
+    .tally b { color: var(--text); }
+    #send-btn {
+      flex: 0 0 auto; padding: 13px 18px; font-size: 15px; font-weight: 700; border-radius: 14px;
+      background: linear-gradient(135deg, var(--green), #2fa07a); color: #04120c;
+    }
+    #send-btn:disabled { opacity: .4; filter: grayscale(1); }
+    #send-btn:active { transform: scale(.97); }
+    .toast {
+      position: fixed; left: 50%; bottom: calc(84px + var(--safe-bottom)); transform: translateX(-50%);
+      background: var(--card2); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 16px; border-radius: 12px; font-size: 13.5px; z-index: 30;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4); max-width: 90%; text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Optional code prompt (only shown when the URL has no #k= token) -->
+  <section id="gate" class="lock" hidden>
+    <div class="lock-card">
+      <div class="lock-flag">🚗 ⚡ 🔋</div>
+      <h1>Mach-E shortlist</h1>
+      <p class="muted">Enter the code to see the cars.</p>
+      <form id="gate-form" autocomplete="off">
+        <input id="gate-code" type="password" inputmode="text" placeholder="Access code"
+               autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
+        <button type="submit" id="gate-btn">View cars</button>
+        <p id="gate-error" class="error" hidden></p>
+      </form>
+      <p class="muted tiny">Just the car list — this page can't see the trip itinerary or bookings.</p>
+    </div>
+  </section>
+
+  <!-- Car browser -->
+  <main id="app" hidden>
+    <div class="cars-head">
+      <h1 id="app-title">Mach-E shortlist</h1>
+      <div class="sub" id="app-sub"></div>
+    </div>
+    <div class="cars-wrap">
+      <div id="cars-status"><div class="big">🚗</div>Decrypting…</div>
+      <div id="intro"></div>
+      <div id="trends"></div>
+      <div id="filterbar" class="filterbar" hidden></div>
+      <div id="cars-grid"></div>
+    </div>
+  </main>
+
+  <!-- Sticky send bar -->
+  <div id="sendbar" class="sendbar" hidden>
+    <div class="tally" id="tally"></div>
+    <button id="send-btn" disabled>Send my picks</button>
+  </div>
+
+  <script src="cars.js"></script>
+</body>
+</html>

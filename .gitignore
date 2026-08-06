@@ -13,6 +13,12 @@ TRIP_PASSPHRASE*
 # link isn't leaked in history; build/build-album.mjs reads/creates it locally.
 build/album-key.txt
 
+# NEVER commit the plaintext car list — only the encrypted blob (data/cars.enc.json) ships.
+build/cars.json
+# Car access key — the Kate-shareable cars-page URL token. Kept out of git so the
+# shared link isn't leaked in history; build/build-cars.mjs reads/creates it locally.
+build/cars-key.txt
+
 # Face-recognition working dir — ONNX models (37MB), Python venv artifacts, scratch scripts
 build/facerec/
 
