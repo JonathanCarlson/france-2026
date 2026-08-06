@@ -225,6 +225,19 @@ function renderIntro() {
   (w.mustHaves || []).forEach((x) => chips.push(`<span class="want-chip must">✓ ${esc(x)}</span>`));
   (w.niceToHaves || []).forEach((x) => chips.push(`<span class="want-chip">${esc(x)}</span>`));
   (w.avoid || []).forEach((x) => chips.push(`<span class="want-chip avoid">${esc(x)}</span>`));
+  // "Standard on every car" baseline: the features that come with the
+  // Premium / Extended-Range trim on ALL of these, so they're not per-car
+  // differentiators. Keeps the page honest — optional extras (360° camera,
+  // Nite Pony) are shown per car only where a window sticker confirms them.
+  const sf = DATA.standardFeatures;
+  const stdBlock = sf && Array.isArray(sf.items) && sf.items.length
+    ? `<div class="std-features">
+        <div class="std-head">${esc(sf.heading || 'Standard on every car')}</div>
+        ${sf.note ? `<p class="std-note">${esc(sf.note)}</p>` : ''}
+        <div class="std-row">${sf.items.map((x) => `<span class="std-chip">✓ ${esc(x)}</span>`).join('')}</div>
+        ${sf.varies ? `<p class="std-varies">${esc(sf.varies)}</p>` : ''}
+      </div>`
+    : '';
   const links = (DATA.resources || [])
     .filter((r) => r && r.url && r.label)
     .map((r) => `<a class="resource-link" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">🔎 ${esc(r.label)} ↗</a>`)
@@ -233,6 +246,7 @@ function renderIntro() {
     <div class="card">
       <p style="margin:0 0 6px">${esc(DATA.intro || '')}</p>
       ${chips.length ? `<div class="want-row">${chips.join('')}</div>` : ''}
+      ${stdBlock}
       ${links ? `<div class="resource-row">${links}</div>` : ''}
     </div>`;
 }
@@ -335,6 +349,18 @@ function carCard(c) {
     ? `<div class="price">${money(c.price)}${c.priceNote ? `<span class="note">${esc(c.priceNote)}</span>` : ''}</div>`
     : `<div class="price"><span class="calld">Call for price</span></div>`;
   const highlights = (c.highlights || []).map((h) => `<span class="hl">${esc(h)}</span>`).join('');
+  // Battery is a must-have (Extended Range) — call it out positively; a
+  // Standard Range car (on the avoid list) would get a warning treatment.
+  const battClass = /standard\s*range/i.test(c.battery || '') ? 'batt-std' : 'batt-ext';
+  const battIcon = battClass === 'batt-std' ? '⚠️' : '🔋';
+  const battOk = battClass === 'batt-ext' ? ' ✓' : '';
+  const battHtml = c.battery
+    ? `<span class="badge ${battClass}">${battIcon} ${esc(c.battery)}${battOk}${c.rangeMi ? ` · ~${c.rangeMi} mi` : ''}</span>`
+    : '';
+  // Confirmed optional extras — verified per-car from the window sticker
+  // (e.g. 360° camera, Nite Pony). Shown ONLY where confirmed, so not every
+  // car has these — that's the point.
+  const extras = (c.confirmedExtras || []).map((x) => `<span class="hl ok">✓ ${esc(x)}</span>`).join('');
   const alt = `${esc(c.year)} Mach-E ${esc(c.trim)} in ${esc(c.color)}`;
   // Compact thumbnail, hotlinked from Autotrader's image CDN. "A thumbnail is
   // sufficient here" — shown small next to the title; tapping it opens the full
@@ -359,7 +385,7 @@ function carCard(c) {
           </div>
           <div class="badges">
             ${dt}
-            <span class="badge">🔋 ${esc(c.battery)}${c.rangeMi ? ` · ~${c.rangeMi} mi` : ''}</span>
+            ${battHtml}
             ${roofBadge(c.glassRoof)}
             ${cert}
             ${star}
@@ -368,6 +394,7 @@ function carCard(c) {
       </div>
       ${keySpecs(c)}
       ${highlights ? `<div class="highlights">${highlights}</div>` : ''}
+      ${extras ? `<div class="extras"><span class="extras-label">✓ Confirmed on this car's window sticker</span><div class="extras-row">${extras}</div></div>` : ''}
       ${c.note ? `<p class="carnote"><b>📝 Notable:</b> ${esc(c.note)}</p>` : ''}
       <div class="carfoot">
         <div class="vote">
