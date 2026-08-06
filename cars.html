@@ -90,6 +90,17 @@
     .listing-link { flex: 0 0 auto; font-size: 13px; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--accent); color: var(--accent); background: transparent; text-decoration: none; }
     .listing-link:active { background: var(--accent); color: var(--bg); }
 
+    /* Kate's per-car note — the "why" behind a pick, folded into "Send my picks" */
+    .comment-row { margin-top: 10px; }
+    .carcard .comment {
+      width: 100%; box-sizing: border-box; resize: vertical; min-height: 42px;
+      font-family: inherit; font-size: 13.5px; line-height: 1.4;
+      padding: 9px 11px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--bg2); color: var(--text);
+    }
+    .carcard .comment::placeholder { color: var(--muted); }
+    .carcard .comment:focus { outline: none; border-color: var(--accent); background: var(--card2); }
+
     /* Sticky summary / send bar */
     .sendbar {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;

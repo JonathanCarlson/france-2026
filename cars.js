@@ -24,8 +24,10 @@ const b64ToU8 = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 let KEY = null;         // the car key string
 let DATA = null;        // decrypted car data
 let VOTES = {};         // { vin: 'up' | 'down' }
+let COMMENTS = {};      // { vin: 'free-text note from Kate' }
 let FILTER = 'all';     // all | close | awd | roof | cheap | liked
 const STORE_KEY = 'kate-cars-votes-v1';
+const COMMENTS_KEY = 'kate-cars-comments-v1';
 
 // ---------- crypto ----------
 async function decryptPayload(payload) {
@@ -61,9 +63,29 @@ function saveVotes() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(VOTES)); } catch { /* private mode */ }
 }
 
+// ---------- comments (localStorage) ----------
+// Kate's free-text note per car — the "why" behind a 👍/👎, or a standalone
+// thought ("love the color but too far", "would you check the tires?"). Saved
+// locally like votes, keyed by VIN, and folded into the "Send my picks" summary
+// so we learn what she actually likes, not just which cars she tapped.
+function loadComments() {
+  try { COMMENTS = JSON.parse(localStorage.getItem(COMMENTS_KEY) || '{}') || {}; }
+  catch { COMMENTS = {}; }
+}
+function saveComments() {
+  try { localStorage.setItem(COMMENTS_KEY, JSON.stringify(COMMENTS)); } catch { /* private mode */ }
+}
+function setComment(vin, text) {
+  const t = (text || '').trim();
+  if (t) COMMENTS[vin] = t;
+  else delete COMMENTS[vin]; // clearing the box removes the note
+  saveComments();
+}
+
 // ---------- boot ----------
 (function boot() {
   loadVotes();
+  loadComments();
   const m = /[#&]k=([^&]+)/.exec(location.hash || '');
   if (m) {
     KEY = decodeURIComponent(m[1]).trim();
@@ -221,6 +243,15 @@ function renderCars() {
   grid.querySelectorAll('.vbtn').forEach((btn) => {
     btn.addEventListener('click', () => vote(btn.dataset.vin, btn.dataset.v));
   });
+  // Kate's per-car note — save on every keystroke (so a half-typed note isn't
+  // lost if she then taps a vote and the grid re-renders) and keep the send bar
+  // live so a comment alone is enough to send, even without a 👍/👎.
+  grid.querySelectorAll('.comment').forEach((ta) => {
+    ta.addEventListener('input', () => {
+      setComment(ta.dataset.vin, ta.value);
+      updateTally();
+    });
+  });
   // If a listing photo fails to load (e.g. the car sold and its image 404'd), drop the
   // whole photo wrapper so the card degrades cleanly instead of showing a broken image.
   grid.querySelectorAll('.photo img').forEach((img) => {
@@ -279,6 +310,11 @@ function carCard(c) {
         </div>
         ${c.url ? `<a class="listing-link" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">More info ↗</a>` : ''}
       </div>
+      <div class="comment-row">
+        <textarea class="comment" data-vin="${esc(c.vin)}" rows="2"
+          placeholder="Add a note for Jonathan — what do you think? (optional)"
+          aria-label="Your note on this car">${esc(COMMENTS[c.vin] || '')}</textarea>
+      </div>
     </div>`;
 }
 
@@ -294,8 +330,10 @@ function vote(vin, v) {
 function updateTally() {
   const up = Object.values(VOTES).filter((v) => v === 'up').length;
   const down = Object.values(VOTES).filter((v) => v === 'down').length;
-  $('#tally').innerHTML = `<b>${up}</b> 👍 &nbsp; <b>${down}</b> 👎`;
-  $('#send-btn').disabled = (up + down === 0);
+  const notes = Object.values(COMMENTS).filter((t) => t && t.trim()).length;
+  $('#tally').innerHTML = `<b>${up}</b> 👍 &nbsp; <b>${down}</b> 👎 &nbsp; <b>${notes}</b> 💬`;
+  // A comment on its own is worth sending — enable the button for votes OR notes.
+  $('#send-btn').disabled = (up + down + notes === 0);
 }
 
 // ---------- send picks ----------
@@ -306,15 +344,32 @@ function buildSummary() {
     const price = c.price != null ? money(c.price) : 'call for price';
     return `${c.year} Mach-E ${c.trim} — ${c.drivetrain}, ${price}, ${c.color} (${c.location})`;
   };
-  const up = [], down = [];
+  const noteOf = (vin) => {
+    const t = (COMMENTS[vin] || '').trim();
+    return t ? `\n    💬 "${t}"` : '';
+  };
+  const up = [], down = [], notesOnly = [];
+  const voted = new Set();
   Object.entries(VOTES).forEach(([vin, v]) => {
     const c = byVin[vin];
     if (!c) return;
-    (v === 'up' ? up : down).push(label(c));
+    voted.add(vin);
+    (v === 'up' ? up : down).push(label(c) + noteOf(vin));
+  });
+  // Cars Kate commented on but didn't 👍/👎 — surface the note so her
+  // feedback ("would this fit in the garage?") is never dropped.
+  Object.keys(COMMENTS).forEach((vin) => {
+    const c = byVin[vin];
+    if (!c || voted.has(vin)) return;
+    const t = (COMMENTS[vin] || '').trim();
+    if (t) notesOnly.push(`${label(c)}\n    💬 "${t}"`);
   });
   let out = `Kate's car picks (${DATA.updated || ''})\n`;
   out += `\n👍 Liked (${up.length}):\n` + (up.length ? up.map((x) => '  • ' + x).join('\n') : '  (none)');
   out += `\n\n👎 Passed (${down.length}):\n` + (down.length ? down.map((x) => '  • ' + x).join('\n') : '  (none)');
+  if (notesOnly.length) {
+    out += `\n\n💬 Notes (${notesOnly.length}):\n` + notesOnly.map((x) => '  • ' + x).join('\n');
+  }
   out += `\n\n(Sent from the car page)`;
   return out;
 }
