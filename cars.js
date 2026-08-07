@@ -216,6 +216,8 @@ function render() {
 
   $('#sendbar').hidden = false;
   $('#send-btn').addEventListener('click', sendPicks);
+  const shareBtn = $('#share-btn');
+  if (shareBtn) { shareBtn.hidden = false; shareBtn.addEventListener('click', shareLink); }
   updateTally();
 }
 
@@ -490,6 +492,44 @@ async function sendPicks() {
   document.body.appendChild(pre);
   pre.select();
   pre.addEventListener('blur', () => pre.remove());
+}
+
+// ---------- share the car page link ----------
+// Rebuilds the keyed access URL (cars.html#k=<key>) from the in-memory key — or the
+// one we remembered in localStorage — and hands it to the native share sheet, so the
+// link can be re-sent (or re-opened) without digging up the original invite. boot()
+// strips #k= from the address bar for privacy, so we reconstruct the URL here rather
+// than reading location.hash. Clipboard + manual-copy fallbacks mirror sendPicks().
+const CARS_PUBLIC_URL = 'https://jonathancarlson.github.io/france-2026/cars.html';
+function currentCarKey() {
+  if (KEY) return KEY;
+  try { return localStorage.getItem(CARKEY_KEY) || ''; } catch { return ''; }
+}
+async function shareLink() {
+  const k = currentCarKey();
+  if (!k) { toast('No link to share yet — open the car page from your invite first'); return; }
+  const url = `${CARS_PUBLIC_URL}#k=${k}`;
+  const shareData = { title: "Kate's Mach-E shortlist", text: 'The cars we\u2019re tracking — 👍/👎 the ones you like:', url };
+  // Native share sheet (iOS/Android) — Messages, Mail, whatever.
+  if (navigator.share) {
+    try { await navigator.share(shareData); return; }
+    catch (err) { if (err && err.name === 'AbortError') return; /* fall through to clipboard */ }
+  }
+  // Fallback: copy the link to the clipboard.
+  try {
+    await navigator.clipboard.writeText(url);
+    toast('Link copied — paste it to share the car page 🔗');
+    return;
+  } catch { /* fall through */ }
+  // Last resort: show the link so it can be copied manually.
+  toast('Copy the link below to share the car page');
+  const box = document.createElement('textarea');
+  box.value = url;
+  box.style.cssText = 'position:fixed;left:5%;top:30%;width:90%;height:80px;z-index:99;padding:12px;border-radius:12px;background:#141b30;color:#eef2ff;border:1px solid #2a355c;font-size:13px';
+  box.readOnly = true;
+  document.body.appendChild(box);
+  box.select();
+  box.addEventListener('blur', () => box.remove());
 }
 
 let toastTimer = null;
