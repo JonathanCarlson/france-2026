@@ -25,7 +25,8 @@ let KEY = null;         // the car key string
 let DATA = null;        // decrypted car data
 let VOTES = {};         // { vin: 'up' | 'down' }
 let COMMENTS = {};      // { vin: 'free-text note from Kate' }
-let FILTER = 'all';     // all | close | awd | roof | cheap | liked
+let SORT = 'price-asc'; // price-asc | price-desc | miles-asc | distance-asc | year-desc
+const FACETS = {};      // { groupId: Set(values) } — active faceted filters (within-group OR, across-group AND)
 const STORE_KEY = 'kate-cars-votes-v1';
 const COMMENTS_KEY = 'kate-cars-comments-v1';
 
@@ -254,7 +255,7 @@ function renderIntro() {
 }
 
 function renderTrends() {
-  const t = DATA.trends;
+  const t = DATA.tradeoffs || DATA.trends;
   if (!t) { $('#trends').innerHTML = ''; return; }
   const s = t.stats || {};
   const statCells = [];
@@ -267,51 +268,157 @@ function renderTrends() {
   $('#trends').innerHTML = `
     <div class="card">
       <h2>📈 ${esc(t.headline || 'Market trends')}</h2>
+      ${t.note ? `<p class="muted" style="margin:4px 0 0;line-height:1.45">${esc(t.note)}</p>` : ''}
       <ul class="trend-list">${(t.bullets || []).map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       ${statCells.length ? `<div class="stat-grid">${statCells.join('')}</div>` : ''}
       ${s.label ? `<p class="muted tiny" style="margin:10px 0 0">${esc(s.label)}</p>` : ''}
     </div>`;
 }
 
-const FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'close', label: '📍 Under 30 mi' },
-  { id: 'awd', label: 'AWD' },
-  { id: 'roof', label: '☀️ Glass roof' },
-  { id: 'cheap', label: 'Under $33k' },
-  { id: 'liked', label: '👍 My picks' },
+// ---------- sort ----------
+const SORTS = [
+  { id: 'price-asc', label: 'Price: low to high' },
+  { id: 'price-desc', label: 'Price: high to low' },
+  { id: 'miles-asc', label: 'Mileage: low to high' },
+  { id: 'distance-asc', label: 'Distance: closest' },
+  { id: 'year-desc', label: 'Year: newest first' },
 ];
+function sortCars(list) {
+  const cmp = {
+    'price-asc': (a, b) => (a.price ?? Infinity) - (b.price ?? Infinity),
+    'price-desc': (a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity),
+    'miles-asc': (a, b) => (a.miles ?? Infinity) - (b.miles ?? Infinity),
+    'distance-asc': (a, b) => (a.distanceMi ?? Infinity) - (b.distanceMi ?? Infinity),
+    'year-desc': (a, b) => (b.year ?? 0) - (a.year ?? 0) || (a.price ?? Infinity) - (b.price ?? Infinity),
+  }[SORT] || (() => 0);
+  return [...list].sort(cmp);
+}
+
+// ---------- faceted filters ----------
+// The wishlist features that used to sit at the top of the page are now live
+// filters. Within a group the tests OR together (AWD *or* RWD); across groups
+// they AND (AWD *and* glass roof *and* under $31k). An option only renders when
+// at least one car in the data matches it, so the bar always reflects the actual
+// inventory — no dead buttons.
+const FACET_GROUPS = [
+  { id: 'drivetrain', cat: 'Drivetrain', opts: [
+    { v: 'AWD', label: 'AWD', test: (c) => c.drivetrain === 'AWD' },
+    { v: 'RWD', label: 'RWD', test: (c) => c.drivetrain === 'RWD' },
+  ] },
+  { id: 'battery', cat: 'Battery', opts: [
+    { v: 'ext', label: '🔋 Extended Range', test: (c) => /extended/i.test(c.battery || '') },
+    { v: 'std', label: 'Standard Range', test: (c) => /standard/i.test(c.battery || '') },
+  ] },
+  { id: 'trim', cat: 'Trim', opts: [
+    { v: 'Premium', label: 'Premium', test: (c) => /premium/i.test(c.trim || '') },
+    { v: 'Select', label: 'Select', test: (c) => /select/i.test(c.trim || '') },
+    { v: 'GT', label: 'GT', test: (c) => /\bgt\b/i.test(c.trim || '') },
+    { v: 'Route1', label: 'CA Route 1', test: (c) => /route\s*1/i.test(c.trim || '') },
+  ] },
+  { id: 'roof', cat: 'Features', opts: [
+    { v: 'roof', label: '☀️ Glass roof', test: (c) => c.glassRoof === 'yes' || c.glassRoof === 'likely' },
+  ] },
+  { id: 'cert', cat: 'Features', opts: [
+    { v: 'cert', label: '✅ Certified', test: (c) => /certified/i.test(c.cert || '') },
+  ] },
+  { id: 'close', cat: 'Features', opts: [
+    { v: 'close', label: '📍 Under 30 mi', test: (c) => c.distanceMi != null && c.distanceMi <= 30 },
+  ] },
+  { id: 'lowmiles', cat: 'Features', opts: [
+    { v: 'lowmiles', label: 'Under 40k miles', test: (c) => c.miles != null && c.miles <= 40000 },
+  ] },
+  { id: 'price', cat: 'Price', opts: [
+    { v: 'u28', label: 'Under $28k', test: (c) => c.price != null && c.price < 28000 },
+    { v: 'u31', label: 'Under $31k', test: (c) => c.price != null && c.price < 31000 },
+  ] },
+  { id: 'show', cat: 'Show', opts: [
+    { v: 'liked', label: '👍 My picks', test: (c) => VOTES[c.vin] === 'up' },
+  ] },
+];
+
+function availableOpts(g) {
+  const cars = DATA.cars || [];
+  return g.opts.filter((o) => cars.some((c) => o.test(c)));
+}
+function activeFacetCount() {
+  return Object.values(FACETS).reduce((n, s) => n + (s ? s.size : 0), 0);
+}
+function matchesFacets(c) {
+  for (const g of FACET_GROUPS) {
+    const sel = FACETS[g.id];
+    if (!sel || sel.size === 0) continue;              // group inactive — skip
+    const chosen = g.opts.filter((o) => sel.has(o.v));
+    if (!chosen.some((o) => o.test(c))) return false;  // within-group OR, across-group AND
+  }
+  return true;
+}
+function toggleFacet(gid, v) {
+  const set = FACETS[gid] || (FACETS[gid] = new Set());
+  if (set.has(v)) set.delete(v);
+  else set.add(v);
+  renderFilters();
+  renderCars();
+}
+function clearFacets() {
+  for (const k of Object.keys(FACETS)) delete FACETS[k];
+  renderFilters();
+  renderCars();
+}
 
 function renderFilters() {
   const bar = $('#filterbar');
   bar.hidden = false;
-  bar.innerHTML = FILTERS.map((f) =>
-    `<button class="fbtn${f.id === FILTER ? ' active' : ''}" data-f="${f.id}">${esc(f.label)}</button>`).join('');
-  bar.querySelectorAll('.fbtn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      FILTER = btn.dataset.f;
-      renderFilters();
-      renderCars();
-    });
-  });
-}
-
-function matchesFilter(c) {
-  switch (FILTER) {
-    case 'close': return (c.distanceMi != null && c.distanceMi <= 30);
-    case 'awd': return c.drivetrain === 'AWD';
-    case 'roof': return c.glassRoof === 'yes' || c.glassRoof === 'likely';
-    case 'cheap': return (c.price != null && c.price < 33000);
-    case 'liked': return VOTES[c.vin] === 'up';
-    default: return true;
+  const sortOpts = SORTS.map((s) =>
+    `<option value="${s.id}"${s.id === SORT ? ' selected' : ''}>${esc(s.label)}</option>`).join('');
+  let html = `<div class="ctl-block sort-block">
+      <label class="ctl-label" for="sortsel">Sort</label>
+      <select id="sortsel" class="sortsel" aria-label="Sort cars">${sortOpts}</select>
+    </div>`;
+  // Facet chips, clustered under their category label.
+  let lastCat = null;
+  for (const g of FACET_GROUPS) {
+    // The "My picks" toggle is a persistent control — always show it (even with
+    // zero likes yet) rather than hiding it via availableOpts, so it's reachable
+    // and can always be toggled back off.
+    const opts = g.id === 'show' ? g.opts : availableOpts(g);
+    if (!opts.length) continue;
+    if (g.cat !== lastCat) {
+      if (lastCat !== null) html += `</div></div>`;
+      html += `<div class="ctl-block"><div class="ctl-label">${esc(g.cat)}</div><div class="chiprow">`;
+      lastCat = g.cat;
+    }
+    const sel = FACETS[g.id];
+    html += opts.map((o) =>
+      `<button class="fbtn${sel && sel.has(o.v) ? ' active' : ''}" data-g="${esc(g.id)}" data-v="${esc(o.v)}">${esc(o.label)}</button>`).join('');
   }
+  if (lastCat !== null) html += `</div></div>`;
+  const n = activeFacetCount();
+  html += `<div class="filtermeta">
+      <span id="result-count"></span>
+      <button class="clear-btn" id="clear-filters"${n ? '' : ' hidden'}>Clear filters (${n})</button>
+    </div>`;
+  bar.innerHTML = html;
+  const ss = $('#sortsel');
+  if (ss) ss.addEventListener('change', () => { SORT = ss.value; renderCars(); });
+  bar.querySelectorAll('.fbtn').forEach((btn) => {
+    btn.addEventListener('click', () => toggleFacet(btn.dataset.g, btn.dataset.v));
+  });
+  const clr = $('#clear-filters');
+  if (clr) clr.addEventListener('click', clearFacets);
 }
 
 function renderCars() {
   const grid = $('#cars-grid');
-  const list = (DATA.cars || []).filter(matchesFilter);
+  const list = sortCars((DATA.cars || []).filter(matchesFacets));
+  const countEl = $('#result-count');
+  if (countEl) {
+    const total = (DATA.cars || []).length;
+    countEl.textContent = list.length === total ? `${total} cars` : `${list.length} of ${total} cars`;
+  }
   if (!list.length) {
-    grid.innerHTML = `<p class="muted" style="text-align:center;padding:30px 10px">No cars match this filter yet.</p>`;
+    grid.innerHTML = `<p class="muted" style="text-align:center;padding:30px 10px">No cars match these filters. <button class="clear-btn" id="clear-empty">Clear filters</button></p>`;
+    const ce = $('#clear-empty');
+    if (ce) ce.addEventListener('click', clearFacets);
     return;
   }
   grid.innerHTML = list.map(carCard).join('');
@@ -417,7 +524,10 @@ function vote(vin, v) {
   if (VOTES[vin] === v) delete VOTES[vin]; // tapping the same vote again clears it
   else VOTES[vin] = v;
   saveVotes();
-  // Re-render so the "My picks" filter + card styling stay in sync.
+  // Re-render so the "My picks" filter + card styling stay in sync. renderFilters
+  // refreshes the active-filter count and keeps the "My picks" result live when
+  // that facet is engaged.
+  renderFilters();
   renderCars();
   updateTally();
 }

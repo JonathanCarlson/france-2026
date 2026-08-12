@@ -65,11 +65,19 @@
     .resource-link { font-size: 13px; color: var(--accent); text-decoration: none; padding: 8px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); }
     .resource-link:active { background: var(--accent); color: var(--bg); }
 
-    /* Filter bar */
-    .filterbar { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 4px; -webkit-overflow-scrolling: touch; }
-    .filterbar::-webkit-scrollbar { display: none; }
-    .fbtn { flex: 0 0 auto; font-size: 13px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); white-space: nowrap; }
+    /* Controls: sort + faceted filters (the wishlist features are now filters) */
+    .filterbar { display: block; padding: 12px 0 2px; }
+    .ctl-block { margin-bottom: 10px; }
+    .ctl-block.sort-block { display: flex; align-items: center; gap: 10px; }
+    .ctl-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 5px; }
+    .sort-block .ctl-label { margin: 0; }
+    .chiprow { display: flex; flex-wrap: wrap; gap: 6px; }
+    .fbtn { flex: 0 0 auto; font-size: 13px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); white-space: nowrap; cursor: pointer; }
     .fbtn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .sortsel { flex: 1 1 auto; font-size: 13.5px; padding: 8px 11px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); }
+    .filtermeta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+    .clear-btn { font-size: 12.5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--accent); cursor: pointer; }
+    .clear-btn[hidden] { display: none; }
 
     /* Car card */
     .carcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin: 12px 0; transition: border-color .15s, opacity .15s; }
@@ -213,6 +221,6 @@
        often opened standalone by Kate, never via the main app that registers
        sw.js — so without this a stale cached cars.js kept re-showing the gate).
        Bump this whenever cars.js changes. -->
-  <script src="cars.js?v=5"></script>
+  <script src="cars.js?v=6"></script>
 </body>
 </html>
