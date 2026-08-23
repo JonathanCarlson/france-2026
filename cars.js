@@ -25,7 +25,7 @@ let KEY = null;         // the car key string
 let DATA = null;        // decrypted car data
 let VOTES = {};         // { vin: 'up' | 'down' }
 let COMMENTS = {};      // { vin: 'free-text note from Kate' }
-let SORT = 'price-asc'; // price-asc | price-desc | miles-asc | distance-asc | year-desc
+let SORT = 'match-desc'; // match-desc | price-asc | price-desc | miles-asc | distance-asc | year-desc
 const FACETS = {};      // { groupId: Set(values) } — active faceted filters (within-group OR, across-group AND)
 const STORE_KEY = 'kate-cars-votes-v1';
 const COMMENTS_KEY = 'kate-cars-comments-v1';
@@ -277,6 +277,7 @@ function renderTrends() {
 
 // ---------- sort ----------
 const SORTS = [
+  { id: 'match-desc', label: '⭐ Best match for Kate' },
   { id: 'price-asc', label: 'Price: low to high' },
   { id: 'price-desc', label: 'Price: high to low' },
   { id: 'miles-asc', label: 'Mileage: low to high' },
@@ -285,6 +286,7 @@ const SORTS = [
 ];
 function sortCars(list) {
   const cmp = {
+    'match-desc': (a, b) => (b.matchScore ?? -Infinity) - (a.matchScore ?? -Infinity) || (a.price ?? Infinity) - (b.price ?? Infinity),
     'price-asc': (a, b) => (a.price ?? Infinity) - (b.price ?? Infinity),
     'price-desc': (a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity),
     'miles-asc': (a, b) => (a.miles ?? Infinity) - (b.miles ?? Infinity),
@@ -332,6 +334,7 @@ const FACET_GROUPS = [
     { v: 'u31', label: 'Under $31k', test: (c) => c.price != null && c.price < 31000 },
   ] },
   { id: 'show', cat: 'Show', opts: [
+    { v: 'new', label: '🆕 Just added', test: (c) => !!c.new },
     { v: 'liked', label: '👍 My picks', test: (c) => VOTES[c.vin] === 'up' },
   ] },
 ];
@@ -453,6 +456,7 @@ function carCard(c) {
     ? '<span class="badge awd">AWD</span>'
     : '<span class="badge rwd">RWD</span>';
   const star = c.standout ? '<span class="badge star">⭐ Standout</span>' : '';
+  const isNew = c.new ? '<span class="badge new">🆕 Just added</span>' : '';
   const cert = /certified/i.test(c.cert || '') ? '<span class="badge">✅ Certified</span>' : '';
   const priceHtml = c.price != null
     ? `<div class="price">${money(c.price)}${c.priceNote ? `<span class="note">${esc(c.priceNote)}</span>` : ''}</div>`
@@ -493,6 +497,7 @@ function carCard(c) {
             ${priceHtml}
           </div>
           <div class="badges">
+            ${isNew}
             ${dt}
             ${battHtml}
             ${roofBadge(c.glassRoof)}
