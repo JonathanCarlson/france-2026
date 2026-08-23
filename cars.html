@@ -46,6 +46,35 @@
     .stat .n { font-size: 17px; font-weight: 700; color: var(--text); }
     .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
+    /* Tabs — switch between the shopping list and the price-analysis view */
+    .tabbar { display: flex; gap: 6px; padding: 4px 16px 8px; max-width: 760px; margin: 0 auto; }
+    .tab { flex: 1 1 auto; font-size: 14px; font-weight: 600; padding: 9px 12px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--bg2); color: var(--muted); cursor: pointer; white-space: nowrap; }
+    .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .panel[hidden] { display: none; }
+
+    /* Price-analysis view: charts + regression */
+    .chart-wrap { width: 100%; overflow: hidden; margin-top: 10px; }
+    .chart-wrap svg { width: 100%; height: auto; display: block; }
+    .chart-cap { font-size: 12px; color: var(--muted); margin: 9px 0 0; line-height: 1.5; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+    .chart-legend .k { display: inline-flex; align-items: center; gap: 6px; }
+    .chart-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .reg-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+    .reg-table td { padding: 7px 6px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+    .reg-table td.lbl { color: var(--text); }
+    .reg-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+    .reg-table tr.grp td { color: var(--muted); text-transform: uppercase; font-size: 10.5px; letter-spacing: .05em; border-bottom: none; padding: 14px 6px 2px; }
+    .reg-table tr.base td { color: var(--muted); font-size: 12px; }
+    .reg-pos { color: var(--green); }
+    .reg-neg { color: #ff9a9a; }
+    .reg-table .sig { font-size: 11px; color: var(--muted); display: block; margin-top: 1px; font-weight: 400; }
+    .reg-table .sig.on { color: var(--green); }
+    .reg-stats { margin-top: 12px; }
+    .takeaways { margin: 8px 0 0; padding-left: 18px; }
+    .takeaways li { margin: 6px 0; line-height: 1.45; color: var(--muted); }
+    .takeaways b { color: var(--text); font-weight: 600; }
+
     .want-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .want-chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
     .want-chip.must { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
@@ -202,12 +231,21 @@
       </div>
       <button id="share-btn" type="button" hidden>🔗 Share</button>
     </div>
+    <nav id="tabbar" class="tabbar" hidden>
+      <button class="tab active" type="button" data-tab="cars">🚗 The cars</button>
+      <button class="tab" type="button" data-tab="analysis">📊 Price analysis</button>
+    </nav>
     <div class="cars-wrap">
       <div id="cars-status"><div class="big">🚗</div>Decrypting…</div>
-      <div id="intro"></div>
-      <div id="trends"></div>
-      <div id="filterbar" class="filterbar" hidden></div>
-      <div id="cars-grid"></div>
+      <section id="panel-cars" class="panel">
+        <div id="intro"></div>
+        <div id="filterbar" class="filterbar" hidden></div>
+        <div id="cars-grid"></div>
+      </section>
+      <section id="panel-analysis" class="panel" hidden>
+        <div id="trends"></div>
+        <div id="analysis"></div>
+      </section>
     </div>
   </main>
 
@@ -222,6 +260,6 @@
        often opened standalone by Kate, never via the main app that registers
        sw.js — so without this a stale cached cars.js kept re-showing the gate).
        Bump this whenever cars.js changes. -->
-  <script src="cars.js?v=7"></script>
+  <script src="cars.js?v=8"></script>
 </body>
 </html>

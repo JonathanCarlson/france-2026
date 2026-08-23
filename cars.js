@@ -212,10 +212,14 @@ function render() {
 
   renderIntro();
   renderTrends();
+  renderAnalysis();
   renderFilters();
   renderCars();
+  setupTabs();
 
-  $('#sendbar').hidden = false;
+  const sendbar = $('#sendbar');
+  sendbar.dataset.ready = '1';
+  sendbar.hidden = false;
   $('#send-btn').addEventListener('click', sendPicks);
   const shareBtn = $('#share-btn');
   if (shareBtn) { shareBtn.hidden = false; shareBtn.addEventListener('click', shareLink); }
@@ -273,6 +277,268 @@ function renderTrends() {
       ${statCells.length ? `<div class="stat-grid">${statCells.join('')}</div>` : ''}
       ${s.label ? `<p class="muted tiny" style="margin:10px 0 0">${esc(s.label)}</p>` : ''}
     </div>`;
+}
+
+// ---------- price analysis (client-side regression) ----------
+// A small, dependency-free ordinary-least-squares model rebuilt from the current
+// inventory on every load. The nightly refresh overwrites cars.json, so we
+// recompute rather than hardcode any number. It teases apart how much each factor
+// — model year, mileage, drivetrain, battery, trim, glass roof, certification,
+// color, and location — independently moves the asking price, holding the rest
+// equal. "Over time" is read through model year + mileage (the age/use axes); the
+// page keeps no nightly price history, so this is a cross-section, not a time
+// series — stated plainly in the caveat.
+
+const REG_COLOR_BASE = 'White';
+function normColor(raw) {
+  const s = (raw || '').toLowerCase();
+  if (/white/.test(s)) return 'White';
+  if (/black/.test(s)) return 'Black';
+  if (/blue/.test(s)) return 'Blue';
+  if (/gray|grey|carbonized/.test(s)) return 'Gray';
+  if (/red/.test(s)) return 'Red';
+  return 'Other';
+}
+function stateOf(loc) { const m = /([A-Z]{2})\s*$/.exec((loc || '').trim()); return m ? m[1] : ''; }
+
+// Each term: a grouped label plus a value extractor. The baseline (all dummies 0)
+// is a 2023 · Select · RWD · Standard Range · White · WA · non-certified car.
+// `per` scales the coefficient for display (miles shown per 10k, not per 1k).
+function regTerms() {
+  return [
+    { key: 'yearC',    grp: 'Age & use',        label: 'Each model year newer',   per: 1,  f: (c) => c.year - 2023 },
+    { key: 'milesK',   grp: 'Age & use',        label: 'Each 10,000 miles',       per: 10, f: (c) => c.miles / 1000 },
+    { key: 'awd',      grp: 'Powertrain',       label: 'AWD (vs RWD)',            per: 1,  f: (c) => (c.drivetrain === 'AWD' ? 1 : 0) },
+    { key: 'ext',      grp: 'Powertrain',       label: 'Extended Range (vs Std)', per: 1,  f: (c) => (/extended/i.test(c.battery || '') ? 1 : 0) },
+    { key: 'premium',  grp: 'Trim (vs Select)', label: 'Premium',                 per: 1,  f: (c) => (/premium/i.test(c.trim || '') ? 1 : 0) },
+    { key: 'gt',       grp: 'Trim (vs Select)', label: 'GT',                      per: 1,  f: (c) => (/\bgt\b/i.test(c.trim || '') ? 1 : 0) },
+    { key: 'route1',   grp: 'Trim (vs Select)', label: 'California Route 1',      per: 1,  f: (c) => (/route\s*1/i.test(c.trim || '') ? 1 : 0) },
+    { key: 'roof',     grp: 'Features',         label: 'Glass roof',              per: 1,  f: (c) => (c.glassRoof === 'yes' || c.glassRoof === 'likely' ? 1 : 0) },
+    { key: 'cert',     grp: 'Features',         label: 'Ford Certified',          per: 1,  f: (c) => (/certified/i.test(c.cert || '') ? 1 : 0) },
+    { key: 'Black',    grp: 'Color (vs White)', label: 'Black',                   per: 1,  f: (c) => (normColor(c.color) === 'Black' ? 1 : 0) },
+    { key: 'Blue',     grp: 'Color (vs White)', label: 'Blue',                    per: 1,  f: (c) => (normColor(c.color) === 'Blue' ? 1 : 0) },
+    { key: 'Gray',     grp: 'Color (vs White)', label: 'Gray',                    per: 1,  f: (c) => (normColor(c.color) === 'Gray' ? 1 : 0) },
+    { key: 'Red',      grp: 'Color (vs White)', label: 'Red',                     per: 1,  f: (c) => (normColor(c.color) === 'Red' ? 1 : 0) },
+    { key: 'OtherCol', grp: 'Color (vs White)', label: 'Other color',             per: 1,  f: (c) => (normColor(c.color) === 'Other' ? 1 : 0) },
+    { key: 'isOR',     grp: 'Location',         label: 'Oregon (vs Washington)',  per: 1,  f: (c) => (stateOf(c.location) === 'OR' ? 1 : 0) },
+  ];
+}
+
+// --- tiny matrix toolkit (no deps) ---
+function mT(A) { const r = A.length, c = A[0].length, B = []; for (let j = 0; j < c; j++) { B[j] = []; for (let i = 0; i < r; i++) B[j][i] = A[i][j]; } return B; }
+function mMul(A, B) { const r = A.length, k = B.length, c = B[0].length, C = []; for (let i = 0; i < r; i++) { C[i] = new Array(c).fill(0); for (let t = 0; t < k; t++) { const a = A[i][t]; if (!a) continue; const Bt = B[t]; for (let j = 0; j < c; j++) C[i][j] += a * Bt[j]; } } return C; }
+function mVec(A, v) { return A.map((row) => { let s = 0; for (let j = 0; j < row.length; j++) s += row[j] * v[j]; return s; }); }
+function mInv(M) {
+  const n = M.length;
+  const A = M.map((r, i) => { const row = r.slice(); for (let j = 0; j < n; j++) row.push(i === j ? 1 : 0); return row; });
+  for (let col = 0; col < n; col++) {
+    let piv = col;
+    for (let r = col + 1; r < n; r++) if (Math.abs(A[r][col]) > Math.abs(A[piv][col])) piv = r;
+    if (Math.abs(A[piv][col]) < 1e-12) throw new Error('singular');
+    const tmp = A[col]; A[col] = A[piv]; A[piv] = tmp;
+    const d = A[col][col];
+    for (let j = 0; j < 2 * n; j++) A[col][j] /= d;
+    for (let r = 0; r < n; r++) { if (r === col) continue; const fct = A[r][col]; if (!fct) continue; for (let j = 0; j < 2 * n; j++) A[r][j] -= fct * A[col][j]; }
+  }
+  return A.map((r) => r.slice(n));
+}
+
+// β = (XᵀX)⁻¹Xᵀy via the normal equations, with SEs from σ²·diag((XᵀX)⁻¹).
+function runRegression(cars) {
+  const rows = (cars || []).filter((c) => typeof c.price === 'number' && Number.isFinite(c.price)
+    && typeof c.miles === 'number' && Number.isFinite(c.miles)
+    && typeof c.year === 'number' && Number.isFinite(c.year));
+  if (rows.length < 15) return { ok: false, n: rows.length };
+  // Drop terms with no variation in this snapshot — an all-0 or all-1 column is
+  // collinear with the intercept and makes XᵀX singular.
+  const terms = regTerms().filter((t) => { const v0 = t.f(rows[0]); return rows.some((c) => t.f(c) !== v0); });
+  if (!terms.length) return { ok: false, n: rows.length };
+  const X = rows.map((c) => [1, ...terms.map((t) => t.f(c))]);
+  const y = rows.map((c) => c.price);
+  const Xt = mT(X);
+  const XtX = mMul(Xt, X);
+  let inv;
+  try {
+    inv = mInv(XtX);
+  } catch (e) {
+    // Ridge fallback for a near-singular design on an unlucky night's data.
+    const lam = 1;
+    const R = XtX.map((r, i) => r.map((v, j) => (i === j && i > 0 ? v + lam : v)));
+    try { inv = mInv(R); } catch (e2) { return { ok: false, n: rows.length, singular: true }; }
+  }
+  const beta = mVec(inv, mVec(Xt, y));
+  const yhat = mVec(X, beta);
+  const n = rows.length, p = beta.length;
+  let rss = 0; for (let i = 0; i < n; i++) { const e = y[i] - yhat[i]; rss += e * e; }
+  const ybar = y.reduce((s, v) => s + v, 0) / n;
+  const tss = y.reduce((s, v) => s + (v - ybar) * (v - ybar), 0) || 1;
+  const r2 = 1 - rss / tss;
+  const adjR2 = n - p > 0 ? 1 - (1 - r2) * (n - 1) / (n - p) : NaN;
+  const sigma2 = n - p > 0 ? rss / (n - p) : NaN;
+  const coefs = terms.map((t, i) => {
+    const b = beta[i + 1];
+    const varc = Number.isFinite(sigma2) ? sigma2 * inv[i + 1][i + 1] : NaN;
+    const se = Number.isFinite(varc) && varc >= 0 ? Math.sqrt(varc) : NaN;
+    const tstat = se ? b / se : NaN;
+    return { key: t.key, grp: t.grp, label: t.label, coef: b, disp: b * t.per, se, t: tstat, sig: Number.isFinite(tstat) && Math.abs(tstat) >= 1.96 };
+  });
+  return { ok: true, n, p, r2, adjR2, rmse: Number.isFinite(sigma2) ? Math.sqrt(sigma2) : NaN, intercept: beta[0], coefs };
+}
+
+// --- charts (inline SVG, theme colors) ---
+function priceByYear(cars) {
+  const g = {};
+  cars.forEach((c) => { if (typeof c.price === 'number' && typeof c.year === 'number') { (g[c.year] || (g[c.year] = [])).push(c.price); } });
+  return Object.keys(g).map(Number).sort((a, b) => a - b).map((yr) => {
+    const arr = g[yr].slice().sort((a, b) => a - b);
+    return { year: yr, median: arr[Math.floor(arr.length / 2)], count: arr.length };
+  });
+}
+
+function yearBarSvg(series) {
+  if (!series.length) return '';
+  const W = 320, H = 190, padL = 8, padR = 8, padT = 22, padB = 34;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const maxV = Math.max(...series.map((d) => d.median)) * 1.08 || 1;
+  const n = series.length, gap = iw / n, bw = gap * 0.6;
+  const yOf = (v) => padT + ih - (v / maxV) * ih;
+  const short = (v) => '$' + (v / 1000).toFixed(v >= 10000 ? 1 : 0) + 'k';
+  let bars = '';
+  series.forEach((d, i) => {
+    const cx = padL + gap * i + gap / 2, x = cx - bw / 2, yy = yOf(d.median), bh = padT + ih - yy;
+    bars += `<rect x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="#3b6fd6"></rect>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(yy - 6).toFixed(1)}" text-anchor="middle" font-size="11" fill="#eef2ff" font-weight="600">${short(d.median)}</text>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(padT + ih + 15).toFixed(1)}" text-anchor="middle" font-size="11" fill="#9aa6c7">${d.year}</text>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(padT + ih + 28).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="#9aa6c7">n=${d.count}</text>`;
+  });
+  const baseY = (padT + ih).toFixed(1);
+  return `<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Median asking price by model year">`
+    + `<line x1="${padL}" y1="${baseY}" x2="${W - padR}" y2="${baseY}" stroke="#2a355c"></line>${bars}</svg></div>`;
+}
+
+function mileageScatterSvg(cars) {
+  const pts = cars.filter((c) => typeof c.price === 'number' && typeof c.miles === 'number')
+    .map((c) => ({ x: c.miles, y: c.price, awd: c.drivetrain === 'AWD' }));
+  if (pts.length < 4) return '';
+  const W = 320, H = 200, padL = 40, padR = 10, padT = 12, padB = 26;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+  const xmax = Math.max(...xs) * 1.05 || 1;
+  const ymin = Math.min(...ys) * 0.97, ymax = Math.max(...ys) * 1.03;
+  const yspan = (ymax - ymin) || 1;
+  const sx = (v) => padL + (v / xmax) * iw;
+  const sy = (v) => padT + ih - (v - ymin) / yspan * ih;
+  let mx = 0, my = 0; pts.forEach((p) => { mx += p.x; my += p.y; }); mx /= pts.length; my /= pts.length;
+  let sxy = 0, sxx = 0; pts.forEach((p) => { sxy += (p.x - mx) * (p.y - my); sxx += (p.x - mx) * (p.x - mx); });
+  const slope = sxx ? sxy / sxx : 0, intc = my - slope * mx;
+  const clamp = (v) => Math.max(ymin, Math.min(ymax, v));
+  const y1 = clamp(intc), y2 = clamp(intc + slope * xmax);
+  const grid = [ymin, (ymin + ymax) / 2, ymax].map((v) =>
+    `<line x1="${padL}" y1="${sy(v).toFixed(1)}" x2="${W - padR}" y2="${sy(v).toFixed(1)}" stroke="#2a355c" stroke-dasharray="2 3"></line>`
+    + `<text x="${padL - 5}" y="${(sy(v) + 3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#9aa6c7">$${Math.round(v / 1000)}k</text>`).join('');
+  const xt = [0, xmax / 2, xmax].map((v) =>
+    `<text x="${sx(v).toFixed(1)}" y="${H - 7}" text-anchor="middle" font-size="9.5" fill="#9aa6c7">${Math.round(v / 1000)}k mi</text>`).join('');
+  const fit = `<line x1="${sx(0).toFixed(1)}" y1="${sy(y1).toFixed(1)}" x2="${sx(xmax).toFixed(1)}" y2="${sy(y2).toFixed(1)}" stroke="#34d399" stroke-width="2"></line>`;
+  const dots = pts.map((p) => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="3" fill="${p.awd ? '#6ea8fe' : '#9aa6c7'}" fill-opacity="0.85"></circle>`).join('');
+  return `<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Asking price versus mileage">${grid}${xt}${fit}${dots}</svg></div>`;
+}
+
+function fmtSigned(v) {
+  const r = Math.round(v / 10) * 10;
+  return (r < 0 ? '−$' : '+$') + Math.abs(r).toLocaleString('en-US');
+}
+
+function takeawaysHtml(reg) {
+  const by = {}; reg.coefs.forEach((c) => { by[c.key] = c; });
+  const d = (v) => '$' + Math.abs(Math.round(v / 10) * 10).toLocaleString('en-US');
+  const bul = [];
+  if (by.yearC && by.yearC.sig) bul.push(`Every <b>model year newer</b> adds about <b>${d(by.yearC.disp)}</b>, all else equal.`);
+  if (by.milesK && by.milesK.sig) bul.push(`Every <b>10,000 miles</b> ${by.milesK.disp < 0 ? 'knocks off' : 'adds'} about <b>${d(by.milesK.disp)}</b>.`);
+  if (by.awd && by.awd.sig) bul.push(`<b>AWD</b> commands about <b>${d(by.awd.disp)}</b> over RWD.`);
+  const trims = ['premium', 'gt', 'route1'].map((k) => by[k]).filter((c) => c && c.sig);
+  if (trims.length) bul.push('Trim is the biggest lever — ' + trims.map((c) => `<b>${esc(c.label)}</b> ${c.disp >= 0 ? '+' : '−'}${d(c.disp)}`).join(', ') + ' versus the base Select.');
+  if (by.cert && by.cert.sig) bul.push(`<b>Ford Certified</b> ${by.cert.disp >= 0 ? 'adds' : 'costs'} about <b>${d(by.cert.disp)}</b>.`);
+  if (by.ext && !by.ext.sig) bul.push(`<b>Extended Range</b> shows little independent effect once trim is accounted for — the pricier trims almost always include it, so its value is baked into them.`);
+  if (by.isOR) bul.push(by.isOR.sig
+    ? `<b>Oregon</b> listings run about <b>${d(by.isOR.disp)}</b> ${by.isOR.disp < 0 ? 'less' : 'more'} than Washington.`
+    : `Location (Oregon vs Washington) doesn't clearly move the price.`);
+  const colorSig = ['Black', 'Blue', 'Gray', 'Red', 'OtherCol'].some((k) => by[k] && by[k].sig);
+  if (!colorSig) bul.push(`<b>Color</b> barely matters — no color shows a statistically clear premium or discount.`);
+  if (!bul.length) return '';
+  return `<div class="section-title" style="margin:16px 0 4px">In plain English</div><ul class="takeaways">${bul.map((b) => `<li>${b}</li>`).join('')}</ul>`;
+}
+
+function regCard(reg) {
+  if (!reg || !reg.ok) {
+    const why = reg && reg.singular ? `today's listings are too similar to separate the factors`
+      : `only ${reg && reg.n != null ? reg.n : 0} priced listings so far`;
+    return `<div class="card"><h2>📊 What drives the price</h2>`
+      + `<p class="muted" style="line-height:1.5">Not enough to fit a reliable model yet — ${why}. This fills in automatically after a few more nightly scans.</p></div>`;
+  }
+  let rowsHtml = '', lastGrp = null;
+  reg.coefs.forEach((c) => {
+    if (c.grp !== lastGrp) { rowsHtml += `<tr class="grp"><td colspan="2">${esc(c.grp)}</td></tr>`; lastGrp = c.grp; }
+    const cls = c.disp >= 0 ? 'reg-pos' : 'reg-neg';
+    const sig = c.sig ? '<span class="sig on">clear effect</span>' : '<span class="sig">not statistically clear</span>';
+    rowsHtml += `<tr><td class="lbl">${esc(c.label)}${sig}</td><td class="num ${cls}">${fmtSigned(c.disp)}</td></tr>`;
+  });
+  const baseRow = `<tr class="base"><td class="lbl">Baseline: 2023 · Select · RWD · Std Range · White · WA</td><td class="num">$${Math.round(reg.intercept).toLocaleString('en-US')}</td></tr>`;
+  const stats = `<div class="stat-grid reg-stats">`
+    + `<div class="stat"><div class="n">${reg.n}</div><div class="l">cars modeled</div></div>`
+    + `<div class="stat"><div class="n">${(reg.r2 * 100).toFixed(0)}%</div><div class="l">of price variation explained</div></div>`
+    + `<div class="stat"><div class="n">±$${Math.round(reg.rmse).toLocaleString('en-US')}</div><div class="l">typical error</div></div></div>`;
+  return `<div class="card">`
+    + `<h2>📊 What drives the price</h2>`
+    + `<p class="chart-cap">A multi-factor regression across the current ${reg.n} priced listings. Each figure is that factor's <b>independent</b> effect on asking price — holding everything else equal, not just its raw average.</p>`
+    + `<table class="reg-table"><tbody>${baseRow}${rowsHtml}</tbody></table>`
+    + stats
+    + takeawaysHtml(reg)
+    + `</div>`;
+}
+
+function caveatCard(reg) {
+  return `<div class="card"><p class="muted tiny" style="line-height:1.6;margin:0">`
+    + `<b>How to read this.</b> Figures are modeled estimates from a single day's listings`
+    + `${DATA.updated ? ' (' + esc(DATA.updated) + ')' : ''}, not a guarantee on any one car. "Over time" here means model year and mileage — the page keeps no nightly price history, so this is a snapshot, not a historical trend line. "Clear effect" means the pattern is strong enough it's unlikely to be noise; "not statistically clear" means the current sample can't separate it from zero. These are <b>asking</b> prices — real sale prices run lower.`
+    + `</p></div>`;
+}
+
+function renderAnalysis() {
+  const host = $('#analysis');
+  if (!host) return;
+  const cars = DATA.cars || [];
+  const reg = runRegression(cars);
+  const byYear = priceByYear(cars);
+  const yearCard = `<div class="card"><h2>📅 Price by model year</h2>`
+    + `<p class="chart-cap">Median asking price for each model year in the current ${cars.length}-car snapshot. Newer years sit higher — the model below turns that into an all-else-equal dollar figure.</p>`
+    + yearBarSvg(byYear) + `</div>`;
+  const mileCard = `<div class="card"><h2>📉 Price vs mileage</h2>`
+    + mileageScatterSvg(cars)
+    + `<div class="chart-legend"><span class="k"><span class="dot" style="background:#6ea8fe"></span>AWD</span>`
+    + `<span class="k"><span class="dot" style="background:#9aa6c7"></span>RWD</span>`
+    + `<span class="k"><span class="dot" style="width:16px;height:0;border-radius:0;border-top:2px solid #34d399"></span>trend</span></div>`
+    + `<p class="chart-cap">Each dot is one listing; the green line is the fitted price-vs-mileage trend.</p></div>`;
+  host.innerHTML = yearCard + mileCard + regCard(reg) + caveatCard(reg);
+}
+
+// ---------- tabs ----------
+function switchTab(name) {
+  const cars = $('#panel-cars'), analysis = $('#panel-analysis');
+  if (!cars || !analysis) return;
+  const showAnalysis = name === 'analysis';
+  cars.hidden = showAnalysis;
+  analysis.hidden = !showAnalysis;
+  document.querySelectorAll('#tabbar .tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+  // The picks bar only makes sense on the car list.
+  const sb = $('#sendbar'); if (sb) sb.hidden = showAnalysis || !sb.dataset.ready;
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function setupTabs() {
+  const bar = $('#tabbar');
+  if (!bar) return;
+  bar.hidden = false;
+  bar.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 }
 
 // ---------- sort ----------
