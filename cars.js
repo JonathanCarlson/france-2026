@@ -255,7 +255,15 @@ function renderIntro() {
       ${chips.length ? `<div class="want-row">${chips.join('')}</div>` : ''}
       ${stdBlock}
       ${links ? `<div class="resource-row">${links}</div>` : ''}
-    </div>`;
+    </div>
+    <button id="analysis-cta" class="analysis-cta" type="button" aria-label="Open the price analysis">
+      <span class="ac-icon" aria-hidden="true">📊</span>
+      <span class="ac-text">
+        <b>See the price analysis</b>
+        <span class="ac-sub">How year, mileage, AWD &amp; options move the price — recomputed from the latest listings</span>
+      </span>
+      <span class="ac-arrow" aria-hidden="true">→</span>
+    </button>`;
 }
 
 function renderTrends() {
@@ -539,6 +547,10 @@ function setupTabs() {
   if (!bar) return;
   bar.hidden = false;
   bar.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  // Front-page shortcut: the prominent banner at the top of the car list jumps
+  // straight to the analysis tab (rendered by renderIntro, so it exists here).
+  const cta = $('#analysis-cta');
+  if (cta) cta.addEventListener('click', () => switchTab('analysis'));
 }
 
 // ---------- sort ----------

@@ -53,6 +53,22 @@
     .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
     .panel[hidden] { display: none; }
 
+    /* Price-analysis call-to-action — a prominent, tappable entry point at the
+       top of the car list, so the "📊 Price analysis" tab is obvious from the
+       front page instead of hiding as a quiet pill in the tab bar. */
+    .analysis-cta {
+      display: flex; align-items: center; gap: 13px; width: 100%;
+      margin: 12px 0 0; padding: 13px 15px; border-radius: 14px; text-align: left;
+      border: 1px solid var(--blue); background: linear-gradient(135deg, #16233f, var(--bg2));
+      color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .analysis-cta:active { transform: scale(.99); background: linear-gradient(135deg, #1b2b4d, var(--card2)); }
+    .analysis-cta .ac-icon { flex: 0 0 auto; font-size: 24px; line-height: 1; }
+    .analysis-cta .ac-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .analysis-cta .ac-text b { font-size: 14.5px; font-weight: 700; color: var(--text); }
+    .analysis-cta .ac-sub { font-size: 12px; color: var(--muted); line-height: 1.35; }
+    .analysis-cta .ac-arrow { flex: 0 0 auto; font-size: 20px; color: var(--accent); font-weight: 700; }
+
     /* Price-analysis view: charts + regression */
     .chart-wrap { width: 100%; overflow: hidden; margin-top: 10px; }
     .chart-wrap svg { width: 100%; height: auto; display: block; }
@@ -260,6 +276,6 @@
        often opened standalone by Kate, never via the main app that registers
        sw.js — so without this a stale cached cars.js kept re-showing the gate).
        Bump this whenever cars.js changes. -->
-  <script src="cars.js?v=8"></script>
+  <script src="cars.js?v=9"></script>
 </body>
 </html>
