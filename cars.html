@@ -46,9 +46,21 @@
     .stat .n { font-size: 17px; font-weight: 700; color: var(--text); }
     .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-    /* Tabs — switch between the shopping list and the price-analysis view */
-    .tabbar { display: flex; gap: 6px; padding: 4px 16px 8px; max-width: 760px; margin: 0 auto; }
+    /* Tabs — switch between the shopping list and the price-analysis view.
+       IMPORTANT: the shared styles.css defines .tabbar as the TRIP app's 7-column
+       bottom-fixed nav (position:fixed; bottom:0; z-index:20). The car page wants
+       an inline bar under the header instead, so every one of those properties has
+       to be reset here — otherwise the tabs get pinned to the bottom of the screen
+       and are painted over by the equally-fixed, taller #sendbar, which made the
+       "📊 Price analysis" tab invisible AND untappable. */
+    .tabbar {
+      position: static; bottom: auto; left: auto; right: auto; z-index: auto;
+      background: transparent; backdrop-filter: none; border-top: 0;
+      display: flex; gap: 6px; padding: 4px 16px 8px; padding-bottom: 8px;
+      max-width: 760px; margin: 0 auto;
+    }
     .tab { flex: 1 1 auto; font-size: 14px; font-weight: 600; padding: 9px 12px; border-radius: 999px;
+      flex-direction: row; align-items: center; justify-content: center; gap: 6px;
       border: 1px solid var(--border); background: var(--bg2); color: var(--muted); cursor: pointer; white-space: nowrap; }
     .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
     .panel[hidden] { display: none; }
@@ -276,6 +288,6 @@
        often opened standalone by Kate, never via the main app that registers
        sw.js — so without this a stale cached cars.js kept re-showing the gate).
        Bump this whenever cars.js changes. -->
-  <script src="cars.js?v=10"></script>
+  <script src="cars.js?v=11"></script>
 </body>
 </html>
