@@ -170,6 +170,9 @@
        a Standard Range car (avoid list) would get the warning treatment. */
     .badge.batt-ext { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
     .badge.batt-std { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
+    /* BlueCruise — hands-free highway driving; one of Kate's stated must-haves,
+       so give it a distinct bright-blue pill that stands apart from the AWD badge. */
+    .badge.bc { color: #7db4ff; border-color: #2f5fb0; background: #12274a; font-weight: 700; }
     .carmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
     .carmeta b { color: var(--text); font-weight: 600; }
     /* Key specs — "a lot more info": the concrete facts Kate's comparing on,
@@ -289,6 +292,6 @@
        often opened standalone by Kate, never via the main app that registers
        sw.js — so without this a stale cached cars.js kept re-showing the gate).
        Bump this whenever cars.js changes. -->
-  <script src="cars.js?v=11"></script>
+  <script src="cars.js?v=12"></script>
 </body>
 </html>

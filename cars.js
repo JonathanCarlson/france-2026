@@ -171,6 +171,20 @@ function roofBadge(state) {
   return '';
 }
 
+// Ford BlueCruise (hands-free highway driving) status. Derived per-VIN from the
+// car's Ford window sticker (see helpers/car-bluecruise-enrich.mjs). It is NOT a
+// clean model-year cutoff — 2022 Mach-Es have it too — so it's tracked per car.
+// "unknown" means Ford hasn't published that VIN's sticker yet, not "no".
+function bcBadge(state) {
+  if (state === 'yes') return '<span class="badge bc">🔵 BlueCruise</span>';
+  return '';
+}
+function bcText(state) {
+  if (state === 'yes') return 'Yes — hands-free capable';
+  if (state === 'no') return 'No';
+  return 'Need to verify';
+}
+
 // Plain-text glass-roof status for the key-specs grid (the badge above is the
 // at-a-glance version; this spells it out).
 function roofText(state) {
@@ -191,6 +205,7 @@ function keySpecs(c) {
   add('Range (EPA est.)', c.rangeMi ? `~${c.rangeMi} mi` : null);
   add('Mileage', c.miles != null ? miles(c.miles) : null);
   add('Glass roof', roofText(c.glassRoof));
+  add('BlueCruise', bcText(c.bluecruise));
   add('Certification', c.cert);
   add('Color', c.color);
   add('Distance', c.distanceMi != null ? `${c.distanceMi} mi away` : null);
@@ -598,6 +613,9 @@ const FACET_GROUPS = [
   { id: 'roof', cat: 'Features', opts: [
     { v: 'roof', label: '☀️ Glass roof', test: (c) => c.glassRoof === 'yes' || c.glassRoof === 'likely' },
   ] },
+  { id: 'bluecruise', cat: 'Features', opts: [
+    { v: 'bc', label: '🔵 BlueCruise', test: (c) => c.bluecruise === 'yes' },
+  ] },
   { id: 'cert', cat: 'Features', opts: [
     { v: 'cert', label: '✅ Certified', test: (c) => /certified/i.test(c.cert || '') },
   ] },
@@ -779,6 +797,7 @@ function carCard(c) {
             ${dt}
             ${battHtml}
             ${roofBadge(c.glassRoof)}
+            ${bcBadge(c.bluecruise)}
             ${cert}
             ${star}
           </div>
