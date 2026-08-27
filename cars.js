@@ -175,14 +175,25 @@ function roofBadge(state) {
 // car's Ford window sticker (see helpers/car-bluecruise-enrich.mjs). It is NOT a
 // clean model-year cutoff — 2022 Mach-Es have it too — so it's tracked per car.
 // "unknown" means Ford hasn't published that VIN's sticker yet, not "no".
+//
+// What a "yes" actually proves (nuance checked 2026-08-26): the sticker line
+// ("Co-Pilot360 Active 2.0 / BlueCruise") proves the car is HARDWARE-EQUIPPED
+// (driver-facing camera + ADAS sensors) and therefore OTA-ELIGIBLE for BlueCruise.
+// That IS the real gating requirement — a Mach-E without the package can never
+// get BlueCruise by any software update. But equipped ≠ active: 2021/early-2022
+// builds ship as a Prep Package and are switched on later by a Ford Power-Up OTA,
+// and every used car still needs an active BlueCruise subscription to use it
+// (90-day trial for used buyers who haven't started one, then paid). So a "yes"
+// means OTA-capable + equipped; software-activation and subscription are confirmed
+// per-car at purchase, not from the sticker.
 function bcBadge(state) {
-  if (state === 'yes') return '<span class="badge bc">🔵 BlueCruise</span>';
+  if (state === 'yes') return '<span class="badge bc" title="Hardware-equipped and OTA-eligible for BlueCruise. 2021/early-2022 ship as a Prep Package activated later by a Ford Power-Up OTA; an active subscription (90-day trial for used buyers, then paid) is still required to use it.">🔵 BlueCruise-ready</span>';
   return '';
 }
 function bcText(state) {
-  if (state === 'yes') return 'Yes — hands-free capable';
-  if (state === 'no') return 'No';
-  return 'Need to verify';
+  if (state === 'yes') return 'Equipped — OTA-capable (activation + subscription still needed)';
+  if (state === 'no') return 'Not equipped — cannot be added later';
+  return 'Need to verify (Ford sticker not published yet)';
 }
 
 // Plain-text glass-roof status for the key-specs grid (the badge above is the
@@ -614,7 +625,7 @@ const FACET_GROUPS = [
     { v: 'roof', label: '☀️ Glass roof', test: (c) => c.glassRoof === 'yes' || c.glassRoof === 'likely' },
   ] },
   { id: 'bluecruise', cat: 'Features', opts: [
-    { v: 'bc', label: '🔵 BlueCruise', test: (c) => c.bluecruise === 'yes' },
+    { v: 'bc', label: '🔵 BlueCruise-ready', test: (c) => c.bluecruise === 'yes' },
   ] },
   { id: 'cert', cat: 'Features', opts: [
     { v: 'cert', label: '✅ Certified', test: (c) => /certified/i.test(c.cert || '') },
