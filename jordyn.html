@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Mach-E shortlist</title>
-  <meta name="description" content="Cars we're tracking — thumbs up or down" />
+  <title>Jordyn's first car</title>
+  <meta name="description" content="Safe, depreciated bargains for Jordyn — thumbs up or down" />
   <!-- Keep this page out of search engines and don't leak the URL/path. -->
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="no-referrer" />
@@ -12,14 +12,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Kate's Cars" />
+  <meta name="apple-mobile-web-app-title" content="Jordyn's Car" />
   <meta name="theme-color" content="#0b1020" />
   <link rel="apple-touch-icon" href="icons/car-icon-180.png" />
   <link rel="icon" sizes="192x192" href="icons/car-icon-192.png" />
   <link rel="icon" sizes="512x512" href="icons/car-icon-512.png" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Car-page chrome layered on top of the shared styles.css */
+    /* Jordyn-page chrome layered on top of the shared styles.css.
+       Mirrors cars.html so the two family car pages look/behave the same. */
     .cars-head {
       padding: calc(16px + var(--safe-top)) 16px 6px;
       position: sticky; top: 0; z-index: 5;
@@ -39,21 +40,15 @@
     #cars-status { padding: 40px 22px; text-align: center; color: var(--muted); }
     #cars-status .big { font-size: 40px; margin-bottom: 10px; }
 
-    /* Intro + trends cards reuse .card */
-    .trend-list { margin: 8px 0 0; padding-left: 18px; }
-    .trend-list li { margin: 6px 0; }
     .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
     .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; text-align: center; }
     .stat .n { font-size: 17px; font-weight: 700; color: var(--text); }
     .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-    /* Tabs — switch between the shopping list and the price-analysis view.
-       IMPORTANT: the shared styles.css defines .tabbar as the TRIP app's 7-column
-       bottom-fixed nav (position:fixed; bottom:0; z-index:20). The car page wants
-       an inline bar under the header instead, so every one of those properties has
-       to be reset here — otherwise the tabs get pinned to the bottom of the screen
-       and are painted over by the equally-fixed, taller #sendbar, which made the
-       "📊 Price analysis" tab invisible AND untappable. */
+    /* Tabs — switch between the shopping list and the buyer's guide.
+       IMPORTANT: shared styles.css defines .tabbar as the TRIP app's bottom-fixed
+       nav (position:fixed; bottom:0; z-index:20). Reset ALL of those here or the
+       tabs get pinned to the bottom of the screen and painted over by #sendbar. */
     .tabbar {
       position: static; bottom: auto; left: auto; right: auto; z-index: auto;
       background: transparent; backdrop-filter: none; border-top: 0;
@@ -66,9 +61,7 @@
     .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
     .panel[hidden] { display: none; }
 
-    /* Price-analysis call-to-action — a prominent, tappable entry point at the
-       top of the car list, so the "📊 Price analysis" tab is obvious from the
-       front page instead of hiding as a quiet pill in the tab bar. */
+    /* Buyer's-guide call-to-action at the top of the list */
     .analysis-cta {
       display: flex; align-items: center; gap: 13px; width: 100%;
       margin: 12px 0 0; padding: 13px 15px; border-radius: 14px; text-align: left;
@@ -82,48 +75,18 @@
     .analysis-cta .ac-sub { font-size: 12px; color: var(--muted); line-height: 1.35; }
     .analysis-cta .ac-arrow { flex: 0 0 auto; font-size: 20px; color: var(--accent); font-weight: 700; }
 
-    /* Price-analysis view: charts + regression */
-    .chart-wrap { width: 100%; overflow: hidden; margin-top: 10px; }
-    .chart-wrap svg { width: 100%; height: auto; display: block; }
-    .chart-cap { font-size: 12px; color: var(--muted); margin: 9px 0 0; line-height: 1.5; }
-    .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--muted); }
-    .chart-legend .k { display: inline-flex; align-items: center; gap: 6px; }
-    .chart-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-    .reg-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
-    .reg-table td { padding: 7px 6px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
-    .reg-table td.lbl { color: var(--text); }
-    .reg-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
-    .reg-table tr.grp td { color: var(--muted); text-transform: uppercase; font-size: 10.5px; letter-spacing: .05em; border-bottom: none; padding: 14px 6px 2px; }
-    .reg-table tr.base td { color: var(--muted); font-size: 12px; }
-    .reg-pos { color: var(--green); }
-    .reg-neg { color: #ff9a9a; }
-    .reg-table .sig { font-size: 11px; color: var(--muted); display: block; margin-top: 1px; font-weight: 400; }
-    .reg-table .sig.on { color: var(--green); }
-    .reg-stats { margin-top: 12px; }
-    .takeaways { margin: 8px 0 0; padding-left: 18px; }
-    .takeaways li { margin: 6px 0; line-height: 1.45; color: var(--muted); }
-    .takeaways b { color: var(--text); font-weight: 600; }
-
+    /* Wishlist chips */
     .want-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .want-chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
     .want-chip.must { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
     .want-chip.avoid { color: #ff9a9a; border-color: #5a2020; background: #2a1010; text-decoration: line-through; }
 
-    /* "Standard on every car" baseline block — features that come with the
-       Premium / Extended-Range trim, so they're not per-car differentiators. */
-    .std-features { margin-top: 12px; padding: 11px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg2); }
-    .std-head { font-size: 13px; font-weight: 700; color: var(--text); }
-    .std-note { font-size: 12.5px; color: var(--muted); margin: 5px 0 8px; line-height: 1.45; }
-    .std-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .std-chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid #1e5a3e; background: #0f2a20; color: var(--green); }
-    .std-varies { font-size: 12px; color: var(--muted); margin: 9px 0 0; line-height: 1.45; }
-
-    /* "Get more info" resource links (Autotrader / Edmunds research pages) */
+    /* Resource links */
     .resource-row { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
     .resource-link { font-size: 13px; color: var(--accent); text-decoration: none; padding: 8px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); }
     .resource-link:active { background: var(--accent); color: var(--bg); }
 
-    /* Controls: sort + faceted filters (the wishlist features are now filters) */
+    /* Controls: sort + faceted filters */
     .filterbar { display: block; padding: 12px 0 2px; }
     .ctl-block { margin-bottom: 10px; }
     .ctl-block.sort-block { display: flex; align-items: center; gap: 10px; }
@@ -141,12 +104,11 @@
     .carcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin: 12px 0; transition: border-color .15s, opacity .15s; }
     .carcard.v-up { border-color: #1e5a3e; box-shadow: 0 0 0 1px #1e5a3e inset; }
     .carcard.v-down { opacity: .5; }
-    /* Card header: a compact thumbnail next to the title/price/badges. The
-       Autotrader CDN image is shown small — a thumbnail is enough here; tap it
-       to open the full listing (no in-app zoom viewer). */
+    .carcard.bench { border-color: #2f5fb0; box-shadow: 0 0 0 1px #2f5fb0 inset; }
     .carcard .cardhead { display: flex; gap: 12px; align-items: flex-start; }
     .carcard .thumb { flex: 0 0 auto; display: block; width: 112px; height: 84px; border-radius: 12px; overflow: hidden; background: var(--bg2); line-height: 0; }
     .carcard .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .carcard .thumb.placeholder { display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--muted); }
     .carcard.v-down .thumb img { filter: grayscale(.6); }
     .carcard .headinfo { flex: 1 1 auto; min-width: 0; }
     @media (max-width: 380px) {
@@ -156,44 +118,42 @@
     .carcard h2 { font-size: 17px; margin: 0; color: var(--text); text-transform: none; letter-spacing: 0; }
     .carcard .price { font-size: 19px; font-weight: 800; white-space: nowrap; }
     .carcard .price .note { display: block; font-size: 11px; font-weight: 500; color: var(--amber); text-align: right; }
-    .carcard .price .calld { font-size: 13px; font-weight: 700; color: var(--muted); }
     .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
     .badge { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
-    .badge.awd { color: var(--accent); border-color: #2a4a7c; background: #0f1c33; }
-    .badge.rwd { color: var(--muted); }
-    .badge.roof { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
-    .badge.roof.q { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
-    .badge.roof.no { color: #ff9a9a; border-color: #5a2020; background: #2a1010; }
+    /* Powertrain */
+    .badge.pt-ev { color: #7db4ff; border-color: #2f5fb0; background: #12274a; font-weight: 700; }
+    .badge.pt-phev { color: #8fe0c0; border-color: #1e5a3e; background: #0f2a20; font-weight: 700; }
+    .badge.pt-hybrid { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
+    .badge.pt-ice { color: var(--muted); }
+    /* Safety must-haves — the two that matter most for a teen */
+    .badge.safe-yes { color: var(--green); border-color: #1e5a3e; background: #0f2a20; font-weight: 700; }
+    .badge.safe-part { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
+    .badge.safe-no { color: #ff9a9a; border-color: #5a2020; background: #2a1010; }
+    .badge.safe-unk { color: var(--muted); }
     .badge.star { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
-    .badge.new { color: #eaf2ff; border-color: #2f5fb0; background: #1c3a6e; font-weight: 700; }
-    /* Battery badge — Extended Range is a must-have, so read it positive;
-       a Standard Range car (avoid list) would get the warning treatment. */
-    .badge.batt-ext { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
-    .badge.batt-std { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
-    /* BlueCruise — hands-free highway driving; one of Kate's stated must-haves,
-       so give it a distinct bright-blue pill that stands apart from the AWD badge. */
-    .badge.bc { color: #7db4ff; border-color: #2f5fb0; background: #12274a; font-weight: 700; }
+    .badge.bench-badge { color: #eaf2ff; border-color: #2f5fb0; background: #1c3a6e; font-weight: 700; }
+    .badge.title-warn { color: #ffcf8f; border-color: #7a5a1e; background: #2f2510; font-weight: 700; }
     .carmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
     .carmeta b { color: var(--text); font-weight: 600; }
-    /* Key specs — "a lot more info": the concrete facts Kate's comparing on,
-       laid out as a compact label/value grid under the header. */
+    /* Key specs grid */
     .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin: 13px 0 0; padding: 0; }
     .specs .spec { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .specs .spec.wide { grid-column: 1 / -1; }
     .specs dt { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0; }
     .specs dd { font-size: 13.5px; color: var(--text); margin: 0; word-break: break-word; }
-    .highlights { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; }
-    .hl { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--bg2); color: var(--muted); border: 1px solid var(--border); }
-    /* Confirmed optional extras — window-sticker-verified per car (360° camera,
-       Nite Pony, etc.). Green ✓ chips, shown only where a sticker confirms it,
-       so not every car has these. */
-    .hl.ok { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
-    .extras { margin: 12px 0 0; }
-    .extras-label { display: block; font-size: 10.5px; color: var(--green); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
-    .extras-row { display: flex; flex-wrap: wrap; gap: 5px; }
-    /* "Notable" callout — the one-line take on this particular car. */
+    /* Feature lists (safety / comfort) */
+    .featblock { margin: 12px 0 0; }
+    .featblock .flabel { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+    .featblock.safety .flabel { color: var(--green); }
+    .featblock.comfort .flabel { color: var(--accent); }
+    .featrow { display: flex; flex-wrap: wrap; gap: 5px; }
+    .featrow .hl { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--bg2); color: var(--muted); border: 1px solid var(--border); }
+    .featblock.safety .hl { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
+    /* Callouts */
     .carnote { font-size: 13.5px; color: var(--muted); margin: 12px 0 0; line-height: 1.45; padding: 9px 11px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; }
     .carnote b { color: var(--text); font-weight: 600; }
+    .carnote.warn { color: #ffcf8f; border-color: #7a5a1e; background: #2a2210; }
+    .carnote.batt { color: var(--muted); border-color: #2a4a7c; background: #0f1c33; }
     .carfoot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
     .vote { flex: 1; display: flex; gap: 8px; }
     .vbtn { flex: 1; padding: 11px; font-size: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); transition: transform .1s, background .15s, border-color .15s; }
@@ -203,7 +163,6 @@
     .listing-link { flex: 0 0 auto; font-size: 13px; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--accent); color: var(--accent); background: transparent; text-decoration: none; }
     .listing-link:active { background: var(--accent); color: var(--bg); }
 
-    /* Kate's per-car note — the "why" behind a pick, folded into "Send my picks" */
     .comment-row { margin-top: 10px; }
     .carcard .comment {
       width: 100%; box-sizing: border-box; resize: vertical; min-height: 42px;
@@ -213,6 +172,19 @@
     }
     .carcard .comment::placeholder { color: var(--muted); }
     .carcard .comment:focus { outline: none; border-color: var(--accent); background: var(--card2); }
+
+    /* Buyer's guide model cards */
+    .guide-note { color: var(--muted); font-size: 13px; margin: 4px 0 0; line-height: 1.5; }
+    .gcard { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px; margin: 12px 0; }
+    .gcard.fit-top { border-color: #1e5a3e; }
+    .gcard .ghead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .gcard h3 { font-size: 16px; margin: 0; color: var(--text); }
+    .gcard .gyears { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .gcard .gpt { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: 6px; border: 1px solid var(--border); color: var(--muted); }
+    .grow { display: grid; grid-template-columns: 74px 1fr; gap: 3px 10px; margin-top: 9px; font-size: 12.5px; line-height: 1.4; }
+    .grow dt { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding-top: 2px; }
+    .grow dd { color: var(--text); margin: 0; }
+    .grow .tag-top { color: var(--green); font-weight: 700; }
 
     /* Sticky summary / send bar */
     .sendbar {
@@ -241,8 +213,8 @@
   <!-- Optional code prompt (only shown when the URL has no #k= token) -->
   <section id="gate" class="lock" hidden>
     <div class="lock-card">
-      <div class="lock-flag">🚗 ⚡ 🔋</div>
-      <h1>Mach-E shortlist</h1>
+      <div class="lock-flag">🚗 ⚡ 🔰</div>
+      <h1>Jordyn's first car</h1>
       <p class="muted">Enter the code to see the cars.</p>
       <form id="gate-form" autocomplete="off">
         <input id="gate-code" type="password" inputmode="text" placeholder="Access code"
@@ -258,14 +230,14 @@
   <main id="app" hidden>
     <div class="cars-head">
       <div class="cars-head-main">
-        <h1 id="app-title">Mach-E shortlist</h1>
+        <h1 id="app-title">Jordyn's first car</h1>
         <div class="sub" id="app-sub"></div>
       </div>
       <button id="share-btn" type="button" hidden>🔗 Share</button>
     </div>
     <nav id="tabbar" class="tabbar" hidden>
       <button class="tab active" type="button" data-tab="cars">🚗 The cars</button>
-      <button class="tab" type="button" data-tab="analysis">📊 Price analysis</button>
+      <button class="tab" type="button" data-tab="guide">📋 Buyer's guide</button>
     </nav>
     <div class="cars-wrap">
       <div id="cars-status"><div class="big">🚗</div>Decrypting…</div>
@@ -274,9 +246,8 @@
         <div id="filterbar" class="filterbar" hidden></div>
         <div id="cars-grid"></div>
       </section>
-      <section id="panel-analysis" class="panel" hidden>
-        <div id="trends"></div>
-        <div id="analysis"></div>
+      <section id="panel-guide" class="panel" hidden>
+        <div id="guide"></div>
       </section>
     </div>
   </main>
@@ -287,11 +258,7 @@
     <button id="send-btn" disabled>Send my picks</button>
   </div>
 
-  <!-- Version query busts the browser HTTP cache so a redeploy of cars.js is
-       actually picked up (the cars page has no service worker of its own — it's
-       often opened standalone by Kate, never via the main app that registers
-       sw.js — so without this a stale cached cars.js kept re-showing the gate).
-       Bump this whenever cars.js changes. -->
-  <script src="cars.js?v=14"></script>
+  <!-- Bump ?v=N whenever jordyn.js changes (no service worker on this page). -->
+  <script src="jordyn.js?v=1"></script>
 </body>
 </html>

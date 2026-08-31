@@ -19,6 +19,12 @@ build/cars.json
 # shared link isn't leaked in history; build/build-cars.mjs reads/creates it locally.
 build/cars-key.txt
 
+# NEVER commit the plaintext teen-car list — only the encrypted blob (data/jordyn.enc.json) ships.
+build/jordyn.json
+# Jordyn access key — the shareable jordyn-page URL token. Kept out of git so the
+# shared link isn't leaked in history; build/build-jordyn.mjs reads/creates it locally.
+build/jordyn-key.txt
+
 # Face-recognition working dir — ONNX models (37MB), Python venv artifacts, scratch scripts
 build/facerec/
 

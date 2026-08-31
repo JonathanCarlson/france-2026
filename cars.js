@@ -781,6 +781,14 @@ function carCard(c) {
   // (e.g. 360° camera, Nite Pony). Shown ONLY where confirmed, so not every
   // car has these — that's the point.
   const extras = (c.confirmedExtras || []).map((x) => `<span class="hl ok">✓ ${esc(x)}</span>`).join('');
+  // Per-car safety & comfort features, VIN-confirmed from the Ford window
+  // sticker (see helpers/car-features-enrich.mjs). Co-Pilot360 driver-assist
+  // is standard on every Mach-E (shown once in the intro), so `safety` here
+  // is only the sticker EXTRAS (e.g. 360° camera, adaptive cruise). Comfort is
+  // the rich per-car list (heated seats, B&O audio, panoramic roof, etc.).
+  // Only rendered where a sticker confirmed them — never fabricated.
+  const safetyHtml = (c.safety || []).map((x) => `<span class="hl ok">🛡️ ${esc(x)}</span>`).join('');
+  const comfortHtml = (c.comfort || []).map((x) => `<span class="hl">${esc(x)}</span>`).join('');
   const alt = `${esc(c.year)} Mach-E ${esc(c.trim)} in ${esc(c.color)}`;
   // Compact thumbnail, hotlinked from Autotrader's image CDN. "A thumbnail is
   // sufficient here" — shown small next to the title; tapping it opens the full
@@ -817,6 +825,8 @@ function carCard(c) {
       ${keySpecs(c)}
       ${highlights ? `<div class="highlights">${highlights}</div>` : ''}
       ${extras ? `<div class="extras"><span class="extras-label">✓ Confirmed on this car's window sticker</span><div class="extras-row">${extras}</div></div>` : ''}
+      ${safetyHtml ? `<div class="extras"><span class="extras-label">🛡️ Safety extras on this VIN</span><div class="extras-row">${safetyHtml}</div></div>` : ''}
+      ${comfortHtml ? `<div class="extras"><span class="extras-label">✨ Comfort &amp; tech on this VIN</span><div class="extras-row">${comfortHtml}</div></div>` : ''}
       ${c.note ? `<p class="carnote"><b>📝 Notable:</b> ${esc(c.note)}</p>` : ''}
       <div class="carfoot">
         <div class="vote">
