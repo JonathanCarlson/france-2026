@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <title>Jordyn's first car</title>
-  <meta name="description" content="Safe, depreciated bargains for Jordyn — thumbs up or down" />
+  <meta name="description" content="Safe, low-cost first cars — shortlist" />
   <!-- Keep this page out of search engines and don't leak the URL/path. -->
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="no-referrer" />
@@ -19,246 +19,226 @@
   <link rel="icon" sizes="512x512" href="icons/car-icon-512.png" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Jordyn-page chrome layered on top of the shared styles.css.
-       Mirrors cars.html so the two family car pages look/behave the same. */
+    /* Page chrome layered on top of the shared styles.css */
     .cars-head {
       padding: calc(16px + var(--safe-top)) 16px 6px;
       position: sticky; top: 0; z-index: 5;
       background: linear-gradient(var(--bg) 82%, transparent);
       display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
     }
-    .cars-head-main { min-width: 0; }
-    .cars-head h1 { font-size: 20px; margin: 0; }
+    .cars-head h1 { font-size: 21px; margin: 0; }
     .cars-head .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
-    #share-btn {
-      flex: 0 0 auto; font-size: 13px; font-weight: 600; padding: 8px 13px; border-radius: 999px;
-      border: 1px solid var(--accent); color: var(--accent); background: transparent;
-      white-space: nowrap; cursor: pointer;
-    }
-    #share-btn:active { background: var(--accent); color: var(--bg); }
     .cars-wrap { padding: 0 16px calc(120px + var(--safe-bottom)); max-width: 760px; margin: 0 auto; }
     #cars-status { padding: 40px 22px; text-align: center; color: var(--muted); }
     #cars-status .big { font-size: 40px; margin-bottom: 10px; }
 
-    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+    /* Intro card + headline stats. .stat-grid is NOT in the shared styles.css —
+       without these rules the three numbers stack vertically as bare text. */
+    .lede { margin: 0 0 10px; font-size: 13.5px; line-height: 1.5; }
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
     .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; text-align: center; }
-    .stat .n { font-size: 17px; font-weight: 700; color: var(--text); }
-    .stat .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .stat .n { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .stat .l { font-size: 10.5px; color: var(--muted); margin-top: 3px; line-height: 1.25; }
 
-    /* Tabs — switch between the shopping list and the buyer's guide.
-       IMPORTANT: shared styles.css defines .tabbar as the TRIP app's bottom-fixed
-       nav (position:fixed; bottom:0; z-index:20). Reset ALL of those here or the
-       tabs get pinned to the bottom of the screen and painted over by #sendbar. */
+    /* ---- Tabs ----
+       IMPORTANT: the shared styles.css defines .tabbar as the TRIP app's
+       7-column bottom-fixed nav (position:fixed; bottom:0; z-index:20) and .tab
+       as a column-flex icon+label button. Kate's cars.html hit exactly this:
+       the inherited positioning pinned its tab bar to the bottom of the screen
+       where the equally-fixed, taller #sendbar painted over it, leaving the tab
+       invisible AND untappable. Reset EVERY inherited property here, not just
+       display. See .github/skills/car-site/SKILL.md. */
     .tabbar {
       position: static; bottom: auto; left: auto; right: auto; z-index: auto;
       background: transparent; backdrop-filter: none; border-top: 0;
-      display: flex; gap: 6px; padding: 4px 16px 8px; padding-bottom: 8px;
-      max-width: 760px; margin: 0 auto;
+      display: flex; gap: 6px; padding: 4px 16px 8px; max-width: 760px; margin: 0 auto;
     }
-    .tab { flex: 1 1 auto; font-size: 14px; font-weight: 600; padding: 9px 12px; border-radius: 999px;
+    .tab {
+      flex: 1 1 auto; font-size: 14px; font-weight: 600; padding: 9px 12px; border-radius: 999px;
       flex-direction: row; align-items: center; justify-content: center; gap: 6px;
-      border: 1px solid var(--border); background: var(--bg2); color: var(--muted); cursor: pointer; white-space: nowrap; }
+      border: 1px solid var(--border); background: var(--bg2); color: var(--muted);
+      cursor: pointer; white-space: nowrap;
+    }
     .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
     .panel[hidden] { display: none; }
 
-    /* Buyer's-guide call-to-action at the top of the list */
-    .analysis-cta {
-      display: flex; align-items: center; gap: 13px; width: 100%;
-      margin: 12px 0 0; padding: 13px 15px; border-radius: 14px; text-align: left;
-      border: 1px solid var(--blue); background: linear-gradient(135deg, #16233f, var(--bg2));
-      color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    /* ---- Controls ---- */
+    #sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 10px; }
+    .sortlbl { font-size: 13px; color: var(--muted); }
+    #sortbar select {
+      background: var(--bg2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 7px 10px; font-size: 13.5px; margin-left: 4px;
     }
-    .analysis-cta:active { transform: scale(.99); background: linear-gradient(135deg, #1b2b4d, var(--card2)); }
-    .analysis-cta .ac-icon { flex: 0 0 auto; font-size: 24px; line-height: 1; }
-    .analysis-cta .ac-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-    .analysis-cta .ac-text b { font-size: 14.5px; font-weight: 700; color: var(--text); }
-    .analysis-cta .ac-sub { font-size: 12px; color: var(--muted); line-height: 1.35; }
-    .analysis-cta .ac-arrow { flex: 0 0 auto; font-size: 20px; color: var(--accent); font-weight: 700; }
-
-    /* Wishlist chips */
-    .want-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .want-chip { font-size: 12px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
-    .want-chip.must { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
-    .want-chip.avoid { color: #ff9a9a; border-color: #5a2020; background: #2a1010; text-decoration: line-through; }
-
-    /* Resource links */
-    .resource-row { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-    .resource-link { font-size: 13px; color: var(--accent); text-decoration: none; padding: 8px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); }
-    .resource-link:active { background: var(--accent); color: var(--bg); }
-
-    /* Controls: sort + faceted filters */
-    .filterbar { display: block; padding: 12px 0 2px; }
-    .ctl-block { margin-bottom: 10px; }
-    .ctl-block.sort-block { display: flex; align-items: center; gap: 10px; }
-    .ctl-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 5px; }
-    .sort-block .ctl-label { margin: 0; }
-    .chiprow { display: flex; flex-wrap: wrap; gap: 6px; }
-    .fbtn { flex: 0 0 auto; font-size: 13px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); white-space: nowrap; cursor: pointer; }
-    .fbtn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-    .sortsel { flex: 1 1 auto; font-size: 13.5px; padding: 8px 11px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); }
-    .filtermeta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
-    .clear-btn { font-size: 12.5px; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--accent); cursor: pointer; }
-    .clear-btn[hidden] { display: none; }
-
-    /* Car card */
-    .carcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin: 12px 0; transition: border-color .15s, opacity .15s; }
-    .carcard.v-up { border-color: #1e5a3e; box-shadow: 0 0 0 1px #1e5a3e inset; }
-    .carcard.v-down { opacity: .5; }
-    .carcard.bench { border-color: #2f5fb0; box-shadow: 0 0 0 1px #2f5fb0 inset; }
-    .carcard .cardhead { display: flex; gap: 12px; align-items: flex-start; }
-    .carcard .thumb { flex: 0 0 auto; display: block; width: 112px; height: 84px; border-radius: 12px; overflow: hidden; background: var(--bg2); line-height: 0; }
-    .carcard .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .carcard .thumb.placeholder { display: flex; align-items: center; justify-content: center; font-size: 30px; color: var(--muted); }
-    .carcard.v-down .thumb img { filter: grayscale(.6); }
-    .carcard .headinfo { flex: 1 1 auto; min-width: 0; }
-    @media (max-width: 380px) {
-      .carcard .thumb { width: 92px; height: 70px; }
+    .horizon { display: flex; gap: 4px; margin-left: auto; }
+    .hz {
+      font-size: 12.5px; padding: 7px 11px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg2); color: var(--muted); white-space: nowrap;
     }
-    .carcard .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-    .carcard h2 { font-size: 17px; margin: 0; color: var(--text); text-transform: none; letter-spacing: 0; }
-    .carcard .price { font-size: 19px; font-weight: 800; white-space: nowrap; }
-    .carcard .price .note { display: block; font-size: 11px; font-weight: 500; color: var(--amber); text-align: right; }
-    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
-    .badge { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); }
-    /* Powertrain */
-    .badge.pt-ev { color: #7db4ff; border-color: #2f5fb0; background: #12274a; font-weight: 700; }
-    .badge.pt-phev { color: #8fe0c0; border-color: #1e5a3e; background: #0f2a20; font-weight: 700; }
-    .badge.pt-hybrid { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
-    .badge.pt-ice { color: var(--muted); }
-    /* Safety must-haves — the two that matter most for a teen */
-    .badge.safe-yes { color: var(--green); border-color: #1e5a3e; background: #0f2a20; font-weight: 700; }
-    .badge.safe-part { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
-    .badge.safe-no { color: #ff9a9a; border-color: #5a2020; background: #2a1010; }
-    .badge.safe-unk { color: var(--muted); }
-    .badge.star { color: var(--amber); border-color: #5a4a1e; background: #2a2410; }
-    .badge.bench-badge { color: #eaf2ff; border-color: #2f5fb0; background: #1c3a6e; font-weight: 700; }
-    .badge.title-warn { color: #ffcf8f; border-color: #7a5a1e; background: #2f2510; font-weight: 700; }
-    .carmeta { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
-    .carmeta b { color: var(--text); font-weight: 600; }
-    /* Key specs grid */
-    .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin: 13px 0 0; padding: 0; }
-    .specs .spec { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-    .specs .spec.wide { grid-column: 1 / -1; }
-    .specs dt { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0; }
-    .specs dd { font-size: 13.5px; color: var(--text); margin: 0; word-break: break-word; }
-    /* Feature lists (safety / comfort) */
-    .featblock { margin: 12px 0 0; }
-    .featblock .flabel { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
-    .featblock.safety .flabel { color: var(--green); }
-    .featblock.comfort .flabel { color: var(--accent); }
-    .featrow { display: flex; flex-wrap: wrap; gap: 5px; }
-    .featrow .hl { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--bg2); color: var(--muted); border: 1px solid var(--border); }
-    .featblock.safety .hl { color: var(--green); border-color: #1e5a3e; background: #0f2a20; }
-    /* Callouts */
-    .carnote { font-size: 13.5px; color: var(--muted); margin: 12px 0 0; line-height: 1.45; padding: 9px 11px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; }
-    .carnote b { color: var(--text); font-weight: 600; }
-    .carnote.warn { color: #ffcf8f; border-color: #7a5a1e; background: #2a2210; }
-    .carnote.batt { color: var(--muted); border-color: #2a4a7c; background: #0f1c33; }
-    .carfoot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
-    .vote { flex: 1; display: flex; gap: 8px; }
-    .vbtn { flex: 1; padding: 11px; font-size: 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); transition: transform .1s, background .15s, border-color .15s; }
-    .vbtn:active { transform: scale(.94); }
-    .vbtn.up.on { background: #0f2a20; border-color: var(--green); }
-    .vbtn.down.on { background: #2a1010; border-color: var(--red); }
-    .listing-link { flex: 0 0 auto; font-size: 13px; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--accent); color: var(--accent); background: transparent; text-decoration: none; }
-    .listing-link:active { background: var(--accent); color: var(--bg); }
+    .hz.on { background: var(--blue); border-color: var(--blue); color: #fff; }
 
-    .comment-row { margin-top: 10px; }
-    .carcard .comment {
-      width: 100%; box-sizing: border-box; resize: vertical; min-height: 42px;
-      font-family: inherit; font-size: 13.5px; line-height: 1.4;
-      padding: 9px 11px; border-radius: 12px;
+    #filterbar { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+    .fgroup { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .flabel { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); min-width: 68px; }
+    .facet {
+      font-size: 12.5px; padding: 6px 11px; border-radius: 999px; cursor: pointer;
       border: 1px solid var(--border); background: var(--bg2); color: var(--text);
     }
-    .carcard .comment::placeholder { color: var(--muted); }
-    .carcard .comment:focus { outline: none; border-color: var(--accent); background: var(--card2); }
+    .facet.on { background: var(--blue); border-color: var(--blue); color: #fff; }
 
-    /* Buyer's guide model cards */
-    .guide-note { color: var(--muted); font-size: 13px; margin: 4px 0 0; line-height: 1.5; }
-    .gcard { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 13px 14px; margin: 12px 0; }
-    .gcard.fit-top { border-color: #1e5a3e; }
-    .gcard .ghead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-    .gcard h3 { font-size: 16px; margin: 0; color: var(--text); }
-    .gcard .gyears { font-size: 12px; color: var(--muted); white-space: nowrap; }
-    .gcard .gpt { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: 6px; border: 1px solid var(--border); color: var(--muted); }
-    .grow { display: grid; grid-template-columns: 74px 1fr; gap: 3px 10px; margin-top: 9px; font-size: 12.5px; line-height: 1.4; }
-    .grow dt { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding-top: 2px; }
-    .grow dd { color: var(--text); margin: 0; }
-    .grow .tag-top { color: var(--green); font-weight: 700; }
+    /* ---- Safety tier sections ---- */
+    .tier { margin: 22px 0 8px; }
+    .tier-h { font-size: 15px; margin: 0 0 2px; display: flex; align-items: center; gap: 8px; }
+    .tier-n { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+    .tier-blurb { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.4; }
+    .tier-verify .tier-h { color: #f0c674; }
+    .tier-no .tier-h { color: #e08b8b; }
 
-    /* Sticky summary / send bar */
+    /* ---- Car cards ---- */
+    .car {
+      position: relative; background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden; margin-bottom: 14px;
+    }
+    .car.standout { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+    .ribbon {
+      position: absolute; top: 10px; left: 10px; z-index: 2; font-size: 11px; font-weight: 700;
+      background: var(--blue); color: #fff; padding: 4px 9px; border-radius: 999px;
+    }
+    .car-photo { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; background: var(--bg2); }
+    .car-body { padding: 12px 14px 14px; }
+    .car-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .car-head h3 { font-size: 15.5px; margin: 0; line-height: 1.3; }
+    .trim { font-weight: 500; color: var(--muted); font-size: 13px; }
+    .price { font-size: 17px; font-weight: 700; white-space: nowrap; }
+    .car-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+    .pricenote { font-size: 12px; color: #7fd08a; margin-top: 3px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 2px; }
+    .sb {
+      font-size: 11.5px; padding: 3px 9px; border-radius: 999px;
+      background: var(--bg2); border: 1px solid var(--border); color: var(--muted);
+    }
+    .sb-ok { color: #8fd8a0; border-color: #2f5c3c; background: #14251a; }
+    .sb-warn { color: #f0c674; border-color: #5c4a1f; background: #241f12; }
+    .sb-bad { color: #e08b8b; border-color: #5c2f2f; background: #241414; }
+
+    .standout-note { font-size: 12.5px; color: var(--accent); margin: 9px 0 0; line-height: 1.45; }
+    .fineprint { font-size: 11.5px; color: var(--muted); margin: 7px 0 0; line-height: 1.45; }
+
+    /* ---- TCO disclosure ---- */
+    .tco { margin-top: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .tco summary { cursor: pointer; padding: 9px 12px; font-size: 13.5px; list-style: none; }
+    .tco summary::-webkit-details-marker { display: none; }
+    .tco summary::after { content: '▾'; float: right; color: var(--muted); }
+    .tco[open] summary::after { content: '▴'; }
+    .tco-mo { color: var(--muted); font-size: 12.5px; margin-left: 6px; }
+    .tco-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 0 0 4px; }
+    .tco-tbl td { padding: 4px 12px; color: var(--muted); }
+    .tco-tbl td:last-child { text-align: right; color: var(--text); }
+    .tco-total td { border-top: 1px solid var(--border); font-weight: 700; color: var(--text); padding-top: 7px; }
+    .tco-note { font-size: 11px; color: var(--muted); padding: 0 12px 10px; margin: 0; line-height: 1.4; }
+
+    /* ---- Actions ---- */
+    .actions { display: flex; align-items: center; gap: 8px; margin-top: 11px; }
+    .vote {
+      font-size: 17px; line-height: 1; padding: 7px 13px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg2);
+    }
+    .vote.on { background: var(--blue); border-color: var(--blue); }
+    .listing { margin-left: auto; font-size: 12.5px; color: var(--accent); text-decoration: none; }
+    .note-input {
+      width: 100%; margin-top: 9px; padding: 8px 11px; font-size: 13px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg2); color: var(--text);
+    }
+    .empty { color: var(--muted); text-align: center; padding: 32px 12px; }
+
+    /* ---- Guide tab ---- */
+    .glabel { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 12px 0 4px; }
+    .glist { margin: 0; padding-left: 18px; font-size: 13px; }
+    .glist li { margin: 4px 0; }
+    .gmodel { margin-bottom: 12px; }
+    .resource-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .resource-row a { font-size: 13px; color: var(--accent); text-decoration: none; }
+
+    /* ---- Sticky send bar ---- */
     .sendbar {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      display: flex; align-items: center; gap: 12px;
       padding: 10px 16px calc(10px + var(--safe-bottom));
-      background: linear-gradient(transparent, var(--bg) 26%);
-      display: flex; gap: 10px; align-items: center; max-width: 760px; margin: 0 auto;
+      background: rgba(15,21,42,.96); border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
     }
-    .tally { flex: 1; font-size: 13px; color: var(--muted); }
-    .tally b { color: var(--text); }
+    .tally { font-size: 13px; color: var(--muted); }
     #send-btn {
-      flex: 0 0 auto; padding: 13px 18px; font-size: 15px; font-weight: 700; border-radius: 14px;
-      background: linear-gradient(135deg, var(--green), #2fa07a); color: #04120c;
+      margin-left: auto; background: var(--blue); color: #fff; border: none;
+      border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
     }
-    #send-btn:disabled { opacity: .4; filter: grayscale(1); }
-    #send-btn:active { transform: scale(.97); }
-    .toast {
-      position: fixed; left: 50%; bottom: calc(84px + var(--safe-bottom)); transform: translateX(-50%);
-      background: var(--card2); border: 1px solid var(--border); color: var(--text);
-      padding: 10px 16px; border-radius: 12px; font-size: 13.5px; z-index: 30;
-      box-shadow: 0 10px 30px rgba(0,0,0,.4); max-width: 90%; text-align: center;
+    #send-btn:disabled { opacity: .45; cursor: default; }
+
+    /* ---- Access gate ---- */
+    #gate { max-width: 420px; margin: 12vh auto; padding: 0 22px; text-align: center; }
+    #gate h1 { font-size: 22px; }
+    #gate input {
+      width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 12px; margin-top: 14px;
+      border: 1px solid var(--border); background: var(--bg2); color: var(--text);
     }
+    #gate button {
+      width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; font-weight: 600;
+      border: none; border-radius: 12px; background: var(--blue); color: #fff; cursor: pointer;
+    }
+    #gate-error { color: #e08b8b; font-size: 13px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <!-- Optional code prompt (only shown when the URL has no #k= token) -->
-  <section id="gate" class="lock" hidden>
-    <div class="lock-card">
-      <div class="lock-flag">🚗 ⚡ 🔰</div>
-      <h1>Jordyn's first car</h1>
-      <p class="muted">Enter the code to see the cars.</p>
-      <form id="gate-form" autocomplete="off">
-        <input id="gate-code" type="password" inputmode="text" placeholder="Access code"
-               autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
-        <button type="submit" id="gate-btn">View cars</button>
-        <p id="gate-error" class="error" hidden></p>
-      </form>
-      <p class="muted tiny">Just the car list — this page can't see the trip itinerary or bookings.</p>
-    </div>
+
+  <!-- Access gate (shown only when the link has no #k= key) -->
+  <section id="gate" hidden>
+    <div style="font-size:44px">🚗</div>
+    <h1>Jordyn's first car</h1>
+    <p style="color:var(--muted);font-size:14px">Enter the access code to see the list.</p>
+    <form id="gate-form">
+      <input id="gate-code" type="password" placeholder="Access code" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+      <button id="gate-btn" type="submit">View cars</button>
+      <p id="gate-error" hidden></p>
+    </form>
   </section>
 
-  <!-- Car browser -->
   <main id="app" hidden>
     <div class="cars-head">
       <div class="cars-head-main">
-        <h1 id="app-title">Jordyn's first car</h1>
-        <div class="sub" id="app-sub"></div>
+        <h1>Jordyn's first car</h1>
+        <div class="sub">Safety first, then cost to own · under $15k</div>
       </div>
-      <button id="share-btn" type="button" hidden>🔗 Share</button>
     </div>
+
     <nav id="tabbar" class="tabbar" hidden>
       <button class="tab active" type="button" data-tab="cars">🚗 The cars</button>
       <button class="tab" type="button" data-tab="guide">📋 Buyer's guide</button>
     </nav>
+
     <div class="cars-wrap">
       <div id="cars-status"><div class="big">🚗</div>Decrypting…</div>
+
       <section id="panel-cars" class="panel">
         <div id="intro"></div>
-        <div id="filterbar" class="filterbar" hidden></div>
+        <div id="sortbar"></div>
+        <div id="filterbar" hidden></div>
         <div id="cars-grid"></div>
       </section>
+
       <section id="panel-guide" class="panel" hidden>
         <div id="guide"></div>
       </section>
     </div>
   </main>
 
-  <!-- Sticky send bar -->
   <div id="sendbar" class="sendbar" hidden>
     <div class="tally" id="tally"></div>
     <button id="send-btn" disabled>Send my picks</button>
   </div>
 
-  <!-- Bump ?v=N whenever jordyn.js changes (no service worker on this page). -->
-  <script src="jordyn.js?v=1"></script>
+  <!-- Version query busts the browser HTTP cache so a redeploy of jordyn.js is
+       actually picked up (this page has no service worker of its own).
+       Bump this whenever jordyn.js changes. -->
+  <script src="jordyn.js?v=2"></script>
 </body>
 </html>
