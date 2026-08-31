@@ -2,243 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Jordyn's first car</title>
-  <meta name="description" content="Safe, low-cost first cars — shortlist" />
-  <!-- Keep this page out of search engines and don't leak the URL/path. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Jordyn's first car — moved</title>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="no-referrer" />
-
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Jordyn's Car" />
   <meta name="theme-color" content="#0b1020" />
-  <link rel="apple-touch-icon" href="icons/car-icon-180.png" />
-  <link rel="icon" sizes="192x192" href="icons/car-icon-192.png" />
-  <link rel="icon" sizes="512x512" href="icons/car-icon-512.png" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Page chrome layered on top of the shared styles.css */
-    .cars-head {
-      padding: calc(16px + var(--safe-top)) 16px 6px;
-      position: sticky; top: 0; z-index: 5;
-      background: linear-gradient(var(--bg) 82%, transparent);
-      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    }
-    .cars-head h1 { font-size: 21px; margin: 0; }
-    .cars-head .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
-    .cars-wrap { padding: 0 16px calc(120px + var(--safe-bottom)); max-width: 760px; margin: 0 auto; }
-    #cars-status { padding: 40px 22px; text-align: center; color: var(--muted); }
-    #cars-status .big { font-size: 40px; margin-bottom: 10px; }
-
-    /* Intro card + headline stats. .stat-grid is NOT in the shared styles.css —
-       without these rules the three numbers stack vertically as bare text. */
-    .lede { margin: 0 0 10px; font-size: 13.5px; line-height: 1.5; }
-    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
-    .stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px; text-align: center; }
-    .stat .n { font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; }
-    .stat .l { font-size: 10.5px; color: var(--muted); margin-top: 3px; line-height: 1.25; }
-
-    /* ---- Tabs ----
-       IMPORTANT: the shared styles.css defines .tabbar as the TRIP app's
-       7-column bottom-fixed nav (position:fixed; bottom:0; z-index:20) and .tab
-       as a column-flex icon+label button. Kate's cars.html hit exactly this:
-       the inherited positioning pinned its tab bar to the bottom of the screen
-       where the equally-fixed, taller #sendbar painted over it, leaving the tab
-       invisible AND untappable. Reset EVERY inherited property here, not just
-       display. See .github/skills/car-site/SKILL.md. */
-    .tabbar {
-      position: static; bottom: auto; left: auto; right: auto; z-index: auto;
-      background: transparent; backdrop-filter: none; border-top: 0;
-      display: flex; gap: 6px; padding: 4px 16px 8px; max-width: 760px; margin: 0 auto;
-    }
-    .tab {
-      flex: 1 1 auto; font-size: 14px; font-weight: 600; padding: 9px 12px; border-radius: 999px;
-      flex-direction: row; align-items: center; justify-content: center; gap: 6px;
-      border: 1px solid var(--border); background: var(--bg2); color: var(--muted);
-      cursor: pointer; white-space: nowrap;
-    }
-    .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-    .panel[hidden] { display: none; }
-
-    /* ---- Controls ---- */
-    #sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 10px; }
-    .sortlbl { font-size: 13px; color: var(--muted); }
-    #sortbar select {
-      background: var(--bg2); color: var(--text); border: 1px solid var(--border);
-      border-radius: 10px; padding: 7px 10px; font-size: 13.5px; margin-left: 4px;
-    }
-    .horizon { display: flex; gap: 4px; margin-left: auto; }
-    .hz {
-      font-size: 12.5px; padding: 7px 11px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: var(--bg2); color: var(--muted); white-space: nowrap;
-    }
-    .hz.on { background: var(--blue); border-color: var(--blue); color: #fff; }
-
-    #filterbar { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
-    .fgroup { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .flabel { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); min-width: 68px; }
-    .facet {
-      font-size: 12.5px; padding: 6px 11px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: var(--bg2); color: var(--text);
-    }
-    .facet.on { background: var(--blue); border-color: var(--blue); color: #fff; }
-
-    /* ---- Safety tier sections ---- */
-    .tier { margin: 22px 0 8px; }
-    .tier-h { font-size: 15px; margin: 0 0 2px; display: flex; align-items: center; gap: 8px; }
-    .tier-n { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
-    .tier-blurb { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; line-height: 1.4; }
-    .tier-verify .tier-h { color: #f0c674; }
-    .tier-no .tier-h { color: #e08b8b; }
-
-    /* ---- Car cards ---- */
-    .car {
-      position: relative; background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; overflow: hidden; margin-bottom: 14px;
-    }
-    .car.standout { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
-    .ribbon {
-      position: absolute; top: 10px; left: 10px; z-index: 2; font-size: 11px; font-weight: 700;
-      background: var(--blue); color: #fff; padding: 4px 9px; border-radius: 999px;
-    }
-    .car-photo { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; background: var(--bg2); }
-    .car-body { padding: 12px 14px 14px; }
-    .car-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-    .car-head h3 { font-size: 15.5px; margin: 0; line-height: 1.3; }
-    .trim { font-weight: 500; color: var(--muted); font-size: 13px; }
-    .price { font-size: 17px; font-weight: 700; white-space: nowrap; }
-    .car-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
-    .pricenote { font-size: 12px; color: #7fd08a; margin-top: 3px; }
-
-    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 2px; }
-    .sb {
-      font-size: 11.5px; padding: 3px 9px; border-radius: 999px;
-      background: var(--bg2); border: 1px solid var(--border); color: var(--muted);
-    }
-    .sb-ok { color: #8fd8a0; border-color: #2f5c3c; background: #14251a; }
-    .sb-warn { color: #f0c674; border-color: #5c4a1f; background: #241f12; }
-    .sb-bad { color: #e08b8b; border-color: #5c2f2f; background: #241414; }
-
-    .standout-note { font-size: 12.5px; color: var(--accent); margin: 9px 0 0; line-height: 1.45; }
-    .fineprint { font-size: 11.5px; color: var(--muted); margin: 7px 0 0; line-height: 1.45; }
-
-    /* ---- TCO disclosure ---- */
-    .tco { margin-top: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
-    .tco summary { cursor: pointer; padding: 9px 12px; font-size: 13.5px; list-style: none; }
-    .tco summary::-webkit-details-marker { display: none; }
-    .tco summary::after { content: '▾'; float: right; color: var(--muted); }
-    .tco[open] summary::after { content: '▴'; }
-    .tco-mo { color: var(--muted); font-size: 12.5px; margin-left: 6px; }
-    .tco-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 0 0 4px; }
-    .tco-tbl td { padding: 4px 12px; color: var(--muted); }
-    .tco-tbl td:last-child { text-align: right; color: var(--text); }
-    .tco-total td { border-top: 1px solid var(--border); font-weight: 700; color: var(--text); padding-top: 7px; }
-    .tco-note { font-size: 11px; color: var(--muted); padding: 0 12px 10px; margin: 0; line-height: 1.4; }
-
-    /* ---- Actions ---- */
-    .actions { display: flex; align-items: center; gap: 8px; margin-top: 11px; }
-    .vote {
-      font-size: 17px; line-height: 1; padding: 7px 13px; border-radius: 999px; cursor: pointer;
-      border: 1px solid var(--border); background: var(--bg2);
-    }
-    .vote.on { background: var(--blue); border-color: var(--blue); }
-    .listing { margin-left: auto; font-size: 12.5px; color: var(--accent); text-decoration: none; }
-    .note-input {
-      width: 100%; margin-top: 9px; padding: 8px 11px; font-size: 13px; border-radius: 10px;
-      border: 1px solid var(--border); background: var(--bg2); color: var(--text);
-    }
-    .empty { color: var(--muted); text-align: center; padding: 32px 12px; }
-
-    /* ---- Guide tab ---- */
-    .glabel { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 12px 0 4px; }
-    .glist { margin: 0; padding-left: 18px; font-size: 13px; }
-    .glist li { margin: 4px 0; }
-    .gmodel { margin-bottom: 12px; }
-    .resource-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-    .resource-row a { font-size: 13px; color: var(--accent); text-decoration: none; }
-
-    /* ---- Sticky send bar ---- */
-    .sendbar {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 16px calc(10px + var(--safe-bottom));
-      background: rgba(15,21,42,.96); border-top: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-    }
-    .tally { font-size: 13px; color: var(--muted); }
-    #send-btn {
-      margin-left: auto; background: var(--blue); color: #fff; border: none;
-      border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
-    }
-    #send-btn:disabled { opacity: .45; cursor: default; }
-
-    /* ---- Access gate ---- */
-    #gate { max-width: 420px; margin: 12vh auto; padding: 0 22px; text-align: center; }
-    #gate h1 { font-size: 22px; }
-    #gate input {
-      width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 12px; margin-top: 14px;
-      border: 1px solid var(--border); background: var(--bg2); color: var(--text);
-    }
-    #gate button {
-      width: 100%; margin-top: 10px; padding: 12px; font-size: 15px; font-weight: 600;
-      border: none; border-radius: 12px; background: var(--blue); color: #fff; cursor: pointer;
-    }
-    #gate-error { color: #e08b8b; font-size: 13px; margin-top: 10px; }
+    .wrap { max-width: 460px; margin: 16vh auto; padding: 0 22px; text-align: center; }
+    a.go { display: inline-block; margin-top: 16px; background: var(--blue); color: #fff;
+           text-decoration: none; padding: 12px 20px; border-radius: 999px; font-weight: 600; }
+    p { color: var(--muted); font-size: 14px; line-height: 1.5; }
   </style>
+  <script>
+    // Kate's car page moved out of the finished-trip repo into its own home.
+    //
+    // The access key lives in the URL FRAGMENT (#k=…), and a fragment is exactly
+    // what a plain meta-refresh or server redirect is least reliable about
+    // carrying. So we forward in JS and copy location.hash explicitly — that way
+    // every link already shared, key and all, keeps working untouched.
+    (function () {
+      var target = 'https://jonathancarlson.github.io/family-cars/jordyn.html';
+      location.replace(target + (location.hash || '') + (location.search || ''));
+    })();
+  </script>
 </head>
 <body>
-
-  <!-- Access gate (shown only when the link has no #k= key) -->
-  <section id="gate" hidden>
-    <div style="font-size:44px">🚗</div>
-    <h1>Jordyn's first car</h1>
-    <p style="color:var(--muted);font-size:14px">Enter the access code to see the list.</p>
-    <form id="gate-form">
-      <input id="gate-code" type="password" placeholder="Access code" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
-      <button id="gate-btn" type="submit">View cars</button>
-      <p id="gate-error" hidden></p>
-    </form>
-  </section>
-
-  <main id="app" hidden>
-    <div class="cars-head">
-      <div class="cars-head-main">
-        <h1>Jordyn's first car</h1>
-        <div class="sub">Safety first, then cost to own · under $15k</div>
-      </div>
-    </div>
-
-    <nav id="tabbar" class="tabbar" hidden>
-      <button class="tab active" type="button" data-tab="cars">🚗 The cars</button>
-      <button class="tab" type="button" data-tab="guide">📋 Buyer's guide</button>
-    </nav>
-
-    <div class="cars-wrap">
-      <div id="cars-status"><div class="big">🚗</div>Decrypting…</div>
-
-      <section id="panel-cars" class="panel">
-        <div id="intro"></div>
-        <div id="sortbar"></div>
-        <div id="filterbar" hidden></div>
-        <div id="cars-grid"></div>
-      </section>
-
-      <section id="panel-guide" class="panel" hidden>
-        <div id="guide"></div>
-      </section>
-    </div>
-  </main>
-
-  <div id="sendbar" class="sendbar" hidden>
-    <div class="tally" id="tally"></div>
-    <button id="send-btn" disabled>Send my picks</button>
+  <div class="wrap">
+    <div style="font-size:40px">🚗</div>
+    <h1>This moved</h1>
+    <p>Jordyn's car list now lives at <b>family-cars</b>. Taking you there…</p>
+    <p>If nothing happens, tap below — but re-open your original link so the access key comes along.</p>
+    <a class="go" href="https://jonathancarlson.github.io/family-cars/jordyn.html">Go to the car list →</a>
   </div>
-
-  <!-- Version query busts the browser HTTP cache so a redeploy of jordyn.js is
-       actually picked up (this page has no service worker of its own).
-       Bump this whenever jordyn.js changes. -->
-  <script src="jordyn.js?v=2"></script>
 </body>
 </html>
